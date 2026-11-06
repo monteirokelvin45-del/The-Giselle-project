@@ -321,9 +321,10 @@ func _drink_potion() -> void:
 		GameState.notify("Vida cheia.")
 		return
 	if GameState.spend_potion():
-		hp = minf(GameState.max_hp(), hp + 45.0)
+		var heal := GameState.potion_heal()
+		hp = minf(GameState.max_hp(), hp + heal)
 		Audio.play("potion")
-		GameState.notify("+45 vida")
+		GameState.notify("+%d vida" % int(heal))
 
 func _on_interact() -> void:
 	if current_interactable != null and is_instance_valid(current_interactable):

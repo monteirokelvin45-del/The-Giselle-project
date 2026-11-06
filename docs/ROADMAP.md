@@ -30,7 +30,7 @@ Missão principal completa + 2 secundárias, combate com parry/postura/Ruptura,
       export preset — alvo: gama alta (escolha do dono). iOS fica para quando houver Mac/Xcode.
 - [x] Hit-stop em acertos (~90–130 ms).
 - [ ] Lock-on com troca suave de alvo e câmara dinâmica.
-- [ ] Música dinâmica por intensidade (exploração → perigo → combate).
+- [x] Música dinâmica por intensidade (exploração → perigo → combate) — v1.0: modos exploração/combate/Sistema, transição por proximidade de inimigos.
 
 ## v0.3 — O Sistema completo (sec. 11 do GDD)
 - Ambientes: Floresta, Deserto, Montanha, Vulcão, Oceano, Cidade, Abismo, Arena
@@ -62,15 +62,43 @@ rotinas, viagem rápida por faróis.
 - Economia + fabrico (poções, pregos de ruptura, planadores, peças de barco).
 - Lesões persistentes e recuperação; treino com mestres (sec. 8).
 
-## v0.7 — Política e finais (sec. 23–25)
+## v0.7 — Política e finais (sec. 23–25) ✅
 Os grandes objetivos (rei, governador, comandante, diretor, líder, explorador,
 conquistador, herói, caminho secreto) como **meta-quests reais** com
 consequências acumuladas — nunca como opções de menu. Finais diferenciados
 por reputação, decisões e estado do mundo.
 
-## v1.0 — Qualidade, acessibilidade e lançamento (sec. 32–34)
-- Acessibilidade completa: remapeamento, legendas, daltonismo, assistência de
-  mira, dificuldades, narração de menus.
-- Testes com jogadores reais (algo que este repositório ainda não pode fazer).
-- Performance (streaming, LOD, draw calls), save corruption-proofing,
-  localização (PT/EN/ES).
+- [x] 6 finais: 3 base (Academia / Vagabundo / Revolta) + 3 por reputação
+      (O Regente do Norte — Imperial 40+, O Guardião do Arquivo — Arquivistas
+      40+, O Lugar-Vazio — Irmandade 40+).
+- [x] Finais bloqueados mostram requisito e progresso; decisão com consequências
+      acumuladas ao longo do jogo (reputação, avaliações, finais anteriores).
+- [x] Epílogos de romance por companheiro (Liora, Bram, Sena, Iven) anexados ao
+      final, persistidos save-side.
+- [ ] Meta-quests com estado de mundo persistido entre regiões (dragão da
+      Ferida, golpe da Custódia) — consequência global completa adiada para
+      pós-v1.0 (sec. 23).
+
+## v1.0 — Qualidade, acessibilidade e lançamento (sec. 32–34) — parcial ✅
+- [x] **Remapeamento de controlos** completo: menu de CONTROLOS com captura
+      de tecla/rato/gamepad por ação, Esc cancela, «Repor predefinições»,
+      persistido no save (v2) e aplicado no arranque/carregar/reiniciar.
+- [x] **Legendas** com escala 80/100/125/150 % (diálogos + prompts).
+- [x] **Daltonismo**: Okabe-Ito para protanopia / deuteranopia / tritanopia;
+      recolore as barras de vida/fôlego/Ruptura; persistido no save.
+- [x] **Dificuldades** Casual/Normal/Pesadelo a partir de
+      `src/balance/balance.json` (dano recebido, vida inimiga, mult. XP).
+- [x] **Balanceamento data-driven**: XP por nível, dano/vida/fôlego por
+      atributo, poção — `Balance` autoload com fallback seguro.
+- [x] **Música dinâmica** (3 temas sintetizados: exploração / combate /
+      Sistema) + interruptor no menu de pausa; save corruption-proofing
+      já existia (sha256 + .tmp atómico + .bak).
+- [x] **Localização — andaime**: `tools/l10n_extract.py` +
+      `docs/l10n/strings_pt.csv` (371 strings) + `docs/LOCALIZATION.md`.
+- [ ] Assistência de mira e narração de menus (screen reader).
+- [ ] Testes com jogadores reais (algo que este repositório ainda não pode
+      fazer).
+- [ ] Traduções EN/ES (o runtime ainda não troca de idioma — ver
+      docs/LOCALIZATION.md).
+- [ ] Performance medida (LOD, draw calls, profiling em hardware real).
+- [ ] Meta-quests globais completas (ver v0.7).

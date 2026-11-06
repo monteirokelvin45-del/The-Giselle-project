@@ -105,3 +105,73 @@ compatibilidade retroativa (campo `difficulty` ausente → "normal").
 6. **Áudio** continua sintetizado; trilha dinâmica (P6) precisa de composer ou
    fonte CC0 verificada.
 7. **Teste com jogadores reais** continua por fazer (ambiente sem engine).
+
+---
+
+# 6. Addendum v1.0 — Qualidade, acessibilidade e lançamento (2026-11-06)
+
+Extensão da auditoria v0.2 cobrindo o trabalho de v0.5→v1.0 e as correções
+feitas sobre ela. Método igual: validação estrutural real (gdparse 23
+scripts, varredura de `res://`), nada foi «testado no Godot» — o binário
+continua indisponível nos hosts permitidos.
+
+## 6.1 O que foi verificado mecanicamente (verde)
+
+- `python3 tools/validate.py` → **OK** após todos os incrementos
+  (v0.5 mundo aberto, v0.6 facções, v0.7 finais políticos, v1.0).
+- 23 scripts gdparse limpos, incluindo os novos `src/core/balance.gd` e
+  `tools/l10n_extract.py`.
+- Todos os `res://` novos (música sintetizada, `balance.json`) existem no disco.
+
+## 6.2 Implementado em v1.0
+
+1. **Balanceamento data-driven** (`src/core/balance.gd` +
+   `src/balance/balance.json`): dificuldade (casual/normal/pesadelo — dano
+   recebido, vida inimiga, multiplicador de XP), fórmula de XP por nível,
+   coeficientes por atributo (HP, dano, fôlego, velocidade, janela de parry,
+   postura, lock-on, ruptura) e cura da poção. `GameState` usa o ficheiro com
+   fallback para as constantes — jogo nunca arranca vazio por JSON em falta.
+2. **Música dinâmica** (`tools/synth_music.py` →
+   `assets/audio/music/{exploration,combat,system}.wav`): três temas 11025 Hz
+   mono sintetizados por numpy (loops de 38–40 s), tocados pelo autoload
+   `Audio` (`play_music`, volume por modo, `LOOP_FORWARD`). Exploração/combate
+   transicionam por proximidade de inimigos (<14 m, sondagem a cada 2 s em
+   `main.gd` e `region.gd`); Sala Branca usa `system` (exploratório-inquietante)
+   e `combat` durante a simulação. Interruptor «Música» no menu de pausa
+   (persistido). Nota de honestidade: é música sintetizada funcional, não
+   arranjos de compositor.
+3. **Remapeamento de controlos** (`input_setup.gd` reescrito): fonte única
+   `ACTIONS` (18 ações, teclado+rato+gamepad), `apply_custom_bindings()`
+   aplica overrides do jogador (uma tecla substitui o default por ação),
+   `binding_summary()` mostra o bind ativo. Painel CONTROLOS refeito com
+   `ScrollContainer` + botão por ação que entra em modo «prime a nova
+   tecla/botão» (Esc cancela); respeita keys, botões de rato e botões de
+   gamepad; botão «Repor predefinições». Persistido no save v2
+   (`custom_bindings`), aplicado no arranque, no `load_game()` e no
+   `reset_for_new_game()`.
+4. **Acessibilidade**: legendas com escala 80/100/125/150 %
+   (`Dialogue.set_subtitle_scale`, botões de diálogo incluídos);
+   daltonismo Okabe-Ito (protanopia/deuteranopia/tritanopia) aplicado às
+   barras de vida/fôlego/Ruptura via cópia do stylebox `fill`; tudo
+   persistido no save (`colorblind_mode`, `subtitle_scale`).
+5. **Integridade do save** reforçada: sha256, escrita atómica (`.tmp`),
+   restauro `.bak` (já existia); `load_game()` passa a reaplicar os bindings
+   do jogador depois de carregar.
+6. **Localização — andaime**: `tools/l10n_extract.py` extrai 371 strings com
+   contexto (`docs/l10n/strings_pt.csv`); `docs/LOCALIZATION.md` documenta o
+   caminho para EN/ES (runtime switching ainda **não** existe — a língua de
+   origem continua a ser o português europeu, embebido).
+
+## 6.3 Dívida aberta (não fingir o contrário)
+
+1. **Nada foi executado no Godot** — escalas de modelos, loops de música,
+   limites de importación de WAV e o rebind em runtime são suposições
+   baseadas na documentação; o primeiro F5 é o teste real.
+2. **Tradução runtime inexistente** (EN/ES) — só andaime; `tr()` e
+   `.translation` por fazer.
+3. **Assistência de mira e narração de menus** (screen reader) — não feitos.
+4. **Testes com jogadores reais** — impossível neste ambiente.
+5. **Performance não medida** (LOD, streaming, draw calls) e
+   **meta-quests globais** (Ferida, golpes de Estado) incompletas.
+6. `get_theme_stylebox("fill")` recolore as barras funcionando em Godot 4;
+   se o estilo for alterado no futuro, o recolorido tem de acompanhar.

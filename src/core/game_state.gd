@@ -141,17 +141,33 @@ var subtitle_scale: float = 1.0
 var custom_bindings: Dictionary = {}
 var music_enabled: bool = true
 
+func _difficulty_table() -> Dictionary:
+	if Balance != null and Balance.has_method("difficulty_table"):
+		var t: Dictionary = Balance.difficulty_table()
+		if not t.is_empty():
+			return t
+	return DIFFICULTY
+
 func difficulty_taken_mult() -> float:
-	return float(DIFFICULTY.get(difficulty, DIFFICULTY["normal"])["taken"])
+	var t := _difficulty_table()
+	return float(t.get(difficulty, t.get("normal", DIFFICULTY["normal"]))["taken"])
 
 func difficulty_enemy_hp_mult() -> float:
-	return float(DIFFICULTY.get(difficulty, DIFFICULTY["normal"])["enemy_hp"])
+	var t := _difficulty_table()
+	return float(t.get(difficulty, t.get("normal", DIFFICULTY["normal"]))["enemy_hp"])
 
 func difficulty_xp_mult() -> float:
-	return float(DIFFICULTY.get(difficulty, DIFFICULTY["normal"])["xp"])
+	var t := _difficulty_table()
+	return float(t.get(difficulty, t.get("normal", DIFFICULTY["normal"]))["xp"])
 
 func difficulty_label() -> String:
-	return String(DIFFICULTY.get(difficulty, DIFFICULTY["normal"])["label"])
+	var t := _difficulty_table()
+	return String(t.get(difficulty, t.get("normal", DIFFICULTY["normal"]))["label"])
+
+func potion_heal() -> float:
+	if Balance != null and Balance.has_method("potion_heal"):
+		return Balance.potion_heal()
+	return 45.0
 
 func cycle_difficulty() -> void:
 	var idx := DIFFICULTY_ORDER.find(difficulty)
@@ -253,6 +269,8 @@ var system_return: Vector3 = Vector3(0, 1, 34)
 var system_return_pending: bool = false
 
 func xp_needed() -> int:
+	if Balance != null and Balance.has_method("xp_needed"):
+		return Balance.xp_needed(level)
 	return 100 + (level - 1) * 75
 
 func xp_progress() -> float:
@@ -271,7 +289,10 @@ func add_xp(amount: int) -> void:
 	stats_changed.emit()
 
 func max_hp() -> float:
-	return 100.0 + float(int(attributes["res"]) - 1) * 14.0
+	var per := 14.0
+	if Balance != null and Balance.has_method("attr"):
+		per = Balance.attr("hp_per_res", 14.0)
+	return 100.0 + float(int(attributes["res"]) - 1) * per
 
 func max_stamina() -> float:
 	return 100.0 + float(int(attributes["fol"]) - 1) * 12.0
@@ -283,7 +304,10 @@ func move_speed() -> float:
 	return (5.2 + float(int(attributes["vel"]) - 1) * 0.25) * (0.85 if injury > 0 else 1.0)
 
 func damage_mult() -> float:
-	return (1.0 + float(int(attributes["for"]) - 1) * 0.08) * (0.90 if injury > 0 else 1.0)
+	var per := 0.08
+	if Balance != null and Balance.has_method("attr"):
+		per = Balance.attr("damage_per_point", 0.08)
+	return (1.0 + float(int(attributes["for"]) - 1) * per) * (0.90 if injury > 0 else 1.0)
 
 func posture_mult() -> float:
 	return 1.0 + float(int(attributes["tec"]) - 1) * 0.10
@@ -533,6 +557,8 @@ func load_game() -> bool:
 			return false
 	_apply_save_dict(parsed)
 	resume_pending = true
+	if Keymap != null and Keymap.has_method("apply_custom_bindings"):
+		Keymap.apply_custom_bindings(custom_bindings)
 	stats_changed.emit()
 	notify("Jogo carregado.")
 	return true
@@ -576,4 +602,6 @@ func reset_for_new_game() -> void:
 	region_clears.clear()
 	current_region = "noro"
 	injury = 0
+	if Keymap != null and Keymap.has_method("apply_custom_bindings"):
+		Keymap.apply_custom_bindings(custom_bindings)
 	stats_changed.emit()

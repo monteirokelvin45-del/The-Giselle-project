@@ -18,6 +18,7 @@ var _banner_timer: float = 0.0
 var _player: Node3D = null
 var _env_mf := preload("res://src/visuals/model_factory.gd")
 var _storm: bool = false
+var _music_timer: float = 0.0
 
 func _ready() -> void:
 	var region_id := GameState.current_region
@@ -35,6 +36,7 @@ func _ready() -> void:
 	add_child(player)
 	_player = player
 	UI.set_in_game(true)
+	Audio.play_music("exploration")
 	var text := "%s — %s" % [String(_cfg["name"]).to_upper(), String(_cfg["desc"])]
 	if _storm:
 		text += "  ·  TEMPESTADE À MEDIDA"
@@ -159,6 +161,16 @@ func _show_banner(text: String, duration: float) -> void:
 	_banner_timer = duration
 
 func _process(delta: float) -> void:
+	_music_timer -= delta
+	if _music_timer <= 0.0:
+		_music_timer = 2.0
+		var threat := false
+		for enemy in get_tree().get_nodes_in_group("enemy"):
+			if enemy is Node3D and float(enemy.get("hp")) > 0.0:
+				if _player != null and enemy.global_position.distance_to(_player.global_position) < 14.0:
+					threat = true
+					break
+		Audio.play_music("combat" if threat else "exploration")
 	# Ciclo dia/noite (compressão: ~4 minutos por ciclo completo)
 	_day_t += delta / 240.0
 	if _day_t > 1.0:

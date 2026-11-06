@@ -68,6 +68,7 @@ func _ready() -> void:
 	if player.has_method("reset_combat_stats"):
 		player.reset_combat_stats()
 	UI.set_in_game(true)
+	Audio.play_music("system")
 	_build_subtitles()
 	_build_setup_ui()
 	_build_evaluation_ui()
@@ -479,6 +480,7 @@ func _start_simulation() -> void:
 	_sim_limit = GameState.arena_time_limit
 	_sim_start_msec = Time.get_ticks_msec()
 	_sim_running = true
+	Audio.play_music("combat")
 	GameState.notify("Simulação iniciada — %s · Ameaça %s" % [_env_name(), GameState.threat_name()])
 	Audio.play("rupture", -6.0)
 
@@ -691,6 +693,7 @@ func _finish_simulation() -> void:
 	for h in history:
 		hist_lines.append("· %s · %s · %d%% precisão · %s" % [String(h.get("threat", "?")), String(h.get("env", "?")), int(h.get("accuracy", 0)), String(h.get("style", "?"))])
 	_eval_history.text = "Histórico:\n" + "\n".join(hist_lines)
+	Audio.play_music("system")
 	_eval_panel.visible = true
 	UI.external_block = true
 	get_tree().paused = true

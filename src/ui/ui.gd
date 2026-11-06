@@ -16,6 +16,94 @@ var _layer: CanvasLayer
 var _hud: Control
 var _pause_overlay: Control
 var _difficulty_btn: Button
+var _music_btn: Button
+var _colorblind_btn: Button
+var _subtitle_btn: Button
+var _rebinding: String = ""
+var _rebind_rows: Dictionary = {}
+var _rebind_hint: Label
+
+func _music_text() -> String:
+	return "Música: %s" % ("Ligada" if GameState.music_enabled else "Desligada")
+
+func _toggle_music() -> void:
+	Audio.set_music_enabled(not GameState.music_enabled)
+	_music_btn.text = _music_text()
+	notify("Música %s." % ("ativada" if GameState.music_enabled else "desligada"))
+
+func _reapply_binding(dict: Dictionary) -> bool:
+	if _rebinding == "":
+		return false
+	if dict.is_empty():
+		_cancel_rebind()
+		return false
+	GameState.custom_bindings[_rebinding] = [dict]
+	Keymap.apply_custom_bindings(GameState.custom_bindings)
+	var btn = _rebind_rows.get(_rebinding)
+	if btn != null:
+		btn.text = Keymap.binding_summary(_rebinding)
+	notify("Controlo atualizado: %s" % String(Keymap.ACTION_NAMES.get(_rebinding, _rebinding)))
+	_cancel_rebind()
+	return true
+
+func _start_rebind(action: String) -> void:
+	_rebinding = action
+	_rebind_hint.text = "Prime a nova tecla/botão para «%s» — Esc cancela" % String(Keymap.ACTION_NAMES.get(action, action))
+	_rebind_hint.visible = true
+
+func _cancel_rebind() -> void:
+	_rebinding = ""
+	if _rebind_hint != null:
+		_rebind_hint.visible = false
+
+func _reset_bindings() -> void:
+	GameState.custom_bindings.clear()
+	Keymap.apply_custom_bindings({})
+	for action in _rebind_rows:
+		(_rebind_rows[action] as Button).text = Keymap.binding_summary(String(action))
+	notify("Controlos repostos para as predefinições.")
+
+func _colorblind_text() -> String:
+	return "Daltonismo: %s" % ["Desligado", "Protanopia", "Deuteranopia", "Tritanopia"][clampi(GameState.colorblind_mode, 0, 3)]
+
+func _cycle_colorblind() -> void:
+	GameState.colorblind_mode = (GameState.colorblind_mode + 1) % 4
+	_colorblind_btn.text = _colorblind_text()
+	_apply_colorblind()
+	notify("Modo de daltonismo: %s" % ["desligado", "protanopia", "deuteranopia", "tritanopia"][GameState.colorblind_mode])
+
+func _apply_colorblind() -> void:
+	var palettes := [
+		[Color(0.82, 0.25, 0.25), Color(0.42, 0.78, 0.38), Color(0.95, 0.62, 0.15)],   # original
+		[Color(0.0, 0.447, 0.698), Color(0.902, 0.624, 0.0), Color(0.941, 0.894, 0.259)],  # protanopia (Okabe-Ito)
+		[Color(0.0, 0.447, 0.698), Color(0.902, 0.624, 0.0), Color(0.941, 0.894, 0.259)],  # deuteranopia
+		[Color(0.835, 0.369, 0.0), Color(0.0, 0.62, 0.451), Color(0.8, 0.475, 0.655)],      # tritanopia
+	]
+	var p: Array = palettes[clampi(GameState.colorblind_mode, 0, 3)]
+	var bars: Array[ProgressBar] = [_hp_bar, _stamina_bar, _rupture_bar]
+	for i in range(3):
+		var bar: ProgressBar = bars[i]
+		if bar == null:
+			continue
+		var sb := bar.get_theme_stylebox("fill")
+		if sb is StyleBoxFlat:
+			(sb as StyleBoxFlat).bg_color = p[i]
+
+func _subtitle_text() -> String:
+	return "Legenda: %d%%" % int(GameState.subtitle_scale * 100.0)
+
+func _cycle_subtitle() -> void:
+	var scales := [0.8, 1.0, 1.25, 1.5]
+	var idx := 1
+	for i in range(scales.size()):
+		if is_equal_approx(scales[i], GameState.subtitle_scale):
+			idx = i
+			break
+	idx = (idx + 1) % scales.size()
+	GameState.subtitle_scale = scales[idx]
+	Dialogue.set_subtitle_scale(GameState.subtitle_scale)
+	_subtitle_btn.text = _subtitle_text()
+	notify("Tamanho da legenda: %d%%" % int(GameState.subtitle_scale * 100.0))
 
 func _difficulty_text() -> String:
 	return "Dificuldade: %s  ⟳" % GameState.difficulty_label()
@@ -114,6 +202,8 @@ func _ready() -> void:
 	_build_pause()
 	_build_attributes()
 	_build_controls()
+	_apply_colorblind()
+	Dialogue.set_subtitle_scale(GameState.subtitle_scale)
 	_build_map()
 	_build_factions()
 	_build_decision()
@@ -461,6 +551,24 @@ func _process(delta: float) -> void:
 		_notif_time = 2.8
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _rebinding != "":
+		if event is InputEventKey and event.pressed and not event.echo:
+			var key_event := event as InputEventKey
+			if key_event.keycode == KEY_ESCAPE:
+				_cancel_rebind()
+			elif _reapply_binding(Keymap.dict_from_event(event)):
+				pass
+			get_viewport().set_input_as_handled()
+			return
+		if event is InputEventMouseButton and event.pressed:
+			if event.button_index == MOUSE_BUTTON_LEFT and _reapply_binding(Keymap.dict_from_event(event)):
+				get_viewport().set_input_as_handled()
+				return
+		if event is InputEventJoypadButton and event.pressed:
+			_reapply_binding(Keymap.dict_from_event(event))
+			get_viewport().set_input_as_handled()
+			return
+		return
 	if event.is_action_pressed("pause"):
 		if ending_open or decision_open or external_block:
 			return
@@ -513,6 +621,12 @@ func _build_pause() -> void:
 	vbox.add_child(load_btn)
 	_difficulty_btn = _make_button(_difficulty_text(), _cycle_difficulty)
 	vbox.add_child(_difficulty_btn)
+	_music_btn = _make_button(_music_text(), _toggle_music)
+	vbox.add_child(_music_btn)
+	_colorblind_btn = _make_button(_colorblind_text(), _cycle_colorblind)
+	vbox.add_child(_colorblind_btn)
+	_subtitle_btn = _make_button(_subtitle_text(), _cycle_subtitle)
+	vbox.add_child(_subtitle_btn)
 	vbox.add_child(_make_button("Controlos", func(): _toggle_controls(true)))
 	vbox.add_child(_make_button("Sair para o Título", _quit_to_title))
 
@@ -918,44 +1032,47 @@ func _refresh_attribute_panel() -> void:
 # ------------------------------------------------------------ controlos -----
 func _build_controls() -> void:
 	_controls_overlay = _make_dim_overlay()
-	var panel := _make_panel(560, 600)
+	var panel := _make_panel(660, 620)
 	_controls_overlay.add_child(panel)
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 6)
+	vbox.add_theme_constant_override("separation", 8)
 	panel.add_child(vbox)
 	var title := _make_label("CONTROLOS", 22, Color(0.97, 0.9, 0.65))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
-	var lines := [
-		"— Teclado e rato —",
-		"W / ↑ — Avançar          S / ↓ — Recuar",
-		"A / ← — Esquerda          D / → — Direita",
-		"Rato — Mover a câmara (clique para focar)",
-		"M1 — Ataque leve (combo de 3)",
-		"M2 — Ataque pesado",
-		"Espaço — Esquiva (curta invulnerabilidade)",
-		"Shift — Correr (gasta fôlego)",
-		"Q (segurar) — Bloquear",
-		"Q (no instante) — Parry perfeito",
-		"E — Interagir / Corrente de Âncora",
-		"R — Beber poção (+45 vida)",
-		"F — Estado de Ruptura (quando a barra está cheia)",
-		"Tab — Fixar / largar inimigo",
-		"Esc — Menu de pausa",
-		"— Gamepad —",
-		"Analógico esq. — Mover          Analógico dir. — Câmara",
-		"X — Ataque leve          Y — Ataque pesado",
-		"A — Esquiva              B — Interagir",
-		"LB — Bloquear            RB — Estado de Ruptura",
-		"L3 — Correr              R3 — Fixar alvo",
-		"D-Pad ↓ — Poção          Start — Pausa",
-	]
-	for line in lines:
-		var l := _make_label(line, 14, Color(0.88, 0.87, 0.83))
-		vbox.add_child(l)
+	_rebind_hint = _make_label("", 12, Color(0.95, 0.75, 0.35))
+	_rebind_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_rebind_hint.visible = false
+	vbox.add_child(_rebind_hint)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	vbox.add_child(scroll)
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 4)
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(rows)
+	var header := _make_label("— Clica num botão e primes a nova tecla/botão —", 13, Color(0.7, 0.68, 0.6))
+	rows.add_child(header)
+	_rebind_rows.clear()
+	for def in Keymap.ACTIONS:
+		var action := String(def["action"])
+		var row := HBoxContainer.new()
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var name_lbl := _make_label(String(Keymap.ACTION_NAMES.get(action, action)), 13, Color(0.9, 0.89, 0.85))
+		name_lbl.custom_minimum_size = Vector2(230, 0)
+		row.add_child(name_lbl)
+		var summary := _make_button(Keymap.binding_summary(action), _start_rebind.bind(action))
+		summary.custom_minimum_size = Vector2(0, 32)
+		summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		summary.add_theme_font_size_override("font_size", 12)
+		row.add_child(summary)
+		_rebind_rows[action] = summary
+		rows.add_child(row)
+	rows.add_child(_make_button("Repor predefinições", _reset_bindings))
 	var lore := _make_label("«A ausência de magia é a arma mais antiga do mundo.»", 12, Color(0.6, 0.58, 0.5))
 	lore.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vbox.add_child(lore)
+	rows.add_child(lore)
 	vbox.add_child(_make_button("Voltar", func(): _toggle_controls(false)))
 
 func _toggle_controls(open_it: bool) -> void:

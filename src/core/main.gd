@@ -3,6 +3,7 @@ extends Node3D
 ## missões, emboscadas e o Guardião da Prova.
 
 var _player: Node3D = null
+var _music_timer: float = 0.0
 
 func _ready() -> void:
 	var world_builder := preload("res://src/world/world_builder.gd")
@@ -13,6 +14,7 @@ func _ready() -> void:
 	add_child(player)
 	_player = player
 	UI.set_in_game(true)
+	Audio.play_music("exploration")
 	if not Dialogue.dialogue_finished.is_connected(_on_dialogue_action):
 		Dialogue.dialogue_finished.connect(_on_dialogue_action)
 	# Se o jogador aceitou a prova e ainda não venceu o Guardião, ele espera na arena
@@ -21,9 +23,19 @@ func _ready() -> void:
 	if GameState.main_stage >= 5:
 		_spawn_academia_portal()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if _player == null:
 		return
+	_music_timer -= delta
+	if _music_timer <= 0.0:
+		_music_timer = 2.0
+		var threat := false
+		for enemy in get_tree().get_nodes_in_group("enemy"):
+			if enemy is Node3D and float(enemy.get("hp")) > 0.0:
+				if enemy.global_position.distance_to(_player.global_position) < 14.0:
+					threat = true
+					break
+		Audio.play_music("combat" if threat else "exploration")
 	var z := _player.global_position.z
 	# Emboscada na floresta (uma vez)
 	if GameState.main_stage >= 2 and not GameState.ambush_spawned and z < -8.0:

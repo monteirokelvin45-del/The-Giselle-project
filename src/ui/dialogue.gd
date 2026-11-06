@@ -257,7 +257,7 @@ const TREES := {
 		"name": "Garr, o Ferreiro",
 		"text": "Ora bem, freguês! O que lhe falta hoje? Tenho poções, pregos de ruptura e umas quantas coisas para quem não tem magia e ainda assim se recusa a morrer.",
 		"choices": [
-			{"text": "Poção — 30 marcos (+45 vida)", "action": "shop_potion"},
+			{"text": "Poção — 30 marcos", "action": "shop_potion"},
 			{"text": "Prego de Ruptura — 45 marcos (+25 Ruptura)", "action": "shop_prego"},
 			{"text": "Bálsamo de Salvação — 60 marcos (vida completa + trata lesões)", "action": "shop_balsamo"},
 			{"text": "Elixir do Sistema — 120 marcos (+50 Ruptura)", "action": "shop_elixir"},
@@ -269,6 +269,7 @@ const TREES := {
 var active := false
 var _layer: CanvasLayer
 var _panel: PanelContainer
+var _subtitle_scale: float = 1.0
 var _name_label: Label
 var _text_label: Label
 var _choices_box: VBoxContainer
@@ -339,6 +340,15 @@ func _build_ui() -> void:
 	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	vbox.add_child(_hint_label)
 
+func set_subtitle_scale(scale: float) -> void:
+	_subtitle_scale = clampf(scale, 0.8, 1.6)
+	if _name_label != null:
+		_name_label.add_theme_font_size_override("font_size", int(17 * _subtitle_scale))
+	if _text_label != null:
+		_text_label.add_theme_font_size_override("font_size", int(16 * _subtitle_scale))
+	if _hint_label != null:
+		_hint_label.add_theme_font_size_override("font_size", int(12 * _subtitle_scale))
+
 func start(tree_id: String) -> void:
 	if not TREES.has(tree_id):
 		push_warning("Diálogo desconhecido: %s" % tree_id)
@@ -369,7 +379,7 @@ func _show_node(node_id: String) -> void:
 		var btn := Button.new()
 		btn.text = String(choice.get("text", "..."))
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.add_theme_font_size_override("font_size", 14)
+		btn.add_theme_font_size_override("font_size", int(14 * _subtitle_scale))
 		var next_id := String(choice.get("next", ""))
 		var action := String(choice.get("action", ""))
 		btn.pressed.connect(func(): _on_choice(next_id, action))

@@ -40,6 +40,7 @@ func _ready() -> void:
 	add_child(player)
 	_player = player
 	UI.set_in_game(true)
+	Audio.play_music("exploration")
 	if not Dialogue.dialogue_finished.is_connected(_on_dialogue_action):
 		Dialogue.dialogue_finished.connect(_on_dialogue_action)
 
