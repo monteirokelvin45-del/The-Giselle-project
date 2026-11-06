@@ -28,7 +28,12 @@ Missão principal completa + 2 secundárias, combate com parry/postura/Ruptura,
       `Queda do Colosso` (3.ª Ruptura), `Corrida do Predador` (Nv 8) —
       teclas V/C/Z, recargas, slots próprios no HUD, notificação de
       desbloqueio. (cap 11 do sec. 10 ainda longe)
-- [ ] Combos aéreos e as restantes técnicas do sec. 10 (cap 11).
+- [x] **Combos aéreos**: salto (X / D-pad cima), ataques no ar com +25% dano
+      e +50% postura; ataque pesado no ar prepara a *Queda* (slam de queda):
+      explosão AoE à aterragem (3.1 m, 24 de dano + 42 de postura) — tudo
+      ajustável em `balance.json` (secção `jump`). Botão SALTO no Android.
+- [ ] Restantes técnicas do sec. 10 (cap 11): Impacto de Quebra, Respiração
+      de Ferro, Reflexo Instintivo, Sequência de Ruptura.
 - [x] IA com coordenação básica — guarda-costas (Salteador↔Mago) e flanqueamento em lados
       opostos (v0.2, após auditoria — ver docs/AUDIT.md).
 - [x] Gamepad completo + dificuldade Casual/Normal/Pesadelo persistida no save.
@@ -111,7 +116,9 @@ por reputação, decisões e estado do mundo.
 - [x] **Engine executada neste ambiente**: Godot 4.7.2 compilado do
       código-fonte (headless linuxbsd); 5 cenas em smoke boot limpas; 11
       asserções de jogabilidade verdes (save/load, XP, técnicas, combate
-      real). Ver `docs/BUILD.md` e `docs/AUDIT.md` §9.
+      real, salto/ataques aéreos/slam de queda) + fluxos completos (Sala
+      Branca → avaliação; Prova de Duelo → Bram). Ver `docs/BUILD.md` e
+      `docs/AUDIT.md` §9.
 - [x] Assistência de mira suave nos ataques corpo a corpo (o corpo vira
       para o alvo mais próximo ao alcance — desligável na pausa).
 - [~] Narração de menus: as notificações são lidas por TTS do sistema

@@ -210,7 +210,8 @@ python3 tools/synth_audio.py
 # validar dentro da engine (requer binário Godot 4.7.2 — ver docs/BUILD.md):
 tools/headless_check.sh /caminho/para/godot     # import + boot das 5 cenas
 tools/headless_check.sh                          # (ou `godot` no PATH)
-godot --headless --path . res://tools/smoke_test.tscn   # 11 asserções de jogabilidade
+godot --headless --path . res://tools/smoke_test.tscn   # 13 asserções de jogabilidade
+godot --headless --path . res://tools/smoke_flows.tscn  # 5 asserções de fluxo (Sala Branca → Academia)
 ```
 
 ## Licença e autoria

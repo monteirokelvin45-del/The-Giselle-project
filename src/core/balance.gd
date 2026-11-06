@@ -37,3 +37,21 @@ func attr(key: String, fallback: float) -> float:
 
 func potion_heal() -> float:
 	return float(_data.get("potion_heal", 45.0))
+
+const FALLBACK_JUMP := {
+	"velocity": 8.2,
+	"air_damage_mult": 1.25,
+	"air_posture_mult": 1.5,
+	"slam_radius": 3.1,
+	"slam_damage": 24.0,
+	"slam_posture": 42.0,
+}
+
+func jump_cfg() -> Dictionary:
+	var t = _data.get("jump", {})
+	if t is Dictionary and not (t as Dictionary).is_empty():
+		var out: Dictionary = FALLBACK_JUMP.duplicate(true)
+		for k in (t as Dictionary):
+			out[k] = (t as Dictionary)[k]
+		return out
+	return FALLBACK_JUMP.duplicate(true)

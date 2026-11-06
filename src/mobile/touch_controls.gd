@@ -249,6 +249,7 @@ func _build_ui() -> void:
 	_make_button("rupture", "RUPT", 20.0, 82.0, 74.0, false, 18)
 	_make_button("lock_on", "ALVO", 22.0, 172.0, 70.0, false, 15)
 	_make_button("potion", "POT", 20.0, 258.0, 68.0, false, 18)
+	_make_button("jump", "SALTO", 20.0, 336.0, 74.0, false, 17)
 	# Cluster principal de ação
 	_make_button("interact", "E", 116.0, 262.0, 78.0, false, 24)
 	_make_button("dodge", "ESQV", 124.0, 356.0, 84.0, false, 18)

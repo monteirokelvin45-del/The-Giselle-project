@@ -9,6 +9,9 @@ var _failures: int = 0
 var _evaluated: bool = false
 
 func _ready() -> void:
+	# O jogo pausa a árvore quando mostra a avaliação — o runner tem de
+	# continuar a processar (PROCESS_MODE_ALWAYS) para poder avançar fases.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	_load_sala()
 
 func _load_sala() -> void:
@@ -51,7 +54,11 @@ func _process(_delta: float) -> void:
 			elif Time.get_ticks_msec() - _phase_start_ms > 9000:
 				_check(false, "avaliação da Sala Branca concluiu a tempo")
 				_enter_phase(3)
-		3:  # trocar para a Academia
+		3:  # trocar para a Academia (fechar a avaliação = árvore despausada)
+			get_tree().paused = false
+			var ui := get_node_or_null("/root/UI")
+			if ui != null:
+				ui.set("external_block", false)
 			_current.queue_free()
 			_current = load("res://scenes/academia.tscn").instantiate()
 			add_child(_current)

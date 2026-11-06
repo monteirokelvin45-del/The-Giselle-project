@@ -9,6 +9,7 @@ const ACTIONS := [
 	{"action": "move_left", "events": [{"type": "key", "key": KEY_A}, {"type": "key", "key": KEY_LEFT}, {"type": "axis", "axis": JOY_AXIS_LEFT_X, "value": -1.0}]},
 	{"action": "move_right", "events": [{"type": "key", "key": KEY_D}, {"type": "key", "key": KEY_RIGHT}, {"type": "axis", "axis": JOY_AXIS_LEFT_X, "value": 1.0}]},
 	{"action": "dodge", "events": [{"type": "key", "key": KEY_SPACE}, {"type": "joy", "value": JOY_BUTTON_A}]},
+	{"action": "jump", "events": [{"type": "key", "key": KEY_X}, {"type": "joy", "value": JOY_BUTTON_DPAD_UP}]},
 	{"action": "sprint", "events": [{"type": "key", "key": KEY_SHIFT}, {"type": "joy", "value": JOY_BUTTON_LEFT_STICK}]},
 	{"action": "block", "events": [{"type": "key", "key": KEY_Q}, {"type": "joy", "value": JOY_BUTTON_LEFT_SHOULDER}]},
 	{"action": "interact", "events": [{"type": "key", "key": KEY_E}, {"type": "joy", "value": JOY_BUTTON_B}]},
@@ -29,7 +30,7 @@ const ACTIONS := [
 
 const ACTION_NAMES := {
 	"move_forward": "Avançar", "move_back": "Recuar", "move_left": "Esquerda", "move_right": "Direita",
-	"dodge": "Esquiva", "sprint": "Correr", "block": "Bloquear", "interact": "Interagir / Corrente",
+	"dodge": "Esquiva", "jump": "Saltar", "sprint": "Correr", "block": "Bloquear", "interact": "Interagir / Corrente",
 	"rupture": "Estado de Ruptura", "potion": "Poção", "lock_on": "Fixar alvo", "pause": "Pausa",
 	"attack_light": "Ataque leve", "attack_heavy": "Ataque pesado",
 	"ability_1": "Habilidade 1 — Liora", "ability_2": "Habilidade 2 — Bram",

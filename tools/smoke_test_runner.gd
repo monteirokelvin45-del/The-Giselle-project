@@ -4,6 +4,9 @@ extends Node3D
 
 var _frame: int = 0
 var _failures: int = 0
+var _air_hp_before: float = -1.0
+var _air_done: bool = false
+var _air_phase: int = 0
 
 func _ready() -> void:
 	var scene := load("res://scenes/main.tscn")
@@ -19,6 +22,11 @@ func _check(cond: bool, label: String) -> void:
 	else:
 		_failures += 1
 		print("SMOKE|FAIL ", label)
+
+func _finish_air() -> void:
+	Input.action_release("jump")
+	print("SMOKE|DONE falhas=", _failures)
+	get_tree().quit(0 if _failures == 0 else 1)
 
 func _process(_delta: float) -> void:
 	_frame += 1
@@ -53,8 +61,39 @@ func _process(_delta: float) -> void:
 			player.call("_do_attack", false)
 			var hp_after: float = float(enemy.get("hp"))
 			_check(hp_after < hp_before, "ataque corpo a corpo tira vida ao inimigo")
+			_air_hp_before = float(enemy.get("hp"))
 		else:
 			_check(false, "enemy.tscn instancia")
 		print("SMOKE|INFO reputação imperial inicial = ", int(GameState.reputation.get("imperial", 0)))
-		print("SMOKE|DONE falhas=", _failures)
-		get_tree().quit(0 if _failures == 0 else 1)
+		Input.action_press("jump")
+		_air_phase = 1
+	elif _air_phase == 1:
+		# esperar a descolagem (independente de FPS) → pesado no ar
+		var player: Node3D = get_tree().get_first_node_in_group("player")
+		if not player.is_on_floor():
+			player.set("stamina", 100.0)
+			player.call("_do_attack", true)
+			_check(bool(player.get("_air_slam_pending")), "ataque pesado no ar prepara slam de queda")
+			_air_phase = 2
+		elif _frame >= 75:
+			_check(false, "salto tira o jogador do chão")
+			_air_phase = 3
+			_finish_air()
+	elif _air_phase == 2:
+		# esperar a aterragem → slam consome-se e fere a área
+		var player: Node3D = get_tree().get_first_node_in_group("player")
+		if player.is_on_floor():
+			_air_done = true
+			Input.action_release("jump")
+			_check(not bool(player.get("_air_slam_pending")), "slam de queda consome-se ao aterrar")
+			var enemies := get_tree().get_nodes_in_group("enemy")
+			if enemies.is_empty():
+				_check(true, "slam de queda concluiu (inimigo já derrotado)")
+			else:
+				_check(float(enemies[0].get("hp")) < _air_hp_before, "slam de queda fere inimigos na área")
+			_air_phase = 3
+			_finish_air()
+		elif _frame >= 140:
+			_check(false, "jogador aterrou a tempo")
+			_air_phase = 3
+			_finish_air()

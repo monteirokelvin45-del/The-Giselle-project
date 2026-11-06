@@ -23,6 +23,7 @@ var _attack_cooldown_heavy: float = 0.0
 var _combo: int = 0
 var _combo_reset: float = 0.0
 var _chain_cooldown: float = 0.0
+var _air_slam_pending: bool = false
 var _blocking: bool = false
 var _block_press_time: float = -10.0
 var _dodge_dir: Vector3 = Vector3.FORWARD
@@ -505,6 +506,15 @@ func _do_attack(heavy: bool) -> void:
 	if _next_attack_bonus:
 		mult *= 1.5
 		_next_attack_bonus = false
+	var airborne := not is_on_floor()
+	if airborne:
+		# Ataques aéreos: mais dano e sobretudo mais postura (combos aéreos)
+		var jc: Dictionary = Balance.jump_cfg()
+		mult *= float(jc.get("air_damage_mult", 1.25))
+		posture_dmg *= float(jc.get("air_posture_mult", 1.5))
+		if heavy:
+			_air_slam_pending = true
+			velocity.y = minf(velocity.y, 0.0)  # picada
 	var forward := facing_direction()
 	if GameState.aim_assist:
 		# Mira suave: vira o corpo na direcção do alvo mais próximo ao alcance
@@ -620,11 +630,13 @@ func _physics_process(delta: float) -> void:
 
 	var rupture_active: bool = GameState.rupture_time_left > 0.0
 
-	# Gravidade
+	# Gravidade + Salto (X / D-pad cima)
 	if not is_on_floor():
 		velocity.y -= GRAVITY * delta
 	else:
 		velocity.y = maxf(velocity.y, -0.5)
+	if Input.is_action_just_pressed("jump") and is_on_floor():
+		velocity.y = float(Balance.jump_cfg().get("velocity", 8.2))
 
 	# Bloqueio (segurar Q)
 	_blocking = Input.is_action_pressed("block") and stamina > 0.0
@@ -699,11 +711,30 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
+	# Slam de queda: pesado usado no ar explode ao aterrar
+	if _air_slam_pending and is_on_floor():
+		_air_slam_pending = false
+		_land_slam()
+
 	# Limites do mundo
 	global_position.x = clampf(global_position.x, -62.0, 62.0)
 	global_position.z = clampf(global_position.z, -78.0, 56.0)
 
 	_update_camera(delta)
+
+func _land_slam() -> void:
+	var jc: Dictionary = Balance.jump_cfg()
+	var radius := float(jc.get("slam_radius", 3.1))
+	var dmg := float(jc.get("slam_damage", 24.0))
+	var posture := float(jc.get("slam_posture", 42.0))
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		if not is_instance_valid(enemy):
+			continue
+		if enemy.global_position.distance_to(global_position) > radius:
+			continue
+		enemy.call("take_damage", dmg, posture, self)
+	_shake = maxf(_shake, 0.45)
+	Audio.play("heavy_hit", -4.0)
 
 func _update_camera(delta: float) -> void:
 	var chest := global_position + Vector3(0.0, CAM_HEIGHT, 0.0)

@@ -40,7 +40,7 @@ def main() -> int:
     seen = set()
     counter = 0
     for root, dirs, files in os.walk(SRC):
-        dirs[:] = [d for d in dirs if d != ".git"]
+        dirs[:] = sorted(d for d in dirs if d != ".git")
         for name in sorted(files):
             if not name.endswith(".gd"):
                 continue

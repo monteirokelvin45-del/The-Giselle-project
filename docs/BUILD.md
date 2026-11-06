@@ -33,8 +33,9 @@ cenas e executar scripts de teste:
 
 ```bash
 godot --headless --path . --import                       # importa artefactos
-tools/headless_check.sh /tmp/godot-4.7.2-stable/bin/godot.linuxbsd.editor.x86_64
-godot --headless --path . res://tools/smoke_test.tscn    # 11 asserções; exit 0 = tudo verde
+tools/headless_check.sh                       # usa tools/.bin/godot se existir
+godot --headless --path . res://tools/smoke_test.tscn    # 13 asserções; exit 0 = tudo verde
+res://tools/smoke_flows.tscn  # 5 asserções de fluxo; exit 0 = tudo verde
 ```
 
 ## O que a engine encontrou e que a validação estática nunca viu
@@ -47,16 +48,22 @@ godot --headless --path . res://tools/smoke_test.tscn    # 11 asserções; exit 
 | 4 | `shadow_map_size` removido do `DirectionalLight3D` | `directional_shadow_max_distance = 90.0` + `rendering/lights_and_shadows/directional_shadow/size=2048` no project.godot |
 | 5 | `tts_is_speaking_available()` não existe | removido; `tts_get_voices()` vazio ⇒ silêncio |
 | 6 | Inferência `:=` a partir de valores Variant (warnings tratados como erros) | anotações explícitas em ~15 locais |
+| 8 | (harness) smoke_flows ficava **eternamente sem output**: a Sala Branca pausa a árvore na avaliação e o runner processava em modo INHERIT | runner em `PROCESS_MODE_ALWAYS` + despausar ao trocar de cena |
 | 7 | **Checksum do save impossível de validar**: o JSON do Godot devolve sempre floats (`1`→`1.0`) — saves **nunca** carregavam | serialização canónica (`_canonical_save`) partilhada entre save e load; **todos os saves anteriores são inválidos** (mas já o eram — o load devolvia sempre «adulterada») |
 
 ## Estado de validação após a correção
 
 - 5 cenas (`title`, `main`, `academia`, `region`, `sala_branca`) carregam e
   correm 120–240 frames headless **sem SCRIPT ERROR**.
-- `tools/smoke_test.tscn`: **11/11** — boot do mundo, subir de nível por XP,
+- `tools/smoke_test.tscn`: **13/13** — boot do mundo, subir de nível por XP,
   desbloqueio de técnicas (Passo Vazio/Queda do Colosso), curva de XP e
   cura da poção via `balance.json`, **save/load roundtrip**, dano real a um
-  inimigo instanciado em runtime.
+  inimigo instanciado em runtime, **salto + ataques aéreos + slam de queda**
+  (dano de área real).
+- `tools/smoke_flows.tscn`: **5/5** — fluxos completos: Sala Branca (simulação
+  até à avaliação; a árvore pausa como deve → o runner processa em ALWAYS),
+  Academia (Prova de Duelo vencida → `exams_done["duelo"]`, lealdade de Bram
+  ≥ 60).
 - **Nunca validado**: correção visual (orgientação de modelos, animações,
   materiais em GL Compatibility), jogabilidade real com um humano, Android.
   Headless só prova compilação + boot + lógica.

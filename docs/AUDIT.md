@@ -256,7 +256,7 @@ risco/valor:
 
 Godot **4.7.2-stable** compilado neste ambiente a partir do código-fonte
 (`docs/BUILD.md` para o procedimento completo e o porquê). Resultado:
-**SMOKE OK nas 5 cenas** + **11/11 asserções de jogabilidade**.
+**SMOKE OK nas 5 cenas** + **13/13 asserções de jogabilidade** + **5/5 asserções de fluxo completo** (Sala Branca → painel de avaliação; Prova de Duelo → Bram companion).
 
 A engine encontrou em minutos bugs que a validação estática e as revisões
 humanas não apanharam — o pior: o **save/load nunca funcionou** (o checksum
