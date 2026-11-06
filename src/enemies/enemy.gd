@@ -47,6 +47,9 @@ var _slam_timer: float = 0.0
 var _player: Node3D = null
 var _anim_t: float = 0.0
 var _dead: bool = false
+var _anim_player: AnimationPlayer = null
+var _anim_lock: float = 0.0
+var _cast_windup: float = 0.0
 
 var visual: Node3D
 
@@ -67,7 +70,22 @@ func _ready() -> void:
 	add_to_group("enemy")
 	_build_visual()
 
+const CHARACTER_MODELS := {
+	"salteador": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(1.0, 0.72, 0.62), "scale": 1.05},
+	"cinza": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(0.72, 0.7, 1.0), "scale": 1.0},
+	"guardiao": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.72, 0.66, 0.6), "scale": 2.3},
+}
+
 func _build_visual() -> void:
+	var mf := preload("res://src/visuals/model_factory.gd")
+	var cfg: Dictionary = CHARACTER_MODELS.get(enemy_type, {})
+	if not cfg.is_empty():
+		var result: Dictionary = mf.spawn_character(self, cfg["path"], Vector3.ZERO, cfg["tint"], cfg["scale"])
+		if result["visual"] != null:
+			visual = result["visual"]
+			_anim_player = result["anim_player"]
+			return
+	# Fallback procedural (lobo e contingência)
 	visual = Node3D.new()
 	visual.name = "Visual"
 	add_child(visual)
@@ -153,8 +171,8 @@ func _build_salteador() -> void:
 		_box(visual, Vector3(0.22, 0.34, 0.22), Vector3(sx * 0.56, 1.52, 0), iron)
 	_box(visual, Vector3(0.3, 0.75, 0.28), Vector3(-0.24, 0.4, 0), cloth)
 	_box(visual, Vector3(0.3, 0.75, 0.28), Vector3(0.24, 0.4, 0), cloth)
-	_box(visual, Vector3(0.09, 0.95, 0.09), Vector3(0.72, 1.25, 0.1), iron)
-	mace_stick.rotation.x = 0.5
+	var mace := _box(visual, Vector3(0.09, 0.95, 0.09), Vector3(0.72, 1.25, 0.1), iron)
+	mace.rotation.x = 0.5
 	_sphere(visual, 0.17, Vector3(0.72, 1.72, -0.35), iron)
 
 func _build_cinza() -> void:
@@ -166,7 +184,7 @@ func _build_cinza() -> void:
 	_cyl(visual, 0.3, 0.3, 0.12, Vector3(0, 1.52, 0), trim)
 	_sphere(visual, 0.21, Vector3(0, 1.68, 0), robe)
 	_box(visual, Vector3(0.2, 0.12, 0.1), Vector3(0, 1.66, 0.16), dark)  # rosto na sombra
-	_cyl(visual, 0.05, 0.05, 1.7, Vector3(0.42, 1.0, 0.15), trim)
+	var staff := _cyl(visual, 0.05, 0.05, 1.7, Vector3(0.42, 1.0, 0.15), trim)
 	staff.rotation.z = 0.12
 	_sphere(visual, 0.13, Vector3(0.53, 1.9, 0.15), crystal)
 
@@ -250,9 +268,19 @@ func _physics_process(delta: float) -> void:
 	if enemy_type == "guardiao" and _slam_cooldown <= 0.0 and dist < 7.5:
 		_start_slam()
 
-	# Conjurador: manter distância e disparar
+	# Conjurador: manter distância e disparar com canal visível
 	if enemy_type == "cinza":
 		_cast_timer -= delta
+		if _cast_windup > 0.0:
+			# A canalizar — está vulnerável à interrupção
+			_cast_windup -= delta
+			velocity.x = 0.0
+			velocity.z = 0.0
+			move_and_slide()
+			if _cast_windup <= 0.0:
+				_fire_projectile(to_player.normalized())
+				_cast_timer = 2.4
+			return
 		var move := Vector3.ZERO
 		if dist > 11.5:
 			move = to_player.normalized()
@@ -264,8 +292,11 @@ func _physics_process(delta: float) -> void:
 		velocity.x = move.x * float(stats["speed"])
 		velocity.z = move.z * float(stats["speed"])
 		if _cast_timer <= 0.0 and dist < 19.0:
-			_cast_projectile(to_player.normalized())
-			_cast_timer = 2.4
+			_cast_windup = 0.75
+			if _anim_player != null:
+				var mf := preload("res://src/visuals/model_factory.gd")
+				mf.play_anim(_anim_player, "Spellcast_Raise", 0.1, 0.75)
+				_anim_lock = 0.75
 		move_and_slide()
 		return
 
@@ -296,6 +327,10 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0.0, 20.0 * delta)
 		if _attack_cooldown <= 0.0:
 			_windup = 0.45
+			if _anim_player != null:
+				var mf := preload("res://src/visuals/model_factory.gd")
+				mf.play_anim(_anim_player, "Unarmed_Melee_Attack_Punch_A", 0.08, 0.45)
+				_anim_lock = 0.45
 			Audio.play("swing", -10.0, 0.6)
 
 	# Separação suave entre inimigos
@@ -307,9 +342,25 @@ func _physics_process(delta: float) -> void:
 		if push.length() < 1.3 and push.length() > 0.01:
 			velocity += push.normalized() * 3.0
 
+	_update_enemy_anim(delta)
 	move_and_slide()
 
-func _cast_projectile(dir: Vector3) -> void:
+func _update_enemy_anim(delta: float) -> void:
+	if _anim_player == null or _dead:
+		return
+	if _anim_lock > 0.0:
+		_anim_lock -= delta
+		return
+	var speed_len := Vector2(velocity.x, velocity.z).length()
+	var target := "Walking_A" if speed_len > 0.6 else "Idle"
+	if _anim_player.current_animation != target:
+		var mf := preload("res://src/visuals/model_factory.gd")
+		mf.play_anim(_anim_player, target, 0.2)
+
+func _fire_projectile(dir: Vector3) -> void:
+	if _anim_player != null:
+		var mf := preload("res://src/visuals/model_factory.gd")
+		mf.play_anim(_anim_player, "Spellcast_Shoot", 0.08, 0.4)
 	var p := Area3D.new()
 	p.set_script(load("res://src/enemies/projectile.gd"))
 	p.collision_layer = 8
@@ -367,6 +418,13 @@ func take_damage(amount: float, posture_dmg: float, _from: Node3D = null) -> voi
 	hp -= amount
 	posture -= posture_dmg
 	_combat = true
+	if visual and is_instance_valid(visual):
+		var mf := preload("res://src/visuals/model_factory.gd")
+		mf.flash_model(visual, 0.1)
+	if _anim_player != null and not _dead:
+		var mf := preload("res://src/visuals/model_factory.gd")
+		mf.play_anim(_anim_player, "Hit_A", 0.08, 0.24)
+		_anim_lock = 0.24
 	if posture <= 0.0:
 		posture = max_posture * 0.65
 		_stunned = maxf(_stunned, 2.3)
@@ -392,10 +450,16 @@ func stagger_brief(duration: float) -> void:
 
 func interrupt_cast() -> void:
 	_cast_timer = maxf(_cast_timer, 2.0)
-	_stunned = maxf(_stunned, 1.0)
+	_cast_windup = 0.0
+	_anim_lock = 0.0
+	_stunned = maxf(_stunned, 1.1)
+	GameState.notify("Conjuração interrompida!")
 
 func _die() -> void:
 	_dead = true
+	if _anim_player != null:
+		var mf := preload("res://src/visuals/model_factory.gd")
+		mf.play_anim(_anim_player, "Death_A", 0.12)
 	if _slam_telegraph != null:
 		_slam_telegraph.queue_free()
 		_slam_telegraph = null

@@ -8,14 +8,23 @@ Vila de Noro, Floresta Baixa, Estrada Imperial, Portão da Academia e Arena.
 Missão principal completa + 2 secundárias, combate com parry/postura/Ruptura,
 8 atributos, Sistema v0.1 (Sala Branca + avaliação), save/load, 3 finais.
 
-## v0.2 — Fundamentos de combate e sensação ("game feel")
-- Animações esqueléticas (ou vertex-anim procedural melhorada), cancelamento de
-  movimento por ataque, hit-stop, knockback direcional, câmara com spring-arm real.
-- Combos aéreos, `Queda do Colosso`, `Corrida do Predador`, `Passo Vazio` como
-  técnicas desbloqueáveis (cap 11, sec. 10 do GDD).
-- IA com coordenação básica (conjurador + tanque protegem-se; assassino flanqueia).
-- Lock-on com troca suave de alvo e câmara dinâmica.
-- Música dinâmica por intensidade (exploração → perigo → combate).
+## v0.2 — Fundamentos de combate e sensação ("game feel") — parcial ✅
+- [x] **Animações esqueléticas**: personagens e humanoides por modelos KayKit (CC0) —
+      KayKit Adventures (Kael = Rogue Hooded, Salteador/Mago/Guardião = Barbarian/Mage
+      tintados) com Idle/Walking/Running, ataques, block, dodge, hit e morte; NPCs
+      animados; canal de conjuração interruptível do Mago de Cinza.
+- [x] **Game feel básico**: screen shake, partículas de impacto, números de dano
+      flutuantes, *hit-flash* branco, hit-stop ainda por fazer.
+- [x] **Mundo com modelos**: KayKit Medieval Hexagon (CC0) — edifícios, muralha da
+      Academia, montanhas, árvores e props.
+- [x] Correções de robustez (identificadores não declarados → script de inimigos não
+      compilava; reset do estado de morte do jogador).
+- [ ] Cancelamento de movimento por ataque, hit-stop, câmara com spring-arm real.
+- [ ] Combos aéreos, `Queda do Colosso`, `Corrida do Predador`, `Passo Vazio` como
+      técnicas desbloqueáveis (cap 11, sec. 10 do GDD).
+- [ ] IA com coordenação básica (conjurador + tanque protegem-se; assassino flanqueia).
+- [ ] Lock-on com troca suave de alvo e câmara dinâmica.
+- [ ] Música dinâmica por intensidade (exploração → perigo → combate).
 
 ## v0.3 — O Sistema completo (sec. 11 do GDD)
 - Ambientes: Floresta, Deserto, Montanha, Vulcão, Oceano, Cidade, Abismo, Arena

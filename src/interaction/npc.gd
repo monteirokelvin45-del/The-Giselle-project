@@ -1,5 +1,5 @@
 extends Node3D
-## Personagem não-jogável: visual procedural, colisão simples e interação.
+## Personagem não-jogável: modelo KayKit (CC0) com fallback procedural, colisão simples e interação.
 
 @export var npc_name: String = "Aldeão"
 @export var dialogue_id: String = "aldeao"
@@ -7,6 +7,15 @@ extends Node3D
 
 var _t: float = 0.0
 var visual: Node3D
+
+## Modelos KayKit (CC0): identidade visual por personagem
+const NPC_MODELS := {
+	"elen": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(0.9, 1.0, 0.85), "scale": 0.95},
+	"garr": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.92, 0.85, 0.78), "scale": 1.0},
+	"aldeao": {"path": "res://assets/models/characters/Rogue.glb", "tint": Color(0.85, 0.9, 0.75), "scale": 0.98},
+	"liora": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(1.0, 0.97, 0.82), "scale": 1.0},
+	"dario": {"path": "res://assets/models/characters/Knight.glb", "tint": Color(0.8, 0.85, 1.0), "scale": 1.1},
+}
 
 func _ready() -> void:
 	add_to_group("npc")
@@ -39,6 +48,16 @@ func _resolve_tree() -> String:
 			return dialogue_id
 
 func _build_visual() -> void:
+	var mf := preload("res://src/visuals/model_factory.gd")
+	var cfg: Dictionary = NPC_MODELS.get(dialogue_id, {})
+	if not cfg.is_empty():
+		var result: Dictionary = mf.spawn_character(self, cfg["path"], Vector3.ZERO, cfg["tint"], cfg["scale"])
+		if result["visual"] != null:
+			visual = result["visual"]
+			return
+	_build_procedural()
+
+func _build_procedural() -> void:
 	visual = Node3D.new()
 	visual.name = "Visual"
 	add_child(visual)

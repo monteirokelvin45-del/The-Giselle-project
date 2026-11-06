@@ -31,6 +31,12 @@ var _knockback: Vector3 = Vector3.ZERO
 var _facing: float = 0.0
 var _breath_t: float = 0.0
 
+var _anim_player: AnimationPlayer = null
+var _anim_lock: float = 0.0
+var _attack_anim_flip: bool = false
+var _shake: float = 0.0
+var _dying: bool = false
+
 var locked_enemy: Node3D = null
 var current_interactable: Node3D = null
 
@@ -73,6 +79,16 @@ func facing_direction() -> Vector3:
 
 # ------------------------------------------------------------------ visual ---
 func _build_visual() -> void:
+	var mf := preload("res://src/visuals/model_factory.gd")
+	var result: Dictionary = mf.spawn_character(self, "res://assets/models/characters/Rogue_Hooded.glb", Vector3.ZERO, Color.WHITE, 1.0)
+	if result["visual"] != null:
+		visual = result["visual"]
+		_anim_player = result["anim_player"]
+		_facing = 0.0
+		return
+	_build_procedural_visual()
+
+func _build_procedural_visual() -> void:
 	visual = Node3D.new()
 	visual.name = "Visual"
 	add_child(visual)
@@ -119,6 +135,41 @@ func _box(parent: Node3D, size: Vector3, pos: Vector3, mat: StandardMaterial3D) 
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	parent.add_child(mi)
 	return mi
+
+func add_shake(amount: float) -> void:
+	_shake = minf(1.6, _shake + amount)
+
+func _update_animation(delta: float, input_dir: Vector3) -> void:
+	if _anim_player == null or _dying:
+		return
+	if _anim_lock > 0.0:
+		_anim_lock -= delta
+		return
+	var speed_len := input_dir.length()
+	var target := "Idle"
+	if _blocking:
+		target = "Blocking"
+	elif speed_len > 0.6:
+		target = "Running_A" if Input.is_action_pressed("sprint") and stamina > 1.0 else "Walking_A"
+	if _anim_player.current_animation != target:
+		var mf := preload("res://src/visuals/model_factory.gd")
+		mf.play_anim(_anim_player, target, 0.18)
+
+func _play_attack_anim(heavy: bool) -> void:
+	if _anim_player == null:
+		return
+	var mf := preload("res://src/visuals/model_factory.gd")
+	var clip: String
+	var duration: float
+	if heavy:
+		clip = "Unarmed_Melee_Attack_Kick"
+		duration = 0.5
+	else:
+		_attack_anim_flip = not _attack_anim_flip
+		clip = "Unarmed_Melee_Attack_Punch_A" if _attack_anim_flip else "Unarmed_Melee_Attack_Punch_B"
+		duration = 0.34
+	mf.play_anim(_anim_player, clip, 0.08, duration)
+	_anim_lock = duration
 
 func _build_camera() -> void:
 	camera = Camera3D.new()
@@ -240,6 +291,10 @@ func _try_dodge() -> void:
 	_invuln_timer = 0.36
 	stamina -= 18.0
 	Audio.play("swing", -4.0, 0.75)
+	if _anim_player != null:
+		var mf := preload("res://src/visuals/model_factory.gd")
+		mf.play_anim(_anim_player, "Dodge_Forward", 0.08, 0.34)
+		_anim_lock = 0.34
 
 func _input_vector() -> Vector3:
 	var ix := Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
@@ -286,11 +341,24 @@ func _do_attack(heavy: bool) -> void:
 				if enemy.has_method("take_damage"):
 					enemy.take_damage(base * mult, posture_dmg, self)
 					hit_any = true
+	_play_attack_anim(heavy)
 	if hit_any:
 		total_hits += 1
 		attack_landed.emit()
 		Audio.play("hit" if not heavy else "heavy_hit", 0.0, randf_range(0.9, 1.1))
 		GameState.add_rupture(5.0)
+		add_shake(0.35 if not heavy else 0.6)
+		var mf := preload("res://src/visuals/model_factory.gd")
+		for enemy in get_tree().get_nodes_in_group("enemy"):
+			if not is_instance_valid(enemy):
+				continue
+			var to_e: Vector3 = enemy.global_position - global_position
+			to_e.y = 0.0
+			if to_e.length() <= reach:
+				var dot := to_e.normalized().dot(forward)
+				if dot > 0.25 or to_e.length() < 1.1:
+					mf.spawn_hit_burst(get_tree(), enemy.global_position, Color(1.0, 0.8, 0.4))
+					mf.spawn_damage_number(get_tree(), enemy.global_position, int(base * mult))
 	else:
 		Audio.play("swing", 0.0, randf_range(0.9, 1.15))
 	if heavy:
@@ -395,6 +463,8 @@ func _physics_process(delta: float) -> void:
 	# Interagíveis
 	current_interactable = _find_interactable()
 
+	_update_animation(delta, input_dir)
+
 	move_and_slide()
 
 	# Limites do mundo
@@ -413,7 +483,12 @@ func _update_camera(delta: float) -> void:
 	if cam_ray.is_colliding():
 		desired = maxf(1.4, chest.distance_to(cam_ray.get_collision_point()) * 0.85)
 	_cam_dist = lerpf(_cam_dist, desired, 10.0 * delta)
-	camera.global_position = chest + offset.normalized() * _cam_dist
+	if _shake > 0.01:
+		_shake = maxf(0.0, _shake - delta * 2.3)
+		var shake_offset := Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * (_shake * 0.22)
+		camera.global_position = chest + offset.normalized() * _cam_dist + shake_offset
+	else:
+		camera.global_position = chest + offset.normalized() * _cam_dist
 	camera.look_at(chest, Vector3.UP)
 
 func _find_interactable() -> Node3D:
@@ -444,6 +519,9 @@ func take_damage(amount: float, from_node: Node3D = null) -> void:
 		if parried:
 			Audio.play("parry")
 			GameState.add_rupture(16.0)
+			add_shake(0.55)
+			var mf := preload("res://src/visuals/model_factory.gd")
+			mf.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.3, 0.0), Color(1.0, 0.9, 0.35))
 			if from_node != null:
 				if from_node.has_method("take_posture"):
 					from_node.take_posture(38.0 * GameState.posture_mult())
@@ -463,6 +541,11 @@ func take_damage(amount: float, from_node: Node3D = null) -> void:
 		final *= 0.5
 	hp -= final
 	total_damage_taken += final
+	if _anim_player != null and not _dying:
+		var mf := preload("res://src/visuals/model_factory.gd")
+		mf.play_anim(_anim_player, "Hit_A", 0.1, 0.3)
+		_anim_lock = 0.3
+	add_shake(0.45)
 	Audio.play("hit", -2.0, 0.9)
 	if from_node != null:
 		var away := global_position - from_node.global_position
@@ -474,6 +557,10 @@ func take_damage(amount: float, from_node: Node3D = null) -> void:
 
 func _die() -> void:
 	Audio.play("death")
+	_dying = true
+	if _anim_player != null:
+		var mf := preload("res://src/visuals/model_factory.gd")
+		mf.play_anim(_anim_player, "Death_A", 0.12)
 	var loss := int(GameState.marcos * 0.1)
 	GameState.add_marcos(-loss)
 	GameState.notify("Kael caiu... Acordas na aldeia. (-%d marcos)" % loss)
@@ -487,3 +574,9 @@ func _die() -> void:
 		else:
 			global_position = Vector3(0.0, 1.5, 34.0)     # vila de Noro
 	locked_enemy = null
+	# Voltar a pôr-se de pé: terminar a animação de morte
+	_dying = false
+	_anim_lock = 0.0
+	if _anim_player != null:
+		var mf := preload("res://src/visuals/model_factory.gd")
+		mf.play_anim(_anim_player, "Idle", 0.4)

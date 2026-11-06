@@ -5,7 +5,7 @@
 **RPG de ação em terceira pessoa, de mundo aberto, sobre um rapaz sem magia num mundo que adora magia.**
 Um Vazio que vale mais pelos dois braços do que os magos valem pelos Núcleos.
 
-> Estado: **Vertical Slice v0.1** — a primeira versão jogável (ver [o que está pronto](#o-que-está-pronto-na-v01)).
+> Estado: **Vertical Slice v0.2** — v0.1 jogável + modelos e animações reais (KayKit, CC0), ver [o que mudou na v0.2](#o-que-mudou-na-v02).
 
 ---
 
@@ -28,9 +28,10 @@ O caminho até à v1.0 está em [`docs/ROADMAP.md`](docs/ROADMAP.md).
 3. Carrega **F5** (ou `godot --path .` no terminal).
 4. O jogo abre no ecrã de título. Em nova campanha: **Novo Jogo**.
 
-Não é preciso instalar dependências — não há assets externos; a arte 3D e os
-efeitos sonoros são gerados proceduralmente por código e sintetizados em
+Não é preciso instalar dependências — os modelos 3D (CC0, KayKit) estão incluídos
+no repositório em `assets/models/`, e os efeitos sonoros são sintetizados em
 `assets/audio/`. A key art do título foi gerada por IA (`assets/art/key_art.jpg`).
+Detalhes e licenças: [`docs/ASSETS.md`](docs/ASSETS.md).
 
 ## Controlos
 
@@ -49,6 +50,27 @@ efeitos sonoros são gerados proceduralmente por código e sintetizados em
 | F | **Estado de Ruptura** (quando a barra está cheia) |
 | Tab | Fixar / largar alvo |
 | Esc | Menu de pausa (salvar/carregar, atributos, Sistema, a Decisão) |
+
+## O que mudou na v0.2
+
+Evolução de qualidade sobre a v0.1 (o conteúdo de jogo é o mesmo; o mundo e o combate ganharam vida):
+
+- **Personagens por modelos 3D esqueléticos** (KayKit Adventures, CC0): Kael (Rogue Hooded),
+  inimigos humanoides (Salteador = Barbarian tintada, Mago de Cinza = Mage tintada,
+  Guardião = Barbarian gigante em pedra) e os 5 NPCs — cada um com **Idle/Walking/Running**,
+  **ataques**, **hit**, **block**, **dodge** e **morte** animado. O lobo mantém-se procedural.
+- **Mundo com modelos KayKit Medieval Hexagon** (CC0): casas, taverna, capela, forja, mercado,
+  poço, castelos academias, torres e muralha do portão, árvores, rochas, montanhas e props
+  (barris, caixas, sacos, escadas, tendas, bandeiras, alvos de treino...). Estruturas de colisão de jogo
+  são independentes dos modelos.
+- **Canal de conjuração do Mago de Cinza**: feitiço é telegrafado (Spellcast_Raise → disparo)
+  e pode ser **interrompido pela Corrente de Âncora** — a mecânica anti-magia passou a ter um
+  janela real de contra-jogo.
+- **Game feel**: screen shake (impacto, parry, dano sofrido), partículas de impacto,
+  números de dano flutuantes e *hit-flash* branco nos modelos.
+- **Correções**: identificadores não declarados nos fallbacks procedurais (quebrariam a
+  compilação do script de inimigos), reset de estado de morte (Kael volta a pôr-se de pé após
+  renascer), validação cruzada de todos os caminhos de modelos contra o disco.
 
 ## O que está pronto na v0.1
 
@@ -87,9 +109,15 @@ Implementação do escopo do "Capítulo 35 — Escopo Realista" do documento de 
   `res://`, `.tscn`/`project.godot`), mas **não foi executado numa máquina com a
   engine dentro deste ambiente** — alguns bugs visuais/de jogabilidade são
   esperados na primeira execução. Reporta problemas (abre uma issue) e corrige-se.
-- Arte 3D toda **procedural** (primitivos com materiais) — o visual é
-  estilizado low-poly, não final. Falta: modelos, animações esqueléticas,
-  partículas elaboradas, sombras dinâmicas mais ricas.
+- Arte 3D agora com **modelos KayKit (CC0)**, estilizados e low-poly — coerente e
+  consistente, mas ainda "de pack"; falta: direção de arte própria, VFX elaborados,
+  sombras/iluminação mais ricas e afinação fina de escala/posicionamento em execução
+  (os colisores são invisíveis, por isso o jogo funciona mesmo se um modelo estiver
+  um pouco desalinhado).
+- Modelos assumem **+Z como frente** e escala estimada por olho; se algo aparecer
+  virado ao contrário ou desproporcional, os ajustes estão em
+  `src/visuals/model_factory.gd` (`MODEL_FACING_OFFSET`) e na escala por modelo
+  em `world_builder.gd`.
 - O áudio são **bleeps sintetizados** (placeholder honesto, fica melhor com uma
   verdadeira sessão de sound design).
 - Mundo **fixo em um vale**: sem streaming, sem mudança de época/dia, sem
@@ -108,14 +136,16 @@ src/
   core/                  # estado global, input map, orquestração da cena
   player/                # Kael: movimento, combate, câmara
   enemies/               # IA e tipos de inimigos + projéteis
-  world/                 # construção procedural do Vale de Noro
+  world/                 # construção do Vale de Noro (modelos + primitivos)
   interaction/           # NPCs e Fibras de Ruína
   system/                # a Sala Branca (Sistema) e bonecos de treino
   ui/                    # título, HUD, pausa, atributos, diálogos, decisão
+  visuals/               # fábrica de modelos/animações + efeitos (shake, bursts)
+assets/models/           # modelos CC0 (KayKit): characters/ e env/ — ver docs/ASSETS.md
 assets/art/              # key art (título)
 assets/audio/            # SFX sintetizados (tools/synth_audio.py)
 tools/                   # validate.py (checagens) e synth_audio.py
-docs/                    # GDD.md (documento de design completo) e ROADMAP.md
+docs/                    # GDD.md, ROADMAP.md, ASSETS.md, licenses/
 ```
 
 ## Ferramentas de qualidade
@@ -131,4 +161,8 @@ python3 tools/synth_audio.py
 ## Licença e autoria
 
 O mundo, a história e os personagens pertencem ao projeto. Documento de
-design original em `docs/GDD.md`. Feito com Godot Engine (MIT).
+design original em `docs/GDD.md`.
+
+Modelos 3D: **KayKit** (Kay Lousberg), licença **CC0** — ver
+[`docs/ASSETS.md`](docs/ASSETS.md) e `docs/licenses/`.
+Feito com Godot Engine (MIT).
