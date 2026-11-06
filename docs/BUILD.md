@@ -1,5 +1,11 @@
 # Compilar e validar o Godot neste ambiente (2026-11-06)
 
+> **Nota sobre persistência**: `/tmp` neste ambiente é apagado entre sessões —
+> o binário compilado e a árvore de fonte do Godot **não sobrevivem**.
+> O procedimento abaixo é reproduzível (~51 min). Depois de compilar, copia o
+> binário para `tools/.bin/godot` (ignorado pelo git, persiste no workspace)
+> — `tools/headless_check.sh` usa-o automaticamente quando existe.
+
 O ambiente de trabalho **não consegue descarregar binários oficiais do Godot**
 (`downloads.tuxfamily.org`/`godotengine.org` estão fora da lista de hosts; os
 artefactos da release no GitHub redireccionam para S3 fora da lista; o `apt`

@@ -13,3 +13,4 @@ export/
 .gradle/
 android/build/
 export/
+tools/.bin/

@@ -5,11 +5,17 @@
 ##      autoloads, .tscn inválidos, scripts que não compilam no load)
 ## Uso: tools/headless_check.sh [caminho/para/o/binário/godot]
 set -uo pipefail
-GODOT_BIN="${1:-godot}"
 PROJ="$(cd "$(dirname "$0")/.." && pwd)"
+if [ $# -ge 1 ]; then
+	GODOT_BIN="$1"
+elif [ -x "$PROJ/tools/.bin/godot" ]; then
+	GODOT_BIN="$PROJ/tools/.bin/godot"
+else
+	GODOT_BIN="godot"
+fi
 cd "$PROJ"
 
-echo "== versão"
+echo "== versão ($GODOT_BIN)"
 "$GODOT_BIN" --headless --version || exit 1
 
 echo "== import de artefactos"
