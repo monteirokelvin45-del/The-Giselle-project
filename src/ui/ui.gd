@@ -124,11 +124,9 @@ func _cycle_narration() -> void:
 	notify("Narração de menus %s." % ("ativada" if GameState.menu_narration else "desligada"))
 
 func _tts_say(text: String) -> void:
-	if not DisplayServer.tts_is_speaking_available():
-		return
 	var voices := DisplayServer.tts_get_voices()
 	if voices.is_empty():
-		return
+		return   # sistema sem vozes TTS — silencioso por omissão
 	var voice_id := String(voices[0].get("id", ""))
 	if not voice_id.is_empty():
 		DisplayServer.tts_speak(text, voice_id)
@@ -238,7 +236,7 @@ func _ready() -> void:
 	_build_factions()
 	_build_decision()
 	_build_ending()
-	GameState.notify.connect(notify)
+	GameState.notify_requested.connect(notify)
 	GameState.objective_changed.connect(_on_objective_changed)
 	GameState.stats_changed.connect(_refresh_stats)
 
@@ -549,7 +547,7 @@ func _make_ability_slot(aid: String) -> Dictionary:
 func _refresh_abilities() -> void:
 	if _player_cache == null or not is_instance_valid(_player_cache):
 		_player_cache = get_tree().get_first_node_in_group("player")
-	var cds = null
+	var cds: Variant = null
 	if _player_cache != null:
 		cds = _player_cache.get("ability_cooldowns")
 	for aid in _ability_slots:
@@ -573,7 +571,7 @@ func _refresh_abilities() -> void:
 func _refresh_techniques() -> void:
 	if _player_cache == null or not is_instance_valid(_player_cache):
 		_player_cache = get_tree().get_first_node_in_group("player")
-	var cds = null
+	var cds: Variant = null
 	if _player_cache != null:
 		cds = _player_cache.get("technique_cooldowns")
 	for tid in _technique_slots:
@@ -932,7 +930,7 @@ func _build_map() -> void:
 func _all_destinations() -> Array:
 	var dests: Array = TRAVEL_DESTS.duplicate()
 	for r in GameState.REGIONS:
-		var d := (r as Dictionary).duplicate()
+		var d: Dictionary = (r as Dictionary).duplicate()
 		d["scene"] = "res://scenes/region.tscn"
 		dests.append(d)
 	return dests

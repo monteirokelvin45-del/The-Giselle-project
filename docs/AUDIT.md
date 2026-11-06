@@ -249,3 +249,23 @@ risco/valor:
 - **Chuva/raios visuais**: precisa de partículas/shader — junto com a
   primeira sessão de polish gráfico.
 - Nada disto foi executado no Godot; `validate.py` ✓ (405 strings OK).
+
+---
+
+# 9. Addendum v1.0.1 — A engine correu (2026-11-06)
+
+Godot **4.7.2-stable** compilado neste ambiente a partir do código-fonte
+(`docs/BUILD.md` para o procedimento completo e o porquê). Resultado:
+**SMOKE OK nas 5 cenas** + **11/11 asserções de jogabilidade**.
+
+A engine encontrou em minutos bugs que a validação estática e as revisões
+humanas não apanharam — o pior: o **save/load nunca funcionou** (o checksum
+sha256 comparava strings que o roundtrip float do JSON do Godot garantia
+diferentes). Corrigido com serialização canónica; saves antigos são
+inválidos (e já o eram, silenciosamente). Ver §BUILD.md para a tabela
+completa.
+
+Nota de honestidade: correr headless prova compilação, boot, autoloads e
+**lógica** — não prova correção visual nem de jogabilidade real (mouselook,
+câmara, hit reactions, animações, GL Compatibility em GPU real, Android
+build). O primeiro F5 num editor com display continua a ser o teste real.

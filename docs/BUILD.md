@@ -1,0 +1,56 @@
+# Compilar e validar o Godot neste ambiente (2026-11-06)
+
+O ambiente de trabalho **não consegue descarregar binários oficiais do Godot**
+(`downloads.tuxfamily.org`/`godotengine.org` estão fora da lista de hosts; os
+artefactos da release no GitHub redireccionam para S3 fora da lista; o `apt`
+não tem rede). A saída encontrada: **compilar o Godot 4.7.2 a partir do
+código-fonte** (codeload.github.com funciona).
+
+## Como foi feito
+
+```bash
+curl -L -o godot-src.tar.gz https://codeload.github.com/godotengine/godot/tar.gz/refs/tags/4.7.2-stable
+tar xzf godot-src.tar.gz && cd godot-4.7.2-stable
+pip3 install --break-system-packages scons
+# pkg-config não existe no ambiente; um stub vazio em PATH basta porque
+# CADA dependência de sistema está desligada (use_sowrap ou builtin/*):
+mkdir -p /tmp/bin && printf '#!/bin/sh\nexit 0\n' > /tmp/bin/pkg-config && chmod +x /tmp/bin/pkg-config
+PATH=/tmp/bin:$PATH scons platform=linuxbsd target=editor \
+    x11=no wayland=no dbus=no speechd=no fontconfig=no \
+    alsa=no pulseaudio=no udev=no touch=no use_llvm=no \
+    debug_symbols=no -j2
+# → bin/godot.linuxbsd.editor.x86_64 · ~51 min · ~2 GB (gcc 12, 2 cores, 4 GB RAM)
+```
+
+O binário corre apenas headless (sem X11) — suficiente para importar, carregar
+cenas e executar scripts de teste:
+
+```bash
+godot --headless --path . --import                       # importa artefactos
+tools/headless_check.sh /tmp/godot-4.7.2-stable/bin/godot.linuxbsd.editor.x86_64
+godot --headless --path . res://tools/smoke_test.tscn    # 11 asserções; exit 0 = tudo verde
+```
+
+## O que a engine encontrou e que a validação estática nunca viu
+
+| # | Bug | Correção |
+|---|---|---|
+| 1 | `GameState.notify` era um **signal** chamado como função em ~15 ficheiros — nada compilava | `signal notify_requested` + `func notify()`; `ui.gd` liga ao novo sinal |
+| 2 | `JOY_BUTTON_SHOULDER_LEFT/RIGHT` não existe | `JOY_BUTTON_LEFT_SHOULDER` / `JOY_BUTTON_RIGHT_SHOULDER` |
+| 3 | `PointLight3D` não existe no Godot 4 | `OmniLight3D` |
+| 4 | `shadow_map_size` removido do `DirectionalLight3D` | `directional_shadow_max_distance = 90.0` + `rendering/lights_and_shadows/directional_shadow/size=2048` no project.godot |
+| 5 | `tts_is_speaking_available()` não existe | removido; `tts_get_voices()` vazio ⇒ silêncio |
+| 6 | Inferência `:=` a partir de valores Variant (warnings tratados como erros) | anotações explícitas em ~15 locais |
+| 7 | **Checksum do save impossível de validar**: o JSON do Godot devolve sempre floats (`1`→`1.0`) — saves **nunca** carregavam | serialização canónica (`_canonical_save`) partilhada entre save e load; **todos os saves anteriores são inválidos** (mas já o eram — o load devolvia sempre «adulterada») |
+
+## Estado de validação após a correção
+
+- 5 cenas (`title`, `main`, `academia`, `region`, `sala_branca`) carregam e
+  correm 120–240 frames headless **sem SCRIPT ERROR**.
+- `tools/smoke_test.tscn`: **11/11** — boot do mundo, subir de nível por XP,
+  desbloqueio de técnicas (Passo Vazio/Queda do Colosso), curva de XP e
+  cura da poção via `balance.json`, **save/load roundtrip**, dano real a um
+  inimigo instanciado em runtime.
+- **Nunca validado**: correção visual (orgientação de modelos, animações,
+  materiais em GL Compatibility), jogabilidade real com um humano, Android.
+  Headless só prova compilação + boot + lógica.

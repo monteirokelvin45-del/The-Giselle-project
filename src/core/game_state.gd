@@ -2,7 +2,10 @@ extends Node
 ## Estado global do jogo: atributos, XP, missões, inventário, ruptura e save/load.
 ## Autoload "GameState". Persistido em user://academia_zero_save.json
 
-signal notify(text: String)
+signal notify_requested(text: String)
+
+func notify(text: String) -> void:
+	notify_requested.emit(text)
 signal objective_changed(text: String)
 signal stats_changed()
 signal game_saved()
@@ -462,7 +465,7 @@ func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 		"rupture_activations": rupture_activations, "techniques_seen": techniques_seen,
 		"px": pos.x, "py": pos.y, "pz": pos.z, "hp": hp, "stamina": stamina,
 	}
-	var payload := JSON.stringify(data)
+	var payload := JSON.stringify(_canonical_save(data))
 	data["checksum"] = payload.sha256_text()
 	var tmp_path := SAVE_PATH + ".tmp"
 	var f := FileAccess.open(tmp_path, FileAccess.WRITE)
@@ -552,6 +555,26 @@ func _apply_save_dict(parsed: Dictionary) -> void:
 func has_save() -> bool:
 	return FileAccess.file_exists(SAVE_PATH)
 
+## Serialização canónica para checksum: números viram float64 (o JSON do
+## Godot devolve sempre floats) e as chaves ficam ordenadas — assim a assinatura
+## é idêntica antes e depois do roundtrip JSON.
+func _canonical_save(value: Variant) -> Variant:
+	if value is Dictionary:
+		var keys: Array = (value as Dictionary).keys()
+		keys.sort_custom(func(a, b): return str(a) < str(b))
+		var out := {}
+		for key in keys:
+			out[str(key)] = _canonical_save((value as Dictionary)[key])
+		return out
+	elif value is Array:
+		var arr: Array = []
+		for item in (value as Array):
+			arr.append(_canonical_save(item))
+		return arr
+	elif typeof(value) == TYPE_INT or typeof(value) == TYPE_FLOAT:
+		return float(value)
+	return value
+
 func load_game() -> bool:
 	if not has_save():
 		notify("Não existe jogo guardado.")
@@ -568,9 +591,9 @@ func load_game() -> bool:
 		notify("Gravação principal corrompida — restaurado o backup.")
 	var stored_checksum := String((parsed as Dictionary).get("checksum", ""))
 	if stored_checksum != "":
-		var data := parsed as Dictionary
+		var data := (parsed as Dictionary).duplicate(true)
 		data.erase("checksum")
-		if JSON.stringify(data).sha256_text() != stored_checksum:
+		if JSON.stringify(_canonical_save(data)).sha256_text() != stored_checksum:
 			notify("Gravação adulterada ou corrompida (checksum inválido).")
 			return false
 	_apply_save_dict(parsed)

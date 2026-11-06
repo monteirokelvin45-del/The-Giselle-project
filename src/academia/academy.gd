@@ -125,7 +125,7 @@ func _build_environment() -> void:
 	sun.light_color = Color(1.0, 0.82, 0.62)
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 90.0
-	sun.shadow_map_size = 2048
+	sun.directional_shadow_max_distance = 90.0
 	add_child(sun)
 
 # -------------------------------------------------------------- chão --------

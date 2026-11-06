@@ -369,7 +369,7 @@ func _toggle_lock() -> void:
 		for enemy in get_tree().get_nodes_in_group("enemy"):
 			if not is_instance_valid(enemy) or enemy == locked_enemy:
 				continue
-			var d := global_position.distance_to(enemy.global_position)
+			var d: float = global_position.distance_to(enemy.global_position)
 			if d < GameState.lock_range() and d < best_dist:
 				best_dist = d
 				best = enemy
@@ -386,7 +386,7 @@ func _toggle_lock() -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not is_instance_valid(enemy):
 			continue
-		var d := global_position.distance_to(enemy.global_position)
+		var d: float = global_position.distance_to(enemy.global_position)
 		if d < nearest_dist:
 			nearest_dist = d
 			nearest = enemy
@@ -421,7 +421,7 @@ func _try_chain() -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not is_instance_valid(enemy):
 			continue
-		var d := global_position.distance_to(enemy.global_position)
+		var d: float = global_position.distance_to(enemy.global_position)
 		if d < nearest_dist:
 			nearest_dist = d
 			nearest = enemy
@@ -498,7 +498,7 @@ func _do_attack(heavy: bool) -> void:
 	total_swings += 1
 	attack_performed.emit()
 	var combo_idx := _combo % 3
-	var base := [12.0, 14.0, 17.0][combo_idx] if not heavy else 34.0
+	var base: float = [12.0, 14.0, 17.0][combo_idx] if not heavy else 34.0
 	var reach := 2.4 if not heavy else 2.8
 	var posture_dmg := (12.0 if not heavy else 30.0) * GameState.posture_mult()
 	var mult := GameState.damage_mult() * (1.5 if GameState.rupture_time_left > 0.0 else 1.0)
@@ -518,7 +518,7 @@ func _do_attack(heavy: bool) -> void:
 			to_e.y = 0.0
 			if to_e.length() <= reach + 1.2 and to_e.length() > 0.01:
 				var yaw := atan2(to_e.x, to_e.z)
-				var d := cos(_facing - yaw)
+				var d: float = cos(_facing - yaw)
 				if d > best_dot:
 					best_dot = d
 					best_yaw = yaw
@@ -730,9 +730,9 @@ func _find_interactable() -> Node3D:
 		for node in get_tree().get_nodes_in_group(group_name):
 			if not is_instance_valid(node) or not (node is Node3D):
 				continue
-			var to_n := node.global_position - global_position
+			var to_n: Vector3 = node.global_position - global_position
 			to_n.y = 0.0
-			var d := to_n.length()
+			var d: float = to_n.length()
 			if d < best_dist:
 				best_dist = d
 				best = node

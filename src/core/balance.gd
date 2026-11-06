@@ -25,7 +25,7 @@ func difficulty_table() -> Dictionary:
 
 func xp_needed(level: int) -> int:
 	var x = _data.get("xp", {})
-	var base := int(x.get("base", 100)) if x is Dictionary else 100
+	var base: int = int(x.get("base", 100)) if x is Dictionary else 100
 	var per := int(x.get("per_level", 75)) if x is Dictionary else 75
 	return base + (level - 1) * per
 

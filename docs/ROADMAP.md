@@ -108,6 +108,10 @@ por reputação, decisões e estado do mundo.
       já existia (sha256 + .tmp atómico + .bak).
 - [x] **Localização — andaime**: `tools/l10n_extract.py` +
       `docs/l10n/strings_pt.csv` (405 strings) + `docs/LOCALIZATION.md`.
+- [x] **Engine executada neste ambiente**: Godot 4.7.2 compilado do
+      código-fonte (headless linuxbsd); 5 cenas em smoke boot limpas; 11
+      asserções de jogabilidade verdes (save/load, XP, técnicas, combate
+      real). Ver `docs/BUILD.md` e `docs/AUDIT.md` §9.
 - [x] Assistência de mira suave nos ataques corpo a corpo (o corpo vira
       para o alvo mais próximo ao alcance — desligável na pausa).
 - [~] Narração de menus: as notificações são lidas por TTS do sistema

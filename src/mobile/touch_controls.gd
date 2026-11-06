@@ -46,7 +46,7 @@ func _process(delta: float) -> void:
 		_refresh_ability_buttons()
 
 func consume_look() -> Vector2:
-	var d := _look_delta
+	var d: Vector2 = _look_delta
 	_look_delta = Vector2.ZERO
 	return d
 
@@ -96,7 +96,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventScreenDrag:
 		var p: Vector2 = event.position
 		if event.index == _joy_index:
-			var d := p - _joy_origin
+			var d: Vector2 = p - _joy_origin
 			var dl := d.length()
 			if dl > JOY_RADIUS:
 				d = d.normalized() * JOY_RADIUS

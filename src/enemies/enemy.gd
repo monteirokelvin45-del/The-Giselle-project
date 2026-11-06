@@ -344,7 +344,7 @@ func _physics_process(delta: float) -> void:
 	for other in get_tree().get_nodes_in_group("enemy"):
 		if other == self or not is_instance_valid(other):
 			continue
-		var push := global_position - other.global_position
+		var push: Vector3 = global_position - other.global_position
 		push.y = 0.0
 		if push.length() < 1.3 and push.length() > 0.01:
 			velocity += push.normalized() * 3.0
@@ -360,7 +360,7 @@ func _nearest_ally_of_type(type: String, max_dist: float) -> Node3D:
 			continue
 		if other.get("enemy_type") != type:
 			continue
-		var d := (other.global_position - global_position).length()
+		var d: float = (other.global_position - global_position).length()
 		if d < best_d:
 			best_d = d
 			best = other

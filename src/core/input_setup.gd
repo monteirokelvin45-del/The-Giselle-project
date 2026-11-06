@@ -10,9 +10,9 @@ const ACTIONS := [
 	{"action": "move_right", "events": [{"type": "key", "key": KEY_D}, {"type": "key", "key": KEY_RIGHT}, {"type": "axis", "axis": JOY_AXIS_LEFT_X, "value": 1.0}]},
 	{"action": "dodge", "events": [{"type": "key", "key": KEY_SPACE}, {"type": "joy", "value": JOY_BUTTON_A}]},
 	{"action": "sprint", "events": [{"type": "key", "key": KEY_SHIFT}, {"type": "joy", "value": JOY_BUTTON_LEFT_STICK}]},
-	{"action": "block", "events": [{"type": "key", "key": KEY_Q}, {"type": "joy", "value": JOY_BUTTON_SHOULDER_LEFT}]},
+	{"action": "block", "events": [{"type": "key", "key": KEY_Q}, {"type": "joy", "value": JOY_BUTTON_LEFT_SHOULDER}]},
 	{"action": "interact", "events": [{"type": "key", "key": KEY_E}, {"type": "joy", "value": JOY_BUTTON_B}]},
-	{"action": "rupture", "events": [{"type": "key", "key": KEY_F}, {"type": "joy", "value": JOY_BUTTON_SHOULDER_RIGHT}]},
+	{"action": "rupture", "events": [{"type": "key", "key": KEY_F}, {"type": "joy", "value": JOY_BUTTON_RIGHT_SHOULDER}]},
 	{"action": "potion", "events": [{"type": "key", "key": KEY_R}, {"type": "joy", "value": JOY_BUTTON_DPAD_DOWN}]},
 	{"action": "lock_on", "events": [{"type": "key", "key": KEY_TAB}, {"type": "joy", "value": JOY_BUTTON_RIGHT_STICK}]},
 	{"action": "pause", "events": [{"type": "key", "key": KEY_ESCAPE}, {"type": "joy", "value": JOY_BUTTON_START}]},
@@ -64,7 +64,7 @@ func dict_from_event(event: InputEvent) -> Dictionary:
 	elif event is InputEventJoypadButton:
 		return {"type": "joy", "value": event.button_index}
 	elif event is InputEventJoypadMotion:
-		var v := event.axis_value
+		var v: float = event.axis_value
 		return {"type": "axis", "axis": event.axis, "value": -1.0 if v < 0.0 else 1.0}
 	return {}
 

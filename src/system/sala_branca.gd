@@ -88,7 +88,7 @@ func _build_environment() -> void:
 	_sun.light_energy = 0.9
 	_sun.shadow_enabled = true
 	_sun.directional_shadow_max_distance = 60.0
-	_sun.shadow_map_size = 2048
+	_sun.directional_shadow_max_distance = 90.0
 	add_child(_sun)
 
 func _build_room() -> void:

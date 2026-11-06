@@ -12,6 +12,8 @@ versão traduzida de verdade.
   (`key, context_file, line, text`, 405 entradas na última extração).
 - `docs/l10n/strings_pt.csv` — tabela de strings em português europeu,
   deduplicada, com referência de ficheiro e linha de cada ocorrência.
+- `docs/l10n/.gdignore` — impede o Godot de importar a tabela como CSV de
+  tradução (este ficheiro NÃO é o formato de localização do engine).
 - Convenções já fixas no código: placeholders no estilo `%s` / `%d` são
   preservados nas strings e o jogo nenhuma vez constrói frases por
   concatenação solta de fragmentos (o que facilitaria a tradução).

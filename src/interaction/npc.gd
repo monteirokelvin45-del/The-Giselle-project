@@ -176,7 +176,7 @@ func _process(delta: float) -> void:
 		visual.position.y = sin(_t * 1.8) * 0.025
 		var player = get_tree().get_first_node_in_group("player")
 		if player != null:
-			var to_p := player.global_position - global_position
+			var to_p: Vector3 = player.global_position - global_position
 			to_p.y = 0.0
 			if to_p.length() < 3.2 and to_p.length() > 0.1:
 				var target := atan2(to_p.x, to_p.z)

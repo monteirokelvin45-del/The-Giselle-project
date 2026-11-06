@@ -404,7 +404,7 @@ func _input(event: InputEvent) -> void:
 		return
 	var advance := false
 	if event is InputEventKey and event.pressed and not event.echo:
-		var k := event.keycode
+		var k: int = event.keycode
 		if k == KEY_E or k == KEY_SPACE or k == KEY_ENTER:
 			advance = true
 	if not advance:

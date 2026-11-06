@@ -70,7 +70,7 @@ func _build_environment() -> void:
 	_sun.light_color = _cfg["sun"]
 	_sun.shadow_enabled = true
 	_sun.directional_shadow_max_distance = 80.0
-	_sun.shadow_map_size = 2048
+	_sun.directional_shadow_max_distance = 90.0
 	add_child(_sun)
 
 func _build_ground_and_props() -> void:
@@ -175,7 +175,7 @@ func _process(delta: float) -> void:
 	_day_t += delta / 240.0
 	if _day_t > 1.0:
 		_day_t -= 1.0
-	var day_angle := lerp(-20.0, -160.0, _day_t)
+	var day_angle: float = lerp(-20.0, -160.0, _day_t)
 	_sun.rotation_degrees.x = day_angle
 	var daylight := clampf(sin(_day_t * PI), 0.0, 1.0)
 	_sun.light_energy = (0.3 + 0.85 * daylight) * (0.65 if _storm else 1.0)

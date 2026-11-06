@@ -159,7 +159,7 @@ func _build_environment() -> void:
 	sun.light_color = Color(1.0, 0.94, 0.82)
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 90.0
-	sun.shadow_map_size = 2048
+	sun.directional_shadow_max_distance = 90.0
 	root.add_child(sun)
 	# Ambiente + céu procedural + nevoeiro
 	var world_env := WorldEnvironment.new()
@@ -275,7 +275,7 @@ func _build_village() -> void:
 	_visual_cyl(0.32, 0.34, 0.18, forge_pos + Vector3(-0.6, 0.28, 1.35), _mat(Color(0.18, 0.18, 0.2), 0.6, 0.4))  # bigorna
 	_visual_box(Vector3(0.6, 0.18, 0.6), forge_pos + Vector3(-0.6, 0.11, 1.35), timber)
 	_visual_box(Vector3(0.9, 0.12, 0.9), forge_pos + Vector3(0.4, 0.35, 1.3), _mat(Color(1.0, 0.45, 0.1), 0.0, 0.6, Color(1.0, 0.4, 0.05), 2.6))  # brasas
-	var fire_light := PointLight3D.new()
+	var fire_light := OmniLight3D.new()
 	fire_light.position = forge_pos + Vector3(0.4, 1.1, 1.3)
 	fire_light.light_color = Color(1.0, 0.55, 0.2)
 	fire_light.light_energy = 2.2
