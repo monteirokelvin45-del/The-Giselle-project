@@ -75,6 +75,34 @@ const ENDINGS := {
 		"desc": "Liderar os que foram esquecidos pelo mundo.",
 		"text": "Quando Kael levanta a voz na zona dos Sem-Núcleo, ninguém pede silêncio.\n\nNão há Núcleo nesta sala. Há mãos abertas, ferramentas em riste, filhos de curandeiras e forjados pelos ribeiros de Noro. Se a magia construiu um mundo de portas fechadas, então eles serão a chave — ou a porta deitada abaixo.\n\nO Sistema observa em silêncio. Pela primeira vez, parece... curioso.",
 	},
+	"estandarte": {
+		"title": "O Regente do Norte",
+		"choice": "«Pego na espada do Conselho Imperial.»",
+		"desc": "Um trono para um sem-magia. (Requer: Conselho Imperial 40+)",
+		"req": {"faction": "imperial", "amount": 40},
+		"text": "Quando o Conselho Imperial ergue Kael Noro como Regente do Norte, os marechais rangem os dentes — e curvam-se na mesma.\n\nUm homem sem Núcleo, com o peso de um trono de aço e estatutos em revisão. O Império aprende a sua primeira lição: a força nunca foi o monopólio dos magos.\n\nA segunda lição... vem depois.",
+	},
+	"arquivo": {
+		"title": "O Guardião do Arquivo",
+		"choice": "«Desço abaixo da torre poente.»",
+		"desc": "Revelar o Arquivo Proibido. (Requer: Arquivistas 40+)",
+		"req": {"faction": "arquivistas", "amount": 40},
+		"text": "Abaixo da torre poente, onde noventa anos de poeira esquentaram os segredos, Kael Noro abre a porta que ninguém abriu.\n\nO Arquivo Proibido não queima — revela. Cada página é uma sentença sobre a magia: de onde veio, o que custou, quem a escondeu. Kael torna-se o Guardião do Arquivo — o homem que decide o que o mundo pode ler.\n\nO mundo, pela primeira vez, lê.",
+	},
+	"vacuo": {
+		"title": "O Lugar-Vazio",
+		"choice": "«Rasgo o decreto de ligação.»",
+		"desc": "Destruir a lei dos Núcleos. (Requer: Irmandade do Vácuo 40+)",
+		"req": {"faction": "irmandade", "amount": 40},
+		"text": "Kael não destrói os Núcleos — destrói a lei que os tornou sagrados.\n\nNa Praça de Veyra, diante do Conselho, ele rasga o decreto de ligação e deita-o ao vento como a sua própria faixa de olhos. Os sem-magia erguem-se; os magos abdicam; os cépticos calam-se.\n\nO Sistema, finalmente, escolhe um lado — o lado do Vácuo: o lugar que ficou vazio quando Kael desapareceu, e voltou maior do que cabe no mundo.",
+	},
+}
+
+const ROMANCE_EPILOGUES := {
+	"liora": "Liora fica. Não como conselheira, não como mestre — fica como o corpo e o sossego de uma escolha.\nNos mapas que ela desenha agora, há um lugar marcado apenas «casa».",
+	"bram": "Bram funde duas lâminas numa só — «para quem for», diz ele, e não explica mais.\nAs noites de festa da forja passam a ter sempre dois copos na mesa.",
+	"sena": "Sena planta algo novo no jardim da Academia: uma árvore que ninguém reconhece.\n«Nasce quando o amor quer», diz ela. Chama-se, por agora, apenas «Kael».",
+	"iven": "Iven navega. Sempre navegou. Mas agora, na última vigília antes de cada viagem, escreve uma carta — e a carta começa sempre da mesma maneira:\n«Kael, o porto continua aqui à tua espera.»",
 }
 
 func _ready() -> void:
@@ -945,7 +973,7 @@ var _credits_label: Label
 
 func _build_decision() -> void:
 	_decision_overlay = _make_dim_overlay()
-	var panel := _make_panel(680, 560)
+	var panel := _make_panel(700, 648)
 	_decision_overlay.add_child(panel)
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 10)
@@ -953,14 +981,24 @@ func _build_decision() -> void:
 	var title := _make_label("A DECISÃO", 30, Color(0.97, 0.82, 0.3))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
-	var story := _make_label("O Guardião da Prova jaz aos teus pés. Os portões de Veyra estão abertos — e todas as portas do mundo também. O que fazes agora com a força que construíste?", 14, Color(0.85, 0.84, 0.8))
+	var story := _make_label("O Guardião da Prova jaz aos teus pés. Os portões de Veyra estão abertos — e todas as portas do mundo também.\nA tua reputação entre as fações abre caminhos que o menu não mostra. O que fazes agora com a força que construíste?", 13, Color(0.85, 0.84, 0.8))
 	story.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	story.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(story)
-	for key in ["academia", "vagabundo", "revolta"]:
+	for key in ["academia", "vagabundo", "revolta", "estandarte", "arquivo", "vacuo"]:
 		var ending: Dictionary = ENDINGS[key]
 		var btn := _make_button(String(ending["choice"]) + "\n" + String(ending["desc"]), _choose_ending.bind(key))
-		btn.custom_minimum_size = Vector2(0, 64)
+		btn.custom_minimum_size = Vector2(0, 58)
+		btn.add_theme_font_size_override("font_size", 12)
+		if ending.has("req"):
+			var req: Dictionary = ending["req"]
+			var faction := String(req["faction"])
+			var amount := int(req["amount"])
+			var rep := int(GameState.reputation.get(faction, 0))
+			if rep < amount:
+				var fname := String(GameState.REPUTATION_NAMES.get(faction, faction))
+				btn.text = "🔒 " + String(ending["choice"]) + "\nRequer: %s %d  (tens %d)" % [fname, amount, rep]
+				btn.disabled = true
 		vbox.add_child(btn)
 
 func _open_decision() -> void:
@@ -975,8 +1013,12 @@ func _choose_ending(key: String) -> void:
 	_decision_overlay.visible = false
 	ending_open = true
 	var ending: Dictionary = ENDINGS[key]
+	var ending_text := String(ending["text"])
+	var rid := GameState.romance_id
+	if rid != "" and ROMANCE_EPILOGUES.has(rid):
+		ending_text += "\n\n— «Incluindo, claro», pensa Kael.\n" + String(ROMANCE_EPILOGUES[rid])
 	_ending_title.text = String(ending["title"])
-	_ending_text.text = String(ending["text"])
+	_ending_text.text = ending_text
 	_credits_label.text = _build_credits_text()
 	_ending_overlay.visible = true
 
