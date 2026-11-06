@@ -16,7 +16,7 @@ secção [Créditos](#créditos).
 
 | Jogo | Modelo | Notas |
 |---|---|---|
-| Kael Noro (jogador) | `Rogue_Hooded.glb` | tintura branca (original) |
+| Kael Noro (jogador) | `Rogue_Hooded.glb` | tintura carvão `Color(0.36, 0.35, 0.37)` — a referência de personagem do dono do projeto é monocromática (ver `docs/CHARACTER.md` e `assets/art/kael_reference.jpg`) |
 | Salteador de Ruína | `Barbarian.glb` | tintura avermelhada, escala 1.05 |
 | Mago de Cinza | `Mage.glb` | tintura violeta |
 | Guardião da Prova | `Barbarian.glb` | tintura de pedra, escala 2.3 |
@@ -61,9 +61,12 @@ Lobos procedural mantém o comportamento v0.1 (sem animação esquelética).
 `assets/audio/*.wav` — efeitos sintetizados no próprio repositório
 (`tools/synth_audio.py`). Sem dependência externa, sem licença de terceiros.
 
-## Key art
+## Key art e referência de personagem
 
-`assets/art/key_art.jpg` — imagem gerada por IA para o ecrã de título.
+- `assets/art/key_art.jpg` — imagem gerada por IA para o ecrã de título.
+- `assets/art/kael_reference.jpg` — folha de personagem do Kael, **fornecida pelo
+  dono do projeto** (uso exclusivo deste repositório; não redistribuir).
+  Ver `docs/CHARACTER.md` para a leitura visual e o plano de fidelidade total.
 
 ## Créditos
 

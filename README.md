@@ -55,7 +55,8 @@ Detalhes e licenças: [`docs/ASSETS.md`](docs/ASSETS.md).
 
 Evolução de qualidade sobre a v0.1 (o conteúdo de jogo é o mesmo; o mundo e o combate ganharam vida):
 
-- **Personagens por modelos 3D esqueléticos** (KayKit Adventures, CC0): Kael (Rogue Hooded),
+- **Personagens por modelos 3D esqueléticos** (KayKit Adventures, CC0): Kael (Rogue Hooded tingido
+  carvão, a condizer com a referência de personagem em `assets/art/kael_reference.jpg`),
   inimigos humanoides (Salteador = Barbarian tintada, Mago de Cinza = Mage tintada,
   Guardião = Barbarian gigante em pedra) e os 5 NPCs — cada um com **Idle/Walking/Running**,
   **ataques**, **hit**, **block**, **dodge** e **morte** animado. O lobo mantém-se procedural.
@@ -142,7 +143,7 @@ src/
   ui/                    # título, HUD, pausa, atributos, diálogos, decisão
   visuals/               # fábrica de modelos/animações + efeitos (shake, bursts)
 assets/models/           # modelos CC0 (KayKit): characters/ e env/ — ver docs/ASSETS.md
-assets/art/              # key art (título)
+assets/art/              # key art (título) + referência de personagem (kael_reference.jpg)
 assets/audio/            # SFX sintetizados (tools/synth_audio.py)
 tools/                   # validate.py (checagens) e synth_audio.py
 docs/                    # GDD.md, ROADMAP.md, ASSETS.md, licenses/

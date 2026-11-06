@@ -80,7 +80,9 @@ func facing_direction() -> Vector3:
 # ------------------------------------------------------------------ visual ---
 func _build_visual() -> void:
 	var mf := preload("res://src/visuals/model_factory.gd")
-	var result: Dictionary = mf.spawn_character(self, "res://assets/models/characters/Rogue_Hooded.glb", Vector3.ZERO, Color.WHITE, 1.0)
+	# Kael na referência de personagem (assets/art/kael_reference.jpg):
+	# traje monocromático carvão/preto com capa com capuz.
+	var result: Dictionary = mf.spawn_character(self, "res://assets/models/characters/Rogue_Hooded.glb", Vector3.ZERO, Color(0.36, 0.35, 0.37), 1.0)
 	if result["visual"] != null:
 		visual = result["visual"]
 		_anim_player = result["anim_player"]
