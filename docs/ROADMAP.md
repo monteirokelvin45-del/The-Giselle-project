@@ -22,7 +22,8 @@ Missão principal completa + 2 secundárias, combate com parry/postura/Ruptura,
       compilava; reset do estado de morte do jogador).
 - [x] Hit-stop em acertos (~90–130 ms) e câmara com spring-arm real (raycast
       com colisão + proximidade suavizada) — verificado no código.
-- [ ] Cancelamento de movimento por ataque.
+- [x] Cancelamento de movimento por ataque: atacar durante a esquiva
+      encurta-a e entra já em golpe (game cancel).
 - [x] Técnicas desbloqueáveis iniciais: `Passo Vazio` (1.ª Ruptura),
       `Queda do Colosso` (3.ª Ruptura), `Corrida do Predador` (Nv 8) —
       teclas V/C/Z, recargas, slots próprios no HUD, notificação de
@@ -59,8 +60,11 @@ Missão principal completa + 2 secundárias, combate com parry/postura/Ruptura,
 ## v0.5 — Mundo aberto: as 6 regiões restantes (sec. 14–16)
 Vale de Noro (polido) → Floresta de Ruun → Deserto de Sahr → Montanhas de Khar
 → Arquipélago de Lume → Ilhas de Aer → Abismo de Orun.
-Streaming de mundo (grid cells), clima dinâmico, ciclo dia/noite, NPCs com
-rotinas, viagem rápida por faróis.
+Streaming de mundo (grid cells) [ ] por fazer; clima dinâmico [x] (tempestade
+por região — névoa/luz/ambente; ainda sem chuva visível); ciclo dia/noite
+[x]; NPCs com rotinas [x] (vagueio simples em anel de 3 pontos; sem
+pathfinding — podem roçar props; quest-givers enraizados); viagem rápida [x]
+por faróis.
 
 ## v0.6 — Sistemas de RPG profundos (sec. 17, 18, 26–29)
 - Facções com reputação, missões e traições (Conselho Imperial, Irmandade do

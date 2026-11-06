@@ -221,3 +221,31 @@ risco/valor:
   existe mas não fala (o toggle persiste na mesma).
 - Nada disto foi **executado no Godot**; `validate.py` ✓, gdparse ✓, 405
   strings extraídas.
+
+---
+
+# 8. Addendum v0.9 — Vida no mundo e confirmações de combate (2026-11-06)
+
+1. **NPCs com rotinas (v0.5)**: `npc.gd` ganhou `_update_routine()` — os
+   aldeões (e outros ids não-enraizados) vagueiam entre 3 waypoints num anel
+   à volta do posto de origem, com pausas aleatórias de 2–6 s, ficam parados
+   quando o jogador está a menos de 2,1 m e olham-no de frente. Ids de
+   quest/comércio (elen, garr, dario, voss, companheiros) ficam enraizados.
+   Limitação documentada: **sem pathfinding** — podem trespassar props
+   baixos; vias horizontais apenas (sem variação de Y).
+2. **Cancelamento de movimento por ataque (v0.2)**: atacar durante a esquiva
+   (`_dodge_timer > 0`) termina-a imediatamente e executa o golpe — o flow
+   que os jogadores esperam de ARPG/Souls.
+3. **Clima dinâmico confirmado (v0.5)**: o `_storm` por região já existia
+   (30% por viagem; névoa ×1.55, sol e ambiente atenuados). Sem chuva
+   visível nem raios — continua [ ] em efeito.
+4. **Strings de l10n**: 405 (nenhuma nova neste incremento).
+
+## 8.1 Não feito de caso pensado
+
+- **Streaming por grid cells**: exigiria reestruturar `region.gd`/cenas sem
+  poder medir draw calls — risco cego inaceitável sem engine; fica para
+  quando o primeiro F5 permitir profiling.
+- **Chuva/raios visuais**: precisa de partículas/shader — junto com a
+  primeira sessão de polish gráfico.
+- Nada disto foi executado no Godot; `validate.py` ✓ (405 strings OK).

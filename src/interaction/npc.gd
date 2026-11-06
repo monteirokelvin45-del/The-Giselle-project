@@ -4,9 +4,16 @@ extends Node3D
 @export var npc_name: String = "Aldeão"
 @export var dialogue_id: String = "aldeao"
 @export var robe_color: Color = Color(0.4, 0.32, 0.25)
+@export var wander_radius: float = 2.2   # 0 = enraizado (vendedores, quest-givers)
+
+const ROOTED_IDS := ["elen", "garr", "dario", "voss", "liora", "liora_academia", "bram", "sena", "iven"]
 
 var _t: float = 0.0
 var visual: Node3D
+var _anchor: Vector3 = Vector3.ZERO
+var _waypoints: Array[Vector3] = []
+var _wp_index: int = 0
+var _wait_timer: float = 0.0
 
 ## Modelos KayKit (CC0): identidade visual por personagem
 const NPC_MODELS := {
@@ -25,8 +32,22 @@ const NPC_MODELS := {
 
 func _ready() -> void:
 	add_to_group("npc")
+	if dialogue_id in ROOTED_IDS:
+		wander_radius = 0.0
+	_prepare_loop()
 	_build_visual()
 	_build_collision()
+
+func _prepare_loop() -> void:
+	if wander_radius <= 0.0:
+		return
+	_anchor = global_position
+	var seed_angle := fmod(absf(_anchor.x * 12.9898 + _anchor.z * 78.233), 1.0) * TAU
+	for i in range(3):
+		var a := seed_angle + TAU * float(i) / 3.0
+		var r := wander_radius * (0.55 + 0.45 * fmod(absf(seed_angle * (float(i) + 1.7) * 39.7), 1.0))
+		_waypoints.push_back(_anchor + Vector3(cos(a) * r, 0.0, sin(a) * r))
+	_wait_timer = randf_range(1.0, 4.0)
 
 const COMPANION_IDS := {"bram": "bram", "sena": "sena", "iven": "iven", "liora_academia": "liora"}
 const COMPANION_EXAMS := {"bram": "duelo", "sena": "floresta", "iven": "labirinto", "liora_academia": "equipas"}
@@ -109,6 +130,29 @@ func _build_collision() -> void:
 	body.add_child(col)
 	add_child(body)
 
+## Rotina simples em anel: vagueia entre 3 pontos à volta do posto,
+## para junto de cada um, e fica quieto quando o jogador está perto.
+func _update_routine(delta: float) -> void:
+	if _waypoints.is_empty():
+		return
+	var player = get_tree().get_first_node_in_group("player")
+	if player != null and player.global_position.distance_to(global_position) < 2.1:
+		return
+	if _wait_timer > 0.0:
+		_wait_timer -= delta
+		return
+	var target := _waypoints[_wp_index]
+	var to_t := target - global_position
+	to_t.y = 0.0
+	if to_t.length() < 0.18:
+		_wp_index = (_wp_index + 1) % _waypoints.size()
+		_wait_timer = randf_range(2.0, 6.0)
+		return
+	var step := to_t.normalized() * 0.55 * delta
+	global_position = global_position + step
+	if visual:
+		visual.rotation.y = lerp_angle(visual.rotation.y, atan2(step.x, step.z), 5.0 * delta)
+
 func _mat(color: Color) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()
 	m.albedo_color = color
@@ -127,6 +171,7 @@ func _box(parent: Node3D, size: Vector3, pos: Vector3, mat: StandardMaterial3D) 
 
 func _process(delta: float) -> void:
 	_t += delta
+	_update_routine(delta)
 	if visual:
 		visual.position.y = sin(_t * 1.8) * 0.025
 		var player = get_tree().get_first_node_in_group("player")

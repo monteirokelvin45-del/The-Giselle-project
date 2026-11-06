@@ -484,6 +484,8 @@ func _do_attack(heavy: bool) -> void:
 		return
 	if not heavy and _attack_cooldown > 0.0:
 		return
+	if _dodge_timer > 0.0:
+		_dodge_timer = 0.0   # cancelamento: ataque encurta a esquiva
 	var cost := 18.0 if heavy else 6.0
 	if stamina < cost:
 		GameState.notify("Sem fôlego.")

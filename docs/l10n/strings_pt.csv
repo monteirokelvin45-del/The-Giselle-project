@@ -117,7 +117,7 @@ PT-0115,src/enemies/enemy.gd,25,Guardião da Prova
 PT-0116,src/enemies/enemy.gd,482,Postura quebrada — agora golpeia!
 PT-0117,src/enemies/enemy.gd,505,Conjuração interrompida!
 PT-0118,src/enemies/enemy.gd,525,O Guardião da Prova despedaça-se... algo dentro de ti acorda.
-PT-0119,src/interaction/npc.gd,45,E — Falar com %s
+PT-0119,src/interaction/npc.gd,66,E — Falar com %s
 PT-0120,src/interaction/pickup.gd,25,E — Recolher Fibra de Ruína
 PT-0121,src/interaction/pickup.gd,29,Um cristal âmbar pulsa com essência residual. (Precisas de um motivo — fala com a tua mãe)
 PT-0122,src/interaction/rest_point.gd,29,E — Descansar (trata lesões)
@@ -150,10 +150,10 @@ PT-0148,src/player/player.gd,417,A Corrente ainda está a enrolar-se... (%.1fs)
 PT-0149,src/player/player.gd,429,Nenhum alvo para a Corrente de Âncora.
 PT-0150,src/player/player.gd,444,Corrente de Âncora!
 PT-0151,src/player/player.gd,450,Sem fôlego para esquivar.
-PT-0152,src/player/player.gd,489,Sem fôlego.
-PT-0153,src/player/player.gd,761,Parry perfeito!
-PT-0154,src/player/player.gd,770,Fôlego esgotado — não consegues bloquear!
-PT-0155,src/player/player.gd,801,Kael caiu... Acordas na aldeia. (-%d marcos)
+PT-0152,src/player/player.gd,491,Sem fôlego.
+PT-0153,src/player/player.gd,763,Parry perfeito!
+PT-0154,src/player/player.gd,772,Fôlego esgotado — não consegues bloquear!
+PT-0155,src/player/player.gd,803,Kael caiu... Acordas na aldeia. (-%d marcos)
 PT-0156,src/system/dummy.gd,9,Autómato de Treino
 PT-0157,src/system/exit_portal.gd,38,E — Sair do Sistema
 PT-0158,src/system/sala_branca.gd,49,"Bem-vindo, Kael Noro."
