@@ -138,6 +138,11 @@ var injury: int = 0
 # ------------------------------------------- v1.0 — Acessibilidade ----------
 var colorblind_mode: int = 0      # 0 desligado · 1 protanopia · 2 deuteranopia · 3 tritanopia
 var subtitle_scale: float = 1.0
+var weapon_tempered: bool = false   # lâmina temperada na forja de Garr (+12% dano, permanente)
+var aim_assist: bool = true            # preferência: mira suave nos ataques corpo a corpo
+var menu_narration: bool = false       # preferência: TTS nas notificações de menu
+var rupture_activations: int = 0      # quantas vezes a Ruptura foi despertada
+var techniques_seen: Dictionary = {}   # técnicas já anunciadas como desbloqueadas
 var custom_bindings: Dictionary = {}
 var music_enabled: bool = true
 
@@ -232,6 +237,9 @@ func add_companion_loyalty(id: String, amount: int) -> void:
 
 func rest() -> void:
 	injury = 0
+	weapon_tempered = false
+	rupture_activations = 0
+	techniques_seen.clear()
 	stats_changed.emit()
 
 func add_injury() -> void:
@@ -286,6 +294,7 @@ func add_xp(amount: int) -> void:
 		attribute_points += 2
 		notify("NÍVEL %d! +2 pontos de atributo (Esc → Atributos)" % level)
 		Audio.play("levelup")
+		_check_technique_unlock("corrida_predador")
 	stats_changed.emit()
 
 func max_hp() -> float:
@@ -307,7 +316,8 @@ func damage_mult() -> float:
 	var per := 0.08
 	if Balance != null and Balance.has_method("attr"):
 		per = Balance.attr("damage_per_point", 0.08)
-	return (1.0 + float(int(attributes["for"]) - 1) * per) * (0.90 if injury > 0 else 1.0)
+	var mult := (1.0 + float(int(attributes["for"]) - 1) * per) * (0.90 if injury > 0 else 1.0)
+	return mult * (1.12 if weapon_tempered else 1.0)
 
 func posture_mult() -> float:
 	return 1.0 + float(int(attributes["tec"]) - 1) * 0.10
@@ -333,6 +343,7 @@ func add_rupture(amount: float) -> void:
 func try_activate_rupture() -> bool:
 	if rupture >= 100.0 and rupture_time_left <= 0.0:
 		rupture_time_left = 8.0
+		register_rupture_activation()
 		notify("ESTADO DE RUPTURA — 8 segundos de fúria!")
 		stats_changed.emit()
 		return true
@@ -447,6 +458,8 @@ func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 		"injury": injury,
 		"colorblind_mode": colorblind_mode, "subtitle_scale": subtitle_scale,
 		"custom_bindings": custom_bindings, "music_enabled": music_enabled,
+		"weapon_tempered": weapon_tempered, "aim_assist": aim_assist, "menu_narration": menu_narration,
+		"rupture_activations": rupture_activations, "techniques_seen": techniques_seen,
 		"px": pos.x, "py": pos.y, "pz": pos.z, "hp": hp, "stamina": stamina,
 	}
 	var payload := JSON.stringify(data)
@@ -527,6 +540,11 @@ func _apply_save_dict(parsed: Dictionary) -> void:
 	if typeof(custom_bindings) != TYPE_DICTIONARY:
 		custom_bindings = {}
 	music_enabled = bool(parsed.get("music_enabled", true))
+	weapon_tempered = bool(parsed.get("weapon_tempered", false))
+	aim_assist = bool(parsed.get("aim_assist", true))
+	menu_narration = bool(parsed.get("menu_narration", false))
+	rupture_activations = int(parsed.get("rupture_activations", 0))
+	techniques_seen = parsed.get("techniques_seen", {}) if typeof(parsed.get("techniques_seen", {})) == TYPE_DICTIONARY else {}
 	saved_position = Vector3(float(parsed.get("px", 0.0)), float(parsed.get("py", 1.0)), float(parsed.get("pz", 34.0)))
 	saved_hp = float(parsed.get("hp", -1.0))
 	saved_stamina = float(parsed.get("stamina", -1.0))
@@ -605,3 +623,43 @@ func reset_for_new_game() -> void:
 	if Keymap != null and Keymap.has_method("apply_custom_bindings"):
 		Keymap.apply_custom_bindings(custom_bindings)
 	stats_changed.emit()
+
+
+# -------------------------------------------------------- técnicas de Kael ---
+const TECHNIQUES := {
+	"passo_vazio": {"name": "Passo Vazio", "key": "V"},
+	"corrida_predador": {"name": "Corrida do Predador", "key": "C"},
+	"queda_colosso": {"name": "Queda do Colosso", "key": "Z"},
+}
+
+func technique_unlocked(id: String) -> bool:
+	match id:
+		"passo_vazio":
+			return rupture_activations >= 1
+		"corrida_predador":
+			return level >= 8
+		"queda_colosso":
+			return rupture_activations >= 3
+	return false
+
+func technique_requirement(id: String) -> String:
+	match id:
+		"passo_vazio":
+			return "ativa a Ruptura uma vez (tens %d ativações)" % rupture_activations
+		"corrida_predador":
+			return "alcança Nv 8 (estás no Nv %d)" % level
+		"queda_colosso":
+			return "ativa a Ruptura 3 vezes (tens %d ativações)" % rupture_activations
+	return ""
+
+func register_rupture_activation() -> void:
+	rupture_activations += 1
+	_check_technique_unlock("passo_vazio")
+	_check_technique_unlock("queda_colosso")
+
+func _check_technique_unlock(id: String) -> void:
+	if technique_unlocked(id) and not bool(techniques_seen.get(id, false)):
+		techniques_seen[id] = true
+		notify("TÉCNICA DESBLOQUEADA: %s (%s)" % [TECHNIQUES[id]["name"], TECHNIQUES[id]["key"]])
+		Audio.play("levelup", -4.0, 0.8)
+

@@ -20,16 +20,23 @@ Missão principal completa + 2 secundárias, combate com parry/postura/Ruptura,
 - [x] **Lobo esquelético** (Quaternius Ultimate Animated Animals, CC0).
 - [x] Correções de robustez (identificadores não declarados → script de inimigos não
       compilava; reset do estado de morte do jogador).
-- [ ] Cancelamento de movimento por ataque, hit-stop, câmara com spring-arm real.
-- [ ] Combos aéreos, `Queda do Colosso`, `Corrida do Predador`, `Passo Vazio` como
-      técnicas desbloqueáveis (cap 11, sec. 10 do GDD).
+- [x] Hit-stop em acertos (~90–130 ms) e câmara com spring-arm real (raycast
+      com colisão + proximidade suavizada) — verificado no código.
+- [ ] Cancelamento de movimento por ataque.
+- [x] Técnicas desbloqueáveis iniciais: `Passo Vazio` (1.ª Ruptura),
+      `Queda do Colosso` (3.ª Ruptura), `Corrida do Predador` (Nv 8) —
+      teclas V/C/Z, recargas, slots próprios no HUD, notificação de
+      desbloqueio. (cap 11 do sec. 10 ainda longe)
+- [ ] Combos aéreos e as restantes técnicas do sec. 10 (cap 11).
 - [x] IA com coordenação básica — guarda-costas (Salteador↔Mago) e flanqueamento em lados
       opostos (v0.2, após auditoria — ver docs/AUDIT.md).
 - [x] Gamepad completo + dificuldade Casual/Normal/Pesadelo persistida no save.
 - [x] **Android**: controlos táteis (joystick + câmara por arrasto + botões), landscape,
       export preset — alvo: gama alta (escolha do dono). iOS fica para quando houver Mac/Xcode.
 - [x] Hit-stop em acertos (~90–130 ms).
-- [ ] Lock-on com troca suave de alvo e câmara dinâmica.
+- [x] Lock-on com troca suave: Tab cicla para o próximo inimigo mais
+      próximo; duplo toque larga o alvo; alvo morto/distante é largado
+      automaticamente. (Câmara dinâmica fica por fazer.)
 - [x] Música dinâmica por intensidade (exploração → perigo → combate) — v1.0: modos exploração/combate/Sistema, transição por proximidade de inimigos.
 
 ## v0.3 — O Sistema completo (sec. 11 do GDD)
@@ -58,6 +65,8 @@ rotinas, viagem rápida por faróis.
 ## v0.6 — Sistemas de RPG profundos (sec. 17, 18, 26–29)
 - Facções com reputação, missões e traições (Conselho Imperial, Irmandade do
   Vácuo, Ordem da Cinza, Arquivistas...).
+- ✅ Forja do Garr (2026-11-06): poções e Bálsamo de Salvação por Fibras de
+  Ruína + marcos; têmpera da lâmina (150 marcos, +12% dano permanente).
 - Relações e romances com memória de ações (mentir, proteger, quebrar promessas).
 - Economia + fabrico (poções, pregos de ruptura, planadores, peças de barco).
 - Lesões persistentes e recuperação; treino com mestres (sec. 8).
@@ -94,8 +103,12 @@ por reputação, decisões e estado do mundo.
       Sistema) + interruptor no menu de pausa; save corruption-proofing
       já existia (sha256 + .tmp atómico + .bak).
 - [x] **Localização — andaime**: `tools/l10n_extract.py` +
-      `docs/l10n/strings_pt.csv` (371 strings) + `docs/LOCALIZATION.md`.
-- [ ] Assistência de mira e narração de menus (screen reader).
+      `docs/l10n/strings_pt.csv` (405 strings) + `docs/LOCALIZATION.md`.
+- [x] Assistência de mira suave nos ataques corpo a corpo (o corpo vira
+      para o alvo mais próximo ao alcance — desligável na pausa).
+- [~] Narração de menus: as notificações são lidas por TTS do sistema
+      (desligável na pausa); ainda não há narração incremental por botão
+      nem escolha de voz.
 - [ ] Testes com jogadores reais (algo que este repositório ainda não pode
       fazer).
 - [ ] Traduções EN/ES (o runtime ainda não troca de idioma — ver

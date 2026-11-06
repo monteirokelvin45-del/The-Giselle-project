@@ -19,6 +19,8 @@ var _difficulty_btn: Button
 var _music_btn: Button
 var _colorblind_btn: Button
 var _subtitle_btn: Button
+var _aim_btn: Button
+var _narration_btn: Button
 var _rebinding: String = ""
 var _rebind_rows: Dictionary = {}
 var _rebind_hint: Label
@@ -105,6 +107,32 @@ func _cycle_subtitle() -> void:
 	_subtitle_btn.text = _subtitle_text()
 	notify("Tamanho da legenda: %d%%" % int(GameState.subtitle_scale * 100.0))
 
+func _aim_text() -> String:
+	return "Assistência de mira: %s" % ("Ligada" if GameState.aim_assist else "Desligada")
+
+func _cycle_aim_assist() -> void:
+	GameState.aim_assist = not GameState.aim_assist
+	_aim_btn.text = _aim_text()
+	notify("Assistência de mira %s." % ("ativada" if GameState.aim_assist else "desligada"))
+
+func _narration_text() -> String:
+	return "Narração de menus: %s" % ("Ligada" if GameState.menu_narration else "Desligada")
+
+func _cycle_narration() -> void:
+	GameState.menu_narration = not GameState.menu_narration
+	_narration_btn.text = _narration_text()
+	notify("Narração de menus %s." % ("ativada" if GameState.menu_narration else "desligada"))
+
+func _tts_say(text: String) -> void:
+	if not DisplayServer.tts_is_speaking_available():
+		return
+	var voices := DisplayServer.tts_get_voices()
+	if voices.is_empty():
+		return
+	var voice_id := String(voices[0].get("id", ""))
+	if not voice_id.is_empty():
+		DisplayServer.tts_speak(text, voice_id)
+
 func _difficulty_text() -> String:
 	return "Dificuldade: %s  ⟳" % GameState.difficulty_label()
 
@@ -136,6 +164,8 @@ var _crosshair: ColorRect
 var _controls_hint: Label
 var _ability_box: HBoxContainer
 var _ability_slots: Dictionary = {}
+var _technique_box: HBoxContainer
+var _technique_slots: Dictionary = {}
 var _ability_timer: float = 0.0
 var _notif_label: Label
 
@@ -228,6 +258,8 @@ func set_in_game(value: bool) -> void:
 		get_tree().paused = false
 
 func notify(text: String) -> void:
+	if GameState.menu_narration:
+		_tts_say(text)
 	_notif_queue.append(text)
 	if _notif_queue.size() > 4:
 		_notif_queue.pop_front()
@@ -297,6 +329,16 @@ func _build_hud() -> void:
 	_hud.add_child(_ability_box)
 	for aid in ["liora", "bram", "sena", "iven"]:
 		_ability_slots[aid] = _make_ability_slot(aid)
+	_technique_box = HBoxContainer.new()
+	_technique_box.anchor_top = 1.0
+	_technique_box.anchor_bottom = 1.0
+	_technique_box.offset_left = 18.0
+	_technique_box.offset_top = -150.0
+	_technique_box.offset_bottom = -88.0
+	_technique_box.add_theme_constant_override("separation", 8)
+	_hud.add_child(_technique_box)
+	for tid in ["passo_vazio", "corrida_predador", "queda_colosso"]:
+		_technique_slots[tid] = _make_technique_slot(tid)
 
 	# Painel de objetivo (superior direito)
 	var obj := PanelContainer.new()
@@ -435,6 +477,40 @@ func _rebuild_side_objectives() -> void:
 		var l := _make_label("· " + line, 12, Color(0.72, 0.78, 0.65))
 		_side_box.add_child(l)
 
+func _make_technique_slot(tid: String) -> Dictionary:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(132, 58)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.1, 0.07, 0.14, 0.72)
+	style.border_color = Color(0.72, 0.55, 0.95, 0.8)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(8)
+	style.content_margin_left = 10.0
+	style.content_margin_right = 10.0
+	style.content_margin_top = 5.0
+	style.content_margin_bottom = 5.0
+	panel.add_theme_stylebox_override("panel", style)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 2)
+	panel.add_child(vbox)
+	var info: Dictionary = {
+		"passo_vazio": {"key": "V", "name": "PASSO VAZIO"},
+		"corrida_predador": {"key": "C", "name": "CORRIDA DO PREDADOR"},
+		"queda_colosso": {"key": "Z", "name": "QUEDA DO COLOSSO"},
+	}[tid]
+	var name_label := Label.new()
+	name_label.text = "%s — %s" % [String(info["key"]), String(info["name"])]
+	name_label.add_theme_font_size_override("font_size", 9)
+	name_label.add_theme_color_override("font_color", Color(0.82, 0.7, 1.0))
+	vbox.add_child(name_label)
+	var status_label := Label.new()
+	status_label.text = "PRONTA"
+	status_label.add_theme_font_size_override("font_size", 13)
+	status_label.add_theme_color_override("font_color", Color(0.75, 0.6, 0.98))
+	vbox.add_child(status_label)
+	_technique_box.add_child(panel)
+	return {"box": panel, "status": status_label}
+
 func _make_ability_slot(aid: String) -> Dictionary:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = Vector2(150, 62)
@@ -489,6 +565,30 @@ func _refresh_abilities() -> void:
 		if cd <= 0.0:
 			status.text = "PRONTA"
 			status.add_theme_color_override("font_color", Color(0.6, 0.9, 0.55))
+		else:
+			status.text = "RECARGA %.0fs" % cd
+			status.add_theme_color_override("font_color", Color(0.85, 0.6, 0.3))
+	_refresh_techniques()
+
+func _refresh_techniques() -> void:
+	if _player_cache == null or not is_instance_valid(_player_cache):
+		_player_cache = get_tree().get_first_node_in_group("player")
+	var cds = null
+	if _player_cache != null:
+		cds = _player_cache.get("technique_cooldowns")
+	for tid in _technique_slots:
+		var slot: Dictionary = _technique_slots[tid]
+		var owned := GameState.technique_unlocked(String(tid))
+		slot["box"].visible = owned
+		if not owned:
+			continue
+		var cd := 0.0
+		if cds is Dictionary:
+			cd = float((cds as Dictionary).get(tid, 0.0))
+		var status: Label = slot["status"]
+		if cd <= 0.0:
+			status.text = "PRONTA"
+			status.add_theme_color_override("font_color", Color(0.75, 0.6, 0.98))
 		else:
 			status.text = "RECARGA %.0fs" % cd
 			status.add_theme_color_override("font_color", Color(0.85, 0.6, 0.3))
@@ -627,6 +727,10 @@ func _build_pause() -> void:
 	vbox.add_child(_colorblind_btn)
 	_subtitle_btn = _make_button(_subtitle_text(), _cycle_subtitle)
 	vbox.add_child(_subtitle_btn)
+	_aim_btn = _make_button(_aim_text(), _cycle_aim_assist)
+	vbox.add_child(_aim_btn)
+	_narration_btn = _make_button(_narration_text(), _cycle_narration)
+	vbox.add_child(_narration_btn)
 	vbox.add_child(_make_button("Controlos", func(): _toggle_controls(true)))
 	vbox.add_child(_make_button("Sair para o Título", _quit_to_title))
 

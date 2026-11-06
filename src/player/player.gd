@@ -52,6 +52,10 @@ var first_hit_msec: int = -1
 
 # Habilidades dos companheiros (canais 1–4)
 var ability_cooldowns := {"liora": 0.0, "bram": 0.0, "sena": 0.0, "iven": 0.0}
+var _lock_press_msec: int = -10000
+var technique_cooldowns := {"passo_vazio": 0.0, "corrida_predador": 0.0, "queda_colosso": 0.0}
+var _pred_buff: float = 0.0
+var _next_attack_bonus: bool = false
 var _heal_over_time: float = 0.0
 const ABILITY_INFO := {
 	"liora": {"name": "Murmúrio de Véu", "desc": "Invulnerável 3,5s +15 Ruptura", "cd": 24.0, "key": "1"},
@@ -96,6 +100,53 @@ func reset_combat_stats() -> void:
 
 func heal_external(amount: float) -> void:
 	hp = minf(GameState.max_hp(), hp + amount)
+
+func _use_technique(id: String) -> void:
+	if not GameState.technique_unlocked(id):
+		GameState.notify("Bloqueada: %s." % GameState.technique_requirement(id))
+		return
+	var cd := float(technique_cooldowns.get(id, 0.0))
+	if cd > 0.0:
+		GameState.notify("Técnica em recarga (%.0fs)." % cd)
+		return
+	var forward := facing_direction()
+	var mf = preload("res://src/visuals/model_factory.gd")
+	match id:
+		"passo_vazio":
+			var start := global_position
+			global_position = global_position + forward * 8.0
+			_invuln_timer = maxf(_invuln_timer, 0.6)
+			technique_cooldowns[id] = 14.0
+			mf.spawn_hit_burst(get_tree(), start, Color(0.65, 0.45, 1.0))
+			mf.spawn_hit_burst(get_tree(), global_position, Color(0.65, 0.45, 1.0))
+			GameState.notify("PASSO VAZIO — o mundo não te viu passar.")
+			Audio.play("dodge", 1.5, 0.65)
+		"corrida_predador":
+			_lunge = forward * 11.0
+			_pred_buff = 4.0
+			_next_attack_bonus = true
+			technique_cooldowns[id] = 16.0
+			GameState.notify("CORRIDA DO PREDADOR — +35% velocidade, próximo golpe +50%.")
+			Audio.play("swing", 0.0, 0.6)
+		"queda_colosso":
+			if GameState.rupture < 50.0:
+				GameState.notify("Precisas de 50%% de Ruptura (tens %.0f%%)." % GameState.rupture)
+				return
+			GameState.rupture = maxf(0.0, GameState.rupture - 50.0)
+			technique_cooldowns[id] = 20.0
+			for enemy in get_tree().get_nodes_in_group("enemy"):
+				if not is_instance_valid(enemy):
+					continue
+				var to_e: Vector3 = enemy.global_position - global_position
+				to_e.y = 0.0
+				if to_e.length() <= 4.5 and enemy.has_method("take_damage"):
+					enemy.take_damage(55.0, 80.0, self)
+			mf.spawn_hit_burst(get_tree(), global_position, Color(0.9, 0.7, 1.0))
+			add_shake(1.1)
+			_hit_stop(0.18)
+			GameState.notify("QUEDA DO COLOSSO.")
+			Audio.play("heavy_hit", 0.0, 0.6)
+	GameState.stats_changed.emit()
 
 func _use_ability(id: String) -> void:
 	if not GameState.companions.has(id):
@@ -287,6 +338,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		_use_ability("sena")
 	elif event.is_action_pressed("ability_4"):
 		_use_ability("iven")
+	elif event.is_action_pressed("technique_1"):
+		_use_technique("passo_vazio")
+	elif event.is_action_pressed("technique_2"):
+		_use_technique("corrida_predador")
+	elif event.is_action_pressed("technique_3"):
+		_use_technique("queda_colosso")
 	elif event.is_action_pressed("attack_light"):
 		_do_attack(false)
 	elif event.is_action_pressed("attack_heavy"):
@@ -297,10 +354,33 @@ func _unhandled_input(event: InputEvent) -> void:
 		_try_dodge()
 
 func _toggle_lock() -> void:
+	var now := Time.get_ticks_msec()
 	if locked_enemy != null:
-		locked_enemy = null
-		Audio.play("click")
+		if now - _lock_press_msec < 400:
+			# Duplo toque em Tab: largar o alvo de vez
+			locked_enemy = null
+			Audio.play("click")
+			_lock_press_msec = now
+			return
+		_lock_press_msec = now
+		# Caso contrário: ciclar para o próximo inimigo mais próximo
+		var best: Node3D = null
+		var best_dist := INF
+		for enemy in get_tree().get_nodes_in_group("enemy"):
+			if not is_instance_valid(enemy) or enemy == locked_enemy:
+				continue
+			var d := global_position.distance_to(enemy.global_position)
+			if d < GameState.lock_range() and d < best_dist:
+				best_dist = d
+				best = enemy
+		if best != null:
+			locked_enemy = best
+			Audio.play("click", -4.0)
+		else:
+			locked_enemy = null
+			Audio.play("click")
 		return
+	_lock_press_msec = now
 	var nearest: Node3D = null
 	var nearest_dist := GameState.lock_range()
 	for enemy in get_tree().get_nodes_in_group("enemy"):
@@ -420,7 +500,30 @@ func _do_attack(heavy: bool) -> void:
 	var reach := 2.4 if not heavy else 2.8
 	var posture_dmg := (12.0 if not heavy else 30.0) * GameState.posture_mult()
 	var mult := GameState.damage_mult() * (1.5 if GameState.rupture_time_left > 0.0 else 1.0)
+	if _next_attack_bonus:
+		mult *= 1.5
+		_next_attack_bonus = false
 	var forward := facing_direction()
+	if GameState.aim_assist:
+		# Mira suave: vira o corpo na direcção do alvo mais próximo ao alcance
+		var best_dot := -1.0
+		var best_yaw := _facing
+		var found := false
+		for enemy in get_tree().get_nodes_in_group("enemy"):
+			if not is_instance_valid(enemy):
+				continue
+			var to_e: Vector3 = enemy.global_position - global_position
+			to_e.y = 0.0
+			if to_e.length() <= reach + 1.2 and to_e.length() > 0.01:
+				var yaw := atan2(to_e.x, to_e.z)
+				var d := cos(_facing - yaw)
+				if d > best_dot:
+					best_dot = d
+					best_yaw = yaw
+					found = true
+		if found and best_dot > -0.2:
+			_facing = lerp_angle(_facing, best_yaw, 0.65)
+			forward = facing_direction()
 	var hit_any := false
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not is_instance_valid(enemy):
@@ -473,6 +576,10 @@ func _physics_process(delta: float) -> void:
 	# Recargas de habilidades + cura ao longo do tempo (Sena)
 	for id in ability_cooldowns:
 		ability_cooldowns[id] = maxf(0.0, float(ability_cooldowns[id]) - delta)
+	for id in technique_cooldowns:
+		technique_cooldowns[id] = maxf(0.0, float(technique_cooldowns[id]) - delta)
+	if _pred_buff > 0.0:
+		_pred_buff = maxf(0.0, _pred_buff - delta)
 	if _heal_over_time > 0.0:
 		var heal := minf(10.0 * delta, _heal_over_time)
 		hp = minf(GameState.max_hp(), hp + heal)
@@ -532,6 +639,8 @@ func _physics_process(delta: float) -> void:
 		speed *= 0.45
 	if rupture_active:
 		speed *= 1.12
+	if _pred_buff > 0.0:
+		speed *= 1.35
 
 	if _dodge_timer > 0.0:
 		velocity.x = _dodge_dir.x * 10.0

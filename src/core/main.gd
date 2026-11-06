@@ -141,6 +141,33 @@ func _on_dialogue_action(action: String) -> void:
 		"shop_elixir":
 			if _buy(120, "Elixir do Sistema"):
 				GameState.add_rupture(50.0)
+		"craft_potion":
+			if GameState.herb_count < 2:
+				GameState.notify("Precisas de 2 Fibras de Ruína.")
+			elif _buy(10, "Poção forjada"):
+				GameState.herb_count -= 2
+				GameState.potions += 1
+				GameState.stats_changed.emit()
+				Audio.play("potion")
+		"craft_balsamo":
+			if GameState.herb_count < 3:
+				GameState.notify("Precisas de 3 Fibras de Ruína.")
+			elif _buy(20, "Bálsamo de Salvação forjado"):
+				GameState.herb_count -= 3
+				var player := get_tree().get_first_node_in_group("player")
+				if player != null:
+					player.set("hp", GameState.max_hp())
+					player.set("stamina", GameState.max_stamina())
+				GameState.injury = 0
+				GameState.notify("Bálsamo forjado: lesões tratadas, corpo restaurado.")
+				GameState.stats_changed.emit()
+		"craft_temper":
+			if GameState.weapon_tempered:
+				GameState.notify("A lâmina já canta.")
+			elif _buy(150, "Têmpera da lâmina"):
+				GameState.weapon_tempered = true
+				GameState.notify("Lâmina temperada: +12% de dano, para sempre.")
+				GameState.stats_changed.emit()
 		"rest_durr":
 			var player := get_tree().get_first_node_in_group("player")
 			if player != null:

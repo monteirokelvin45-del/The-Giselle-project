@@ -157,8 +157,8 @@ continua indisponível nos hosts permitidos.
 5. **Integridade do save** reforçada: sha256, escrita atómica (`.tmp`),
    restauro `.bak` (já existia); `load_game()` passa a reaplicar os bindings
    do jogador depois de carregar.
-6. **Localização — andaime**: `tools/l10n_extract.py` extrai 371 strings com
-   contexto (`docs/l10n/strings_pt.csv`); `docs/LOCALIZATION.md` documenta o
+6. **Localização — andaime**: `tools/l10n_extract.py` extrai 405 strings com
+   contexto (371 no commit v1.0; `docs/l10n/strings_pt.csv`); `docs/LOCALIZATION.md` documenta o
    caminho para EN/ES (runtime switching ainda **não** existe — a língua de
    origem continua a ser o português europeu, embebido).
 
@@ -175,3 +175,49 @@ continua indisponível nos hosts permitidos.
    **meta-quests globais** (Ferida, golpes de Estado) incompletas.
 6. `get_theme_stylebox("fill")` recolore as barras funcionando em Godot 4;
    se o estilo for alterado no futuro, o recolorido tem de acompanhar.
+
+---
+
+# 7. Addendum v0.8 — Continuação do jogo completo (2026-11-06)
+
+Pedido do dono: «vamos fazer o jogo completo». Neste incremento, por ordem de
+risco/valor:
+
+1. **Economia + fabrico (v0.6)**: a forja de Garr (Garr, o Ferreiro — nó de
+   diálogo `garr_shop`) passa a incluir fabrico: poção (2 Fibras de Ruína +
+   10 marcos), Bálsamo de Salvação forjado (3 Fibras + 20 marcos; trata
+   lesões e restaura corpo), têmpera da lâmina (150 marcos, +12% dano
+   permanente, `weapon_tempered` persistido). Fibras de Ruína são a moeda de
+   herva recolhida no mundo — agora têm três usos reais.
+2. **Assistência de mira (v1.0)**: em `_do_attack`, com `aim_assist` ativo, o
+   corpo do Kael vira 65% para o alvo mais próximo ao alcance antes do cálculo
+   dos acertos — desligável no menu de pausa. Só corpo a corpo.
+3. **Narração de menus (v1.0, parcial)**: com `menu_narration`, todas as
+   notificações são lidas pela primeira voz TTS disponível no sistema
+   (`DisplayServer.tts_speak`). Sem escolha de voz, sem narração por botão.
+4. **Técnicas de Kael (v0.2)**: `Passo Vazio` (tecla V — blink de 8 m + 0,6 s
+   de invulnerabilidade, recarga 14 s; desbloqueada na 1.ª Ruptura),
+   `Corrida do Predador` (C — dash de 11 m, +35% velocidade por 4 s, próximo
+   golpe +50%, recarga 16 s; desbloqueada no Nv 8), `Queda do Colosso` (Z —
+   AoE de 4,5 m / 55 dano + 80 postura, consome 50% de Ruptura, recarga
+   20 s; desbloqueada na 3.ª ativação de Ruptura). Recargas no dicionário
+   `technique_cooldowns` (exposto ao HUD), slots próprios no HUD, contador
+   `rupture_activations` persistido, anúncio de desbloqueio único por
+   técnica (`techniques_seen`).
+5. **Lock-on (v0.2)**: Tab cicla para o próximo inimigo vivo mais próximo
+   dentro do alcance de lock; duplo toque (<400 ms) larga o alvo. Esc nunca
+   largou alvos; continuar a usar Tab.
+
+## 7.1 Dívida e limitações conhecidas (não maquilhar)
+
+- **Passo Vazio atravessa paredes**: é um deslocamento direto sem raycast —
+  paredes finas não param o blink. Corrigir com raycast de obstrução no
+  próximo incremento de robustez.
+- **Queda do Colosso** consome Ruptura fora do fluxo normal
+  (`rupture_time_left` intocado) — comportamento intencional, documentado.
+- **Aim assist** só afeta ataques corpo a corpo; não há assistência para
+  projéteis (inimigos) nem para tiros à distância do jogador (não existe).
+- **TTS depende do sistema operativo** — sem vozes no dispositivo, o botão
+  existe mas não fala (o toggle persiste na mesma).
+- Nada disto foi **executado no Godot**; `validate.py` ✓, gdparse ✓, 405
+  strings extraídas.

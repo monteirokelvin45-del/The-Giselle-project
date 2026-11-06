@@ -9,7 +9,7 @@ versão traduzida de verdade.
 
 - `tools/l10n_extract.py` — varre `src/**/*.gd`, recolhe as strings de texto
   (UI, diálogo, notificações, falas) e escreve `docs/l10n/strings_pt.csv`
-  (`key, context_file, line, text`, 371 entradas na última extração).
+  (`key, context_file, line, text`, 405 entradas na última extração).
 - `docs/l10n/strings_pt.csv` — tabela de strings em português europeu,
   deduplicada, com referência de ficheiro e linha de cada ocorrência.
 - Convenções já fixas no código: placeholders no estilo `%s` / `%d` são

@@ -22,6 +22,9 @@ const ACTIONS := [
 	{"action": "ability_2", "events": [{"type": "key", "key": KEY_2}]},
 	{"action": "ability_3", "events": [{"type": "key", "key": KEY_3}]},
 	{"action": "ability_4", "events": [{"type": "key", "key": KEY_4}]},
+	{"action": "technique_1", "events": [{"type": "key", "key": KEY_V}]},
+	{"action": "technique_2", "events": [{"type": "key", "key": KEY_C}]},
+	{"action": "technique_3", "events": [{"type": "key", "key": KEY_Z}]},
 ]
 
 const ACTION_NAMES := {
@@ -31,6 +34,7 @@ const ACTION_NAMES := {
 	"attack_light": "Ataque leve", "attack_heavy": "Ataque pesado",
 	"ability_1": "Habilidade 1 — Liora", "ability_2": "Habilidade 2 — Bram",
 	"ability_3": "Habilidade 3 — Sena", "ability_4": "Habilidade 4 — Iven",
+	"technique_1": "Técnica — Passo Vazio", "technique_2": "Técnica — Corrida do Predador", "technique_3": "Técnica — Queda do Colosso",
 }
 
 func _ready() -> void:
