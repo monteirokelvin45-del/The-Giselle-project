@@ -269,3 +269,55 @@ Nota de honestidade: correr headless prova compilação, boot, autoloads e
 **lógica** — não prova correção visual nem de jogabilidade real (mouselook,
 câmara, hit reactions, animações, GL Compatibility em GPU real, Android
 build). O primeiro F5 num editor com display continua a ser o teste real.
+
+---
+
+# 10. Addendum v0.6 — Lesões persistentes e treino com mestres (2026-11-06)
+
+Pedido do dono: «continua com o projeto». Incremento: a última fatia de
+sec. 8 do GDD que faltava implementar.
+
+**Implementado:**
+1. **Lesões graduadas 0–2** (era binário): 1 = magoado (−10% dano, −15%
+   velocidade, −15% recuperação de fôlego) · 2 = grave (−22% dano, −32%
+   velocidade, −30% recuperação). Golpe ≥ 25% da vida máxima escalona o nível.
+   Penalizações via `injury_speed_mult` / `injury_damage_mult` /
+   `injury_stamina_mult` aplicadas em `move_speed`, `damage_mult` e
+   `stamina_regen`. Persiste no save (`injury`, clamp 0..2 — saves antigos
+   continuam válidos).
+2. **Treino com mestres e fadiga de treino** (travão anti-grind do GDD
+   «Kael não pode treinar infinitamente»): o balcão do Mestre Dario gasta
+   120 marcos → +1 ponto de atributo e **+1 fadiga**; a fadiga no MÁX (3)
+   bloqueia novas sessões; **só o repouso** a repõe. Lógica partilhada entre
+   UI e testes em `GameState.try_train_attribute()`.
+3. **Repouso alivia 1 nível de lesão** (não cura tudo) e repõe a fadiga;
+   Bálsamo de Salvação (loja 60 marcos / forjado 20) continua a curar
+   lesões por completo. Rest aponta já diziam «trata lesões» — texto e
+   prompt agora descrevem o efeito real.
+4. **UI**: o painel de Atributos mostra Estado (Saudável/Magoado/Grave) +
+   lesão e fadiga (0–2 / 0–3).
+
+**Verificação (contagem fresca, neste incremento):**
+- `tools/smoke_test.tscn` → **19/19 PASS** (6 novas: dano escalonado,
+  escalonação 0→2, repouso −1 nível, fadiga bloqueia treino, save/load de
+  lesão+fadiga, treino gasta marcos e soma fadiga).
+- `tools/smoke_flows.tscn` → **5/5 PASS**.
+- `tools/headless_check.sh` → 5 cenas, **zero erros de script** — e a
+  partir de agora **erros de script falham o gate** (ver incidente abaixo).
+- l10n: 405 → **408 strings** (`tools/l10n_extract.py`).
+
+**Incidente honesto deste incremento:** a minha primeira versão de ui.gd
+tinha um erro de parse (`var estado := ["A","B"][i]` — o GDScript não infere
+o tipo a partir de um literal de Array indexado). O autoload UI **não
+carregou** e o Sala Branca rebentou em cadeia (`UI` == Nil); a falha só
+apareceu na contagem agregada porque o `headless_check` original só olhava
+ao código de saída. Duas correções: tipagem explícita (`var estado:
+String = ...`) e **gate reforçado** — `SCRIPT ERROR`/`Parse Error`/falha de
+autoload em qualquer cena marcam o SMOKE como FALHA. A engine apanhou o meu
+erro outra vez; o gate agora também apanha.
+
+**Não feito de caso pensado:** medicamentos e curandeiros dedicados (só
+repouso + Bálsamo); romances com memória de ações; streaming/chuva/NPC
+pathfinding (v0.5); EN/ES runtime, narração incremental por botão,
+performance medida (v1.0); teste com humanos e F5 com display continuam
+geradores de valor reais que este ambiente não pode produzir.

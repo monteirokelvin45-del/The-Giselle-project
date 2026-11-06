@@ -78,7 +78,14 @@ por faróis.
   Ruína + marcos; têmpera da lâmina (150 marcos, +12% dano permanente).
 - Relações e romances com memória de ações (mentir, proteger, quebrar promessas).
 - Economia + fabrico (poções, pregos de ruptura, planadores, peças de barco).
-- Lesões persistentes e recuperação; treino com mestres (sec. 8).
+- [x] **Lesões persistentes** (2026-11-06): 0–2 níveis por golpe grave (≥25% da vida);
+      penalizações escalonadas (dano/velocidade/recuperação de fôlego); repouso
+      alivia 1 nível; Bálsamo de Salvação cura tudo; persistido no save.
+- [x] **Treino com mestres** (sec. 8, 2026-11-06): Mestre Dario — 120 marcos → +1
+      ponto de atributo e +1 fadiga (máx 3); fadiga bloqueia o treino até descansar
+      (travão anti-grind do GDD). Verificado headless (19/19).
+- [ ] Medicamentos e curandeiros dedicados (recuperação detalhada do GDD sec. 8).
+- [ ] Romances com memória de ações (mentir/proteger/quebrar promessas).
 
 ## v0.7 — Política e finais (sec. 23–25) ✅
 Os grandes objetivos (rei, governador, comandante, diretor, líder, explorador,
@@ -112,7 +119,7 @@ por reputação, decisões e estado do mundo.
       Sistema) + interruptor no menu de pausa; save corruption-proofing
       já existia (sha256 + .tmp atómico + .bak).
 - [x] **Localização — andaime**: `tools/l10n_extract.py` +
-      `docs/l10n/strings_pt.csv` (405 strings) + `docs/LOCALIZATION.md`.
+      `docs/l10n/strings_pt.csv` (408 strings) + `docs/LOCALIZATION.md`.
 - [x] **Engine executada neste ambiente**: Godot 4.7.2 compilado do
       código-fonte (headless linuxbsd); 5 cenas em smoke boot limpas; 11
       asserções de jogabilidade verdes (save/load, XP, técnicas, combate

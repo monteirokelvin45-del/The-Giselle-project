@@ -174,7 +174,7 @@ func _on_dialogue_action(action: String) -> void:
 				player.set("hp", GameState.max_hp())
 				player.set("stamina", GameState.max_stamina())
 			GameState.rest()
-			GameState.notify("Descansaste um dia. O corpo perdoa.")
+			GameState.notify("Descansaste um dia. As lesões aliviaram (−1 nível); a fadiga cedeu.")
 		"liora_met":
 			GameState.advance_stage(4)
 		"accept_trial":

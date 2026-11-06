@@ -37,8 +37,12 @@ run_scene () {
 	log="/tmp/smoke_$(basename "$scene" .tscn).log"
 	"$GODOT_BIN" --headless --path "$PROJ" "$scene" --quit-after "$frames" > "$log" 2>&1
 	local code=$?
-	if grep -iE "SCRIPT ERROR|Parse Error|Failed to|Nonexistent|ERROR" "$log" | head -10; then
-		echo "   ^  avisos/erros em $log"
+	if grep -iE "SCRIPT ERROR|Parse Error|Failed to instantiate an autoload|Failed to load script" "$log" | head -10; then
+		echo "   ^  ERROS de script em $log — falha"
+		fail=1
+	fi
+	if grep -iE "Failed to|Nonexistent|ERROR" "$log" | grep -v "resources still in use" | head -10; then
+		echo "   ^  avisos em $log (não bloqueantes)"
 	fi
 	[ $code -ne 0 ] && { echo "   ! código de saída $code"; fail=1; }
 }

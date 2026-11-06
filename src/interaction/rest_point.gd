@@ -26,7 +26,7 @@ func _ready() -> void:
 	add_child(pillow)
 
 func get_prompt() -> String:
-	return "E — Descansar (trata lesões)"
+	return "E — Descansar (alivia 1 nível de lesão; repõe fadiga)"
 
 func interact() -> void:
 	var player := get_tree().get_first_node_in_group("player")
@@ -34,5 +34,5 @@ func interact() -> void:
 		player.set("hp", GameState.max_hp())
 		player.set("stamina", GameState.max_stamina())
 	GameState.rest()
-	GameState.notify("Descansaste. O corpo perdoa — o mundo, talvez não.")
+	GameState.notify("Descansaste. As dores aliviaram (−1 nível de lesão); o treino abre de novo.")
 	Audio.play("potion", -4.0, 0.7)

@@ -243,14 +243,8 @@ func _on_dialogue_action(action: String) -> void:
 		"exam_equipas": _start_exam("equipas")
 		"exam_labirinto": _start_exam("labirinto")
 		"train_attr":
-			if GameState.marcos >= 120:
-				GameState.add_marcos(-120)
-				GameState.attribute_points += 1
-				GameState.notify("+1 ponto de atributo (Esc → Atributos). O Mestre aprova.")
-				GameState.stats_changed.emit()
+			if GameState.try_train_attribute():
 				Audio.play("levelup", -6.0)
-			else:
-				GameState.notify("Sem marcos suficientes (120).")
 		"voss_meet":
 			GameState.exams_done["voss_met"] = true
 			GameState.add_reputation("arquivistas", 10)

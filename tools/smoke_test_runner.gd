@@ -52,6 +52,40 @@ func _process(_delta: float) -> void:
 		GameState.load_game()
 		_check(GameState.marcos == 1234, "save/load devolve marcos")
 		_check(int(GameState.attributes["for"]) == 4, "save/load devolve atributos")
+		# v0.6 — lesões graduadas e treino com mestres
+		var attr_v06: int = GameState.attribute_points
+		GameState.injury = 2
+		var dmg_grave: float = GameState.damage_mult()
+		GameState.injury = 1
+		var dmg_mag: float = GameState.damage_mult()
+		GameState.injury = 0
+		var dmg_ok: float = GameState.damage_mult()
+		_check(dmg_grave < dmg_mag and dmg_mag < dmg_ok, "lesões escalonadas reduzem o dano (0/1/2)")
+		GameState.add_injury()
+		GameState.add_injury()
+		_check(GameState.injury == 2, "dois golpes graves levam a lesão ao nível 2")
+		GameState.rest()
+		_check(GameState.injury == 1, "repouso alivia 1 nível de lesão")
+		GameState.injury = 2
+		GameState.fatigue = 3
+		GameState.marcos = 500
+		var ok_blocked: bool = GameState.try_train_attribute()
+		_check(not ok_blocked and GameState.attribute_points == attr_v06, "fadiga máxima bloqueia o treino com mestres")
+		GameState.save_game(Vector3(0.0, 1.3, 34.0), 100.0, 100.0)
+		GameState.injury = 0
+		GameState.fatigue = 0
+		GameState.load_game()
+		_check(GameState.injury == 2 and GameState.fatigue == 3, "save/load devolve lesão e fadiga")
+		GameState.marcos = 500
+		GameState.rest()
+		var trained: bool = GameState.try_train_attribute()
+		_check(trained and GameState.fatigue == 1 and GameState.attribute_points == attr_v06 + 1, "treino com mestre gasta marcos e soma fadiga")
+		# repõe o estado canónico usado pelos testes seguintes
+		GameState.marcos = 1234
+		GameState.injury = 0
+		GameState.fatigue = 0
+		GameState.attribute_points = attr_v06
+		GameState.save_game(Vector3(0.0, 1.3, 34.0), 100.0, 100.0)
 		var enemy_scene := load("res://scenes/enemy.tscn")
 		if enemy_scene != null:
 			var enemy: Node3D = enemy_scene.instantiate()

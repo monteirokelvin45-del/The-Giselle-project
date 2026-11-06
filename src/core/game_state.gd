@@ -135,8 +135,14 @@ var reputation: Dictionary = {
 var region_known: Dictionary = {"noro": true}
 var region_clears: Dictionary = {}
 var current_region: String = "noro"
-## Lesões: 0 = saudável, 1 = grave (-15% velocidade, -10% dano até descansar)
+## Lesões (sec. 8 do GDD): 0 = saudável · 1 = magoado · 2 = grave
+const MAX_INJURY := 2
+## Fadiga de treino: +1 por sessão com mestres; a MAX não consegues treinar.
+## Repouso (leitos/dormitórios) repõe tudo; Bálsamo de Salvação cura lesões.
+const MAX_FATIGUE := 3
+const TRAIN_ATTRIBUTE_COST := 120
 var injury: int = 0
+var fatigue: int = 0
 
 # ------------------------------------------- v1.0 — Acessibilidade ----------
 var colorblind_mode: int = 0      # 0 desligado · 1 protanopia · 2 deuteranopia · 3 tritanopia
@@ -239,17 +245,38 @@ func add_companion_loyalty(id: String, amount: int) -> void:
 	stats_changed.emit()
 
 func rest() -> void:
-	injury = 0
+	injury = maxi(0, injury - 1)
+	fatigue = 0
 	weapon_tempered = false
 	rupture_activations = 0
 	techniques_seen.clear()
 	stats_changed.emit()
 
 func add_injury() -> void:
-	if injury == 0:
-		injury = 1
-		notify("LESÃO GRAVE — -15% velocidade, -10% dano até descansares (forja de GARR, casa da Elen ou dormitórios).")
-		stats_changed.emit()
+	if injury >= MAX_INJURY:
+		return
+	injury += 1
+	if injury == 1:
+		notify("LESÃO — -10% dano, -15% velocidade, -15% recuperação de fôlego. Repouso, Bálsamo de Salvação ou forja tratam-na.")
+	else:
+		notify("LESÃO GRAVE — -22% dano, -32% velocidade, -30% recuperação de fôlego. Repouso, Bálsamo de Salvação ou a forja de Garr.")
+	stats_changed.emit()
+
+func try_train_attribute() -> bool:
+	## Treino com mestres (sec. 8): custo fixo de marcos, +1 fadiga. A fadiga é
+	## o travão anti-treino-infinito do GDD; só o repouso a repõe.
+	if marcos < TRAIN_ATTRIBUTE_COST:
+		notify("Sem marcos suficientes (%d)." % TRAIN_ATTRIBUTE_COST)
+		return false
+	if fatigue >= MAX_FATIGUE:
+		notify("Fadiga no limite (%d/%d) — não consegues treinar. Descansa (leitos e dormitórios)." % [fatigue, MAX_FATIGUE])
+		return false
+	marcos -= TRAIN_ATTRIBUTE_COST
+	attribute_points += 1
+	fatigue += 1
+	stats_changed.emit()
+	notify("+1 ponto de atributo (Esc → Atributos). Fadiga %d/%d. O Mestre aprova." % [fatigue, MAX_FATIGUE])
+	return true
 
 func region_config(region_id: String) -> Dictionary:
 	for r in REGIONS:
@@ -310,16 +337,34 @@ func max_stamina() -> float:
 	return 100.0 + float(int(attributes["fol"]) - 1) * 12.0
 
 func stamina_regen() -> float:
-	return 28.0 + float(int(attributes["fol"]) - 1) * 3.0
+	return (28.0 + float(int(attributes["fol"]) - 1) * 3.0) * injury_stamina_mult()
+
+func injury_speed_mult() -> float:
+	match injury:
+		1: return 0.85
+		2: return 0.68
+		_: return 1.0
+
+func injury_damage_mult() -> float:
+	match injury:
+		1: return 0.90
+		2: return 0.78
+		_: return 1.0
+
+func injury_stamina_mult() -> float:
+	match injury:
+		1: return 0.85
+		2: return 0.70
+		_: return 1.0
 
 func move_speed() -> float:
-	return (5.2 + float(int(attributes["vel"]) - 1) * 0.25) * (0.85 if injury > 0 else 1.0)
+	return (5.2 + float(int(attributes["vel"]) - 1) * 0.25) * injury_speed_mult()
 
 func damage_mult() -> float:
 	var per := 0.08
 	if Balance != null and Balance.has_method("attr"):
 		per = Balance.attr("damage_per_point", 0.08)
-	var mult := (1.0 + float(int(attributes["for"]) - 1) * per) * (0.90 if injury > 0 else 1.0)
+	var mult := (1.0 + float(int(attributes["for"]) - 1) * per) * injury_damage_mult()
 	return mult * (1.12 if weapon_tempered else 1.0)
 
 func posture_mult() -> float:
@@ -458,7 +503,7 @@ func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 		"exams_done": exams_done, "companions": companions, "romance_id": romance_id,
 		"reputation": reputation, "region_known": region_known,
 		"region_clears": region_clears, "current_region": current_region,
-		"injury": injury,
+		"injury": injury, "fatigue": fatigue,
 		"colorblind_mode": colorblind_mode, "subtitle_scale": subtitle_scale,
 		"custom_bindings": custom_bindings, "music_enabled": music_enabled,
 		"weapon_tempered": weapon_tempered, "aim_assist": aim_assist, "menu_narration": menu_narration,
@@ -536,7 +581,8 @@ func _apply_save_dict(parsed: Dictionary) -> void:
 	if typeof(region_clears) != TYPE_DICTIONARY:
 		region_clears = {}
 	current_region = String(parsed.get("current_region", "noro"))
-	injury = clampi(int(parsed.get("injury", 0)), 0, 1)
+	injury = clampi(int(parsed.get("injury", 0)), 0, MAX_INJURY)
+	fatigue = clampi(int(parsed.get("fatigue", 0)), 0, MAX_FATIGUE)
 	colorblind_mode = clampi(int(parsed.get("colorblind_mode", 0)), 0, 3)
 	subtitle_scale = clampf(float(parsed.get("subtitle_scale", 1.0)), 0.8, 1.6)
 	custom_bindings = parsed.get("custom_bindings", {})
@@ -643,6 +689,7 @@ func reset_for_new_game() -> void:
 	region_clears.clear()
 	current_region = "noro"
 	injury = 0
+	fatigue = 0
 	if Keymap != null and Keymap.has_method("apply_custom_bindings"):
 		Keymap.apply_custom_bindings(custom_bindings)
 	stats_changed.emit()

@@ -1072,6 +1072,7 @@ func _toggle_factions(open_it: bool) -> void:
 
 # ------------------------------------------------------------ atributos ------
 var _attr_points_label: Label
+var _attr_state_label: Label
 var _attr_value_labels: Dictionary = {}
 
 func _build_attributes() -> void:
@@ -1084,6 +1085,9 @@ func _build_attributes() -> void:
 	_attr_points_label = _make_label("Atributos — 0 pontos", 20, Color(0.97, 0.9, 0.65))
 	_attr_points_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(_attr_points_label)
+	_attr_state_label = _make_label("Saudável · Fadiga 0/3", 12, Color(0.75, 0.8, 0.85))
+	_attr_state_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(_attr_state_label)
 	for key in GameState.ATTR_KEYS:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
@@ -1128,6 +1132,8 @@ func _toggle_attributes(open_it: bool) -> void:
 
 func _refresh_attribute_panel() -> void:
 	_attr_points_label.text = "Atributos — %d ponto(s) disponível(eis)" % GameState.attribute_points
+	var estado: String = ["Saudável", "Magoado", "Grave"][clampi(GameState.injury, 0, 2)]
+	_attr_state_label.text = "Estado: %s (lesão %d/%d) · Fadiga %d/%d" % [estado, GameState.injury, GameState.MAX_INJURY, GameState.fatigue, GameState.MAX_FATIGUE]
 	for key in GameState.ATTR_KEYS:
 		(_attr_value_labels[key] as Label).text = str(int(GameState.attributes[key]))
 
