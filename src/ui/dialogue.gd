@@ -64,6 +64,11 @@ const TREES := {
 	"garr_idle": {
 		"name": "Garr, o Ferreiro",
 		"text": "O aço não mente, rapaz. As pessoas... mentem bastante.",
+		"choices": [
+			{"text": "«Ver a oficina.» (Compras)", "next": "garr_shop"},
+			{"text": "«Preciso descansar um dia.» (Trata lesões e recupera tudo)", "action": "rest_durr"},
+			{"text": "«Só vim dizer nada.»", "action": "none"},
+		],
 	},
 	"aldeao": {
 		"name": "Tomás, o Aldeão",
@@ -117,6 +122,147 @@ const TREES := {
 	"dario_done": {
 		"name": "Mestre Dario Vale",
 		"text": "O Guardião era uma prova — e tu vieste como resposta. Descansa, Vazio. E não confies em nada que pisque um olho num canto da tua mente.",
+	},
+
+	"bram_pre": {
+		"name": "Bram Ferro",
+		"text": "Um sem-magia na Academia Real de Veyra. Que a forja mais cheia de faíscas faça sentido de ti, forasteiro. Eu sou Bram Ferro — quarto-mestre da Forja. Se quiseres ver o que vales, tens a Prova de Duelo: de frente para mim, sem magia, sem desculpas.",
+		"choices": [
+			{"text": "«Aceito a Prova de Duelo.» (Exame: 1v1 contra Bram)", "action": "exam_duelo", "next": "bram_pre_ok"},
+			{"text": "«Ainda não estou pronto.»", "action": "none"},
+		],
+	},
+	"bram_pre_ok": {
+		"name": "Bram Ferro",
+		"text": "Bem dito. Arena do lado nascente, quando quiseres. Não vou à tua procura — a prova é tua para começar.",
+	},
+	"bram_done": {
+		"name": "Bram Ferro",
+		"text": "O aço não mente, forasteiro. Viste o meu cansaço e não hesitaste. É por isso que eu e a corrente temos respeito por ti. Precisas de alguma coisa da forja?",
+	},
+	"bram_romance": {
+		"name": "Bram Ferro",
+		"text": "Olha... não sou bom com palavras bonitas. Mas desde que me devolveste a espada, não consigo deixar de pensar onde acabas os teus dias. Algo mais do que camaradagem, entre nós dois?",
+		"choices": [
+			{"text": "«Sim. Há algo mais.» (Iniciar romance com Bram)", "action": "romance_bram", "next": "romance_ok"},
+			{"text": "«Só camaradagem, Bram. Lamento.»", "action": "none", "next": "romance_no"},
+		],
+	},
+	"sena_pre": {
+		"name": "Sena Raiz",
+		"text": "Bem-vindo aos Jardins de Ruun, onde o verde fala mais alto que os Núcleos. Eu sou Sena, dos Raízes. A Prova da Floresta não é de força: é de leitura — seguir rastros, escolher o momento, não derrubar o que não precisa de ser derrubado.",
+		"choices": [
+			{"text": "«Aceito a Prova da Floresta.» (Exame: caçar lobos e o salteador)", "action": "exam_floresta", "next": "sena_pre_ok"},
+			{"text": "«Preciso de ar. Volto já.»", "action": "none"},
+		],
+	},
+	"sena_pre_ok": {
+		"name": "Sena Raiz",
+		"text": "Pois bem. Vai ao clareira do sul quando estiveres pronto. E lembra-te: no verde, quem tem pressa vira ceia dos lobos.",
+	},
+	"sena_done": {
+		"name": "Sena Raiz",
+		"text": "As raízes crescem para onde há água — e os bons guardiões crescem para onde há confiança. Obrigada por ouvires o jardim antes de o cortar.",
+	},
+	"sena_romance": {
+		"name": "Sena Raiz",
+		"text": "Sabes? As ervas que curaste, o lobo que poupou? Eu acompanhei cada gesto. Disseram-me que o coração dos Raízes só se explica falando... Queres que eu diga?",
+		"choices": [
+			{"text": "«Diz. E ouve também.» (Iniciar romance com Sena)", "action": "romance_sena", "next": "romance_ok"},
+			{"text": "«Agora não. Só companhia de viagem.»", "action": "none", "next": "romance_no"},
+		],
+	},
+	"iven_pre": {
+		"name": "Iven Lago",
+		"text": "Shh. Não faças barulho na torre — os Horizontes não gostam de anunciar chegadas. Eu sou Iven. A Prova do Labirinto Arcano mede o que nenhum mapa mede: coragem de um homem sem bússola. Quatro conjuradores cinzentos escondem-se no labirinto. Encontra-os — ou deixa-te encontrar.",
+		"choices": [
+			{"text": "«Aceito o Labirinto Arcano.» (Exame: 4 conjuradores)", "action": "exam_labirinto", "next": "iven_pre_ok"},
+			{"text": "«Prefiro estudar o labirinto primeiro.»", "action": "none"},
+		],
+	},
+	"iven_pre_ok": {
+		"name": "Iven Lago",
+		"text": "Boa escolha — ou boa fuga, só o tempo dirá. A entrada está a leste. Os corredores mentem; os teus pés, não. Confia neles.",
+	},
+	"iven_done": {
+		"name": "Iven Lago",
+		"text": "Aos sem-magia costuma-se mentir: «não há lugar para ti». Eu menti muitas vezes. Desta dei meia-volta quando te vi completar o labirinto. Obrigado — por me forçares a ser honesto uma vez.",
+	},
+	"iven_romance": {
+		"name": "Iven Lago",
+		"text": "Navios inteiros naufragaram por algo que eu só consigo descrever numa carta de navegação. Mas posso dizer-te o seguinte, e só uma vez: eu quero ser o porto onde cais, Kael. O que dizes?",
+		"choices": [
+			{"text": "«Quero ser esse porto.» (Iniciar romance com Iven)", "action": "romance_iven", "next": "romance_ok"},
+			{"text": "«É uma metáfora bonita. Só isso, por agora.»", "action": "none", "next": "romance_no"},
+		],
+	},
+	"liora_academia_pre": {
+		"name": "Liora Venn",
+		"text": "Bem-vindo a Veyra, Kael Noro. A Academia Real não se abre com Núcleos — abre com escolhas. Eu sou Liora, da Véu. A Prova de Equipas mede o que decides quando o grupo tropeça: Salvamentos, cobertura, decisões a quente. Cinco salteadores à tua espera na arena.",
+		"choices": [
+			{"text": "«Aceito a Prova de Equipas.» (Exame: 5 salteadores em equipa)", "action": "exam_equipas", "next": "liora_academia_pre_ok"},
+			{"text": "«Preciso de ver a arena primeiro.»", "action": "none"},
+		],
+	},
+	"liora_academia_pre_ok": {
+		"name": "Liora Venn",
+		"text": "A arena fica nascente. Leva a tua Corrente — mas leva também a cabeça. Cinco contra um só se ganha se um deles não souber que és só um.",
+	},
+	"liora_academia_done": {
+		"name": "Liora Venn",
+		"text": "Escolheste proteger antes de atacar. Foi o que eu fiz — e é o que farei por ti. A Véu guarda os seus segredos, mas contigo, Kael, eu escolhi partilhar um.",
+	},
+	"liora_academia_romance": {
+		"name": "Liora Venn",
+		"text": "Dizem que a Véu não ama — estuda. Eu estudei-te durante toda a Prova, e cada relatório dizia a mesma coisa. Queres saber o que diz o último?",
+		"choices": [
+			{"text": "«Diz.» (Iniciar romance com Liora)", "action": "romance_liora", "next": "romance_ok"},
+			{"text": "«Guarda o teu relatório, Liora.»", "action": "none", "next": "romance_no"},
+		],
+	},
+	"romance_ok": {
+		"name": "Sistema",
+		"text": "Algo mudou. O ar à volta de Kael sente-se diferente — como um fio a mais sendo tecido num tecido antigo. O Sistema observa. O Sistema regista.",
+	},
+	"romance_no": {
+		"name": "Sistema",
+		"text": "Respeito. Há coisas que se devem ganhar devagar, e há quem prefira o silêncio a um coração mal lido. O Sistema não julga. O Sistema apenas regista.",
+	},
+	"dario_academia": {
+		"name": "Mestre Dario Vale",
+		"text": "Bem-vindo à Academia, Kael. Aqui ensinamos os que nasceram sem Núcleo a fazer dos dois braços vergões que a magia nunca terá. Treino sério custa 120 marcos a sessão — ou contas, ou suor. O que preferes?",
+		"choices": [
+			{"text": "«Treino físico — 120 marcos.» (+1 ponto de atributo)", "action": "train_attr"},
+			{"text": "«Conta-me sobre a Guarda do Arquivo.»", "action": "none", "next": "dario_academia_lore"},
+			{"text": "«Volto depois.»", "action": "none"},
+		],
+	},
+	"dario_academia_lore": {
+		"name": "Mestre Dario Vale",
+		"text": "O Arquivo Proibido fica abaixo da torre poente. A Academia fingiu durante cem anos que era ficção proibida. Os Arquivistas, esses, sabem que não é. Se um dia alguém te disser que o Vazio pode destruir Núcleos por dentro — não duvides dele. Nem procures prova. Algumas verdades queimam quem as segura.",
+	},
+	"voss": {
+		"name": "Arquivista Voss",
+		"text": "Psiu. Aqui fala-se baixo porque as paredes não guardam segredos — repetem-nos. Eu sou Voss, dos Arquivistas do Proibido. Se um dia te convidarem a descer abaixo da torre, lembra-te: a verdade não se pede, descobre-se. E quem a descobre nunca mais dorme tranquilo.",
+		"choices": [
+			{"text": "«Quero saber mais.» (Conhecer os Arquivistas)", "action": "voss_meet"},
+			{"text": "«Prefiro ficar por cima.»", "action": "none"},
+		],
+	},
+	"voss_after": {
+		"name": "Arquivista Voss",
+		"text": "Ainda aqui? Bom. Os que ficam são os que veem. Quando a Academia cair — e vai cair —, sê o que a segura. Ou o que a deixa cair. A escolha será tua, como sempre foi.",
+	},
+	"garr_shop": {
+		"name": "Garr, o Ferreiro",
+		"text": "Ora bem, freguês! O que lhe falta hoje? Tenho poções, pregos de ruptura e umas quantas coisas para quem não tem magia e ainda assim se recusa a morrer.",
+		"choices": [
+			{"text": "Poção — 30 marcos (+45 vida)", "action": "shop_potion"},
+			{"text": "Prego de Ruptura — 45 marcos (+25 Ruptura)", "action": "shop_prego"},
+			{"text": "Bálsamo de Salvação — 60 marcos (vida completa + trata lesões)", "action": "shop_balsamo"},
+			{"text": "Elixir do Sistema — 120 marcos (+50 Ruptura)", "action": "shop_elixir"},
+			{"text": "«Agora não, Garr.»", "action": "none"},
+		],
 	},
 }
 

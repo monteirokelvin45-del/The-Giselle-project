@@ -22,6 +22,8 @@ var _cam_last := Vector2.ZERO
 var _root: Control
 var _joy_base: Panel
 var _joy_knob: Panel
+var _ability_buttons: Array[Button] = []
+var _ability_refresh: float = 0.0
 
 func _ready() -> void:
 	layer = 30
@@ -29,7 +31,7 @@ func _ready() -> void:
 	_build_ui()
 	set_process(true)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	var show := _should_show()
 	if visible != show:
 		visible = show
@@ -38,6 +40,10 @@ func _process(_delta: float) -> void:
 			_joy_index = -1
 			_cam_index = -1
 			_hide_joystick()
+	_ability_refresh += delta
+	if _ability_refresh >= 0.5:
+		_ability_refresh = 0.0
+		_refresh_ability_buttons()
 
 func consume_look() -> Vector2:
 	var d := _look_delta
@@ -172,6 +178,57 @@ func _make_button(action: String, label: String, margin_right: float, top: float
 	btn.button_up.connect(func(): _inject(action, false))
 	_root.add_child(btn)
 
+## Botões 1–4 das habilidades dos companheiros, topo-esquerda.
+func _make_ability_button(action: String, label: String, left: float, top: float, size: float) -> void:
+	var btn := Button.new()
+	btn.text = label
+	btn.focus_mode = Control.FOCUS_NONE
+	btn.anchor_left = 0.0
+	btn.anchor_right = 0.0
+	btn.anchor_top = 0.0
+	btn.anchor_bottom = 0.0
+	btn.offset_left = left
+	btn.offset_right = left + size
+	btn.offset_top = top
+	btn.offset_bottom = top + size
+	var radius := int(size * 0.5)
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.08, 0.075, 0.09, 0.55)
+	normal.border_color = Color(0.62, 0.78, 0.9, 0.85)
+	normal.border_width_left = 2
+	normal.border_width_right = 2
+	normal.border_width_top = 2
+	normal.border_width_bottom = 2
+	normal.corner_radius_top_left = radius
+	normal.corner_radius_top_right = radius
+	normal.corner_radius_bottom_left = radius
+	normal.corner_radius_bottom_right = radius
+	var pressed_style := normal.duplicate() as StyleBoxFlat
+	pressed_style.bg_color = Color(0.62, 0.78, 0.9, 0.9)
+	btn.add_theme_stylebox_override("normal", normal)
+	btn.add_theme_stylebox_override("hover", normal)
+	btn.add_theme_stylebox_override("focus", normal)
+	btn.add_theme_stylebox_override("pressed", pressed_style)
+	btn.add_theme_color_override("font_color", Color(0.82, 0.92, 1.0))
+	btn.add_theme_color_override("font_pressed_color", Color(0.05, 0.1, 0.15))
+	btn.add_theme_font_size_override("font_size", 17)
+	btn.button_down.connect(func(): _inject(action, true))
+	btn.button_up.connect(func(): _inject(action, false))
+	_root.add_child(btn)
+	_ability_buttons.append(btn)
+
+func _refresh_ability_buttons() -> void:
+	if _ability_buttons.size() != 4:
+		return
+	var ids := ["liora", "bram", "sena", "iven"]
+	var gs := get_node_or_null("/root/GameState")
+	if gs == null:
+		return
+	var companions = gs.get("companions")
+	for i in range(4):
+		var btn: Button = _ability_buttons[i]
+		btn.modulate.a = 1.0 if (companions is Dictionary and companions.has(ids[i])) else 0.3
+
 func _inject(action: String, pressed: bool) -> void:
 	var ev := InputEventAction.new()
 	ev.action = action
@@ -198,3 +255,8 @@ func _build_ui() -> void:
 	_make_button("attack_light", "LEVE", 108.0, 436.0, 112.0, false, 22)
 	_make_button("attack_heavy", "FORTE", 240.0, 520.0, 90.0, false, 17)
 	_make_button("block", "BLOQ", 240.0, 414.0, 86.0, true, 17)
+	# Habilidades dos companheiros (só úteis quando recrutados)
+	_make_ability_button("ability_1", "1", 16.0, 14.0, 46.0)
+	_make_ability_button("ability_2", "2", 70.0, 14.0, 46.0)
+	_make_ability_button("ability_3", "3", 124.0, 14.0, 46.0)
+	_make_ability_button("ability_4", "4", 178.0, 14.0, 46.0)

@@ -39,7 +39,11 @@ func get_prompt() -> String:
 
 func interact() -> void:
 	var scene = get_tree().current_scene
-	if scene != null and scene.has_method("open_evaluation"):
+	if scene == null:
+		return
+	if scene.has_method("portal_exit"):
+		scene.portal_exit()
+	elif scene.has_method("open_evaluation"):
 		scene.open_evaluation()
 
 func _process(delta: float) -> void:

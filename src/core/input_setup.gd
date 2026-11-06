@@ -19,6 +19,10 @@ func _ready() -> void:
 	_register("pause", [_key(KEY_ESCAPE), _joy(JOY_BUTTON_START)])
 	_register("attack_light", [_mouse(MOUSE_BUTTON_LEFT), _joy(JOY_BUTTON_X)])
 	_register("attack_heavy", [_mouse(MOUSE_BUTTON_RIGHT), _joy(JOY_BUTTON_Y)])
+	_register("ability_1", [_key(KEY_1)])
+	_register("ability_2", [_key(KEY_2)])
+	_register("ability_3", [_key(KEY_3)])
+	_register("ability_4", [_key(KEY_4)])
 
 func _key(k: Key) -> InputEventKey:
 	var ev := InputEventKey.new()

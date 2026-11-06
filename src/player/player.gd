@@ -50,6 +50,16 @@ var heavy_hits: int = 0
 var hits_taken_attacking: int = 0
 var first_hit_msec: int = -1
 
+# Habilidades dos companheiros (canais 1–4)
+var ability_cooldowns := {"liora": 0.0, "bram": 0.0, "sena": 0.0, "iven": 0.0}
+var _heal_over_time: float = 0.0
+const ABILITY_INFO := {
+	"liora": {"name": "Murmúrio de Véu", "desc": "Invulnerável 3,5s +15 Ruptura", "cd": 24.0, "key": "1"},
+	"bram": {"name": "Eco de Forja", "desc": "Atordoa e parte postura numa área", "cd": 18.0, "key": "2"},
+	"sena": {"name": "Seiva", "desc": "+40 vida ao longo de 4s", "cd": 30.0, "key": "3"},
+	"iven": {"name": "Passo de Horizonte", "desc": "Avança 6m + fôlego completo", "cd": 20.0, "key": "4"},
+}
+
 var visual: Node3D
 var camera: Camera3D
 var cam_ray: RayCast3D
@@ -83,6 +93,56 @@ func reset_combat_stats() -> void:
 	heavy_hits = 0
 	hits_taken_attacking = 0
 	first_hit_msec = -1
+
+func heal_external(amount: float) -> void:
+	hp = minf(GameState.max_hp(), hp + amount)
+
+func _use_ability(id: String) -> void:
+	if not GameState.companions.has(id):
+		GameState.notify("Ainda não tens este companheiro.")
+		return
+	if float(ability_cooldowns.get(id, 0.0)) > 0.0:
+		GameState.notify("Habilidade em recarga (%.0fs)." % float(ability_cooldowns[id]))
+		return
+	match id:
+		"liora":
+			_invuln_timer = maxf(_invuln_timer, 3.5)
+			GameState.add_rupture(15.0)
+			GameState.notify("Murmúrio de Véu — invulnerável por 3,5s.")
+			Audio.play("rupture", -4.0)
+			ability_cooldowns[id] = 24.0
+		"bram":
+			var mf := preload("res://src/visuals/model_factory.gd")
+			var hit := 0
+			for enemy in get_tree().get_nodes_in_group("enemy"):
+				if not is_instance_valid(enemy):
+					continue
+				var to_e: Vector3 = enemy.global_position - global_position
+				to_e.y = 0.0
+				if to_e.length() <= 4.5:
+					if enemy.has_method("take_posture"):
+						enemy.take_posture(50.0 * GameState.posture_mult())
+					if enemy.has_method("stagger_brief"):
+						enemy.stagger_brief(1.2)
+					hit += 1
+			mf.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.2, 0.0), Color(0.95, 0.8, 0.4))
+			add_shake(0.7)
+			GameState.notify("Eco de Forja — %d inimigos atordoados!" % hit)
+			Audio.play("heavy_hit", -2.0)
+			ability_cooldowns[id] = 18.0
+		"sena":
+			_heal_over_time = 40.0
+			GameState.notify("Seiva — +40 vida ao longo de 4s.")
+			Audio.play("potion", -6.0)
+			ability_cooldowns[id] = 30.0
+		"iven":
+			var motion := facing_direction() * 6.0
+			move_and_collide(motion)
+			stamina = GameState.max_stamina()
+			GameState.notify("Passo de Horizonte!")
+			Audio.play("swing", -2.0, 1.4)
+			ability_cooldowns[id] = 20.0
+	GameState.stats_changed.emit()
 
 func facing_direction() -> Vector3:
 	return Vector3(sin(_facing), 0.0, cos(_facing))
@@ -219,6 +279,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			Audio.play("rupture")
 	elif event.is_action_pressed("potion"):
 		_drink_potion()
+	elif event.is_action_pressed("ability_1"):
+		_use_ability("liora")
+	elif event.is_action_pressed("ability_2"):
+		_use_ability("bram")
+	elif event.is_action_pressed("ability_3"):
+		_use_ability("sena")
+	elif event.is_action_pressed("ability_4"):
+		_use_ability("iven")
 	elif event.is_action_pressed("attack_light"):
 		_do_attack(false)
 	elif event.is_action_pressed("attack_heavy"):
@@ -401,6 +469,13 @@ func _do_attack(heavy: bool) -> void:
 
 # ------------------------------------------------------------------ física ---
 func _physics_process(delta: float) -> void:
+	# Recargas de habilidades + cura ao longo do tempo (Sena)
+	for id in ability_cooldowns:
+		ability_cooldowns[id] = maxf(0.0, float(ability_cooldowns[id]) - delta)
+	if _heal_over_time > 0.0:
+		var heal := minf(10.0 * delta, _heal_over_time)
+		hp = minf(GameState.max_hp(), hp + heal)
+		_heal_over_time -= heal
 	# Câmara com o stick direito (gamepad); o rato funciona via _input
 	var look_x := Input.get_joy_axis(0, JOY_AXIS_RIGHT_X)
 	var look_y := Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y)
@@ -539,7 +614,7 @@ func _update_camera(delta: float) -> void:
 func _find_interactable() -> Node3D:
 	var best: Node3D = null
 	var best_dist := 2.8
-	for group_name in ["npc", "pickup", "exit_portal"]:
+	for group_name in ["npc", "pickup", "exit_portal", "rest_point", "scene_portal"]:
 		for node in get_tree().get_nodes_in_group(group_name):
 			if not is_instance_valid(node) or not (node is Node3D):
 				continue
@@ -618,7 +693,10 @@ func _die() -> void:
 	stamina = GameState.max_stamina()
 	GameState.rupture = 0.0
 	GameState.rupture_time_left = 0.0
-	if get_tree().current_scene != null and get_tree().current_scene.name == "Main":
+	var scene := get_tree().current_scene
+	if scene != null and scene.has_method("respawn_position"):
+		global_position = scene.respawn_position()
+	elif scene != null and scene.name == "Main":
 		if GameState.main_stage == 5:
 			global_position = Vector3(10.0, 1.5, -45.0)  # entrada da arena
 		else:

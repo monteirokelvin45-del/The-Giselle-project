@@ -44,6 +44,9 @@ var _prompt_label: Label
 var _rupture_ready: Label
 var _crosshair: ColorRect
 var _controls_hint: Label
+var _ability_box: HBoxContainer
+var _ability_slots: Dictionary = {}
+var _ability_timer: float = 0.0
 var _notif_label: Label
 
 var _notif_queue: Array[String] = []
@@ -160,6 +163,18 @@ func _build_hud() -> void:
 	vbox.add_child(_marcos_label)
 	_potions_label = _make_label("Poções: 2  (R)", 13, Color(0.62, 0.82, 0.95))
 	vbox.add_child(_potions_label)
+
+	# Habilidades dos companheiros (canais 1–4), inferior esquerdo
+	_ability_box = HBoxContainer.new()
+	_ability_box.anchor_top = 1.0
+	_ability_box.anchor_bottom = 1.0
+	_ability_box.offset_left = 18.0
+	_ability_box.offset_top = -82.0
+	_ability_box.offset_bottom = -14.0
+	_ability_box.add_theme_constant_override("separation", 8)
+	_hud.add_child(_ability_box)
+	for aid in ["liora", "bram", "sena", "iven"]:
+		_ability_slots[aid] = _make_ability_slot(aid)
 
 	# Painel de objetivo (superior direito)
 	var obj := PanelContainer.new()
@@ -298,6 +313,64 @@ func _rebuild_side_objectives() -> void:
 		var l := _make_label("· " + line, 12, Color(0.72, 0.78, 0.65))
 		_side_box.add_child(l)
 
+func _make_ability_slot(aid: String) -> Dictionary:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(150, 62)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.07, 0.06, 0.68)
+	style.border_color = Color(0.62, 0.78, 0.9, 0.75)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(8)
+	style.content_margin_left = 10.0
+	style.content_margin_right = 10.0
+	style.content_margin_top = 6.0
+	style.content_margin_bottom = 6.0
+	panel.add_theme_stylebox_override("panel", style)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 2)
+	panel.add_child(vbox)
+	var info: Dictionary = {
+		"liora": {"key": "1", "name": "MURMÚRIO DE VÉU"},
+		"bram": {"key": "2", "name": "ECO DE FORJA"},
+		"sena": {"key": "3", "name": "SEIVA"},
+		"iven": {"key": "4", "name": "PASSO DE HORIZONTE"},
+	}[aid]
+	var name_label := Label.new()
+	name_label.text = "%s — %s" % [String(info["key"]), String(info["name"])]
+	name_label.add_theme_font_size_override("font_size", 10)
+	name_label.add_theme_color_override("font_color", Color(0.72, 0.86, 0.97))
+	vbox.add_child(name_label)
+	var status_label := Label.new()
+	status_label.text = "PRONTA"
+	status_label.add_theme_font_size_override("font_size", 13)
+	status_label.add_theme_color_override("font_color", Color(0.6, 0.9, 0.55))
+	vbox.add_child(status_label)
+	_ability_box.add_child(panel)
+	return {"box": panel, "status": status_label}
+
+func _refresh_abilities() -> void:
+	if _player_cache == null or not is_instance_valid(_player_cache):
+		_player_cache = get_tree().get_first_node_in_group("player")
+	var cds = null
+	if _player_cache != null:
+		cds = _player_cache.get("ability_cooldowns")
+	for aid in _ability_slots:
+		var slot: Dictionary = _ability_slots[aid]
+		var owned := GameState.companions.has(aid)
+		slot["box"].visible = owned
+		if not owned:
+			continue
+		var cd := 0.0
+		if cds is Dictionary:
+			cd = float((cds as Dictionary).get(aid, 0.0))
+		var status: Label = slot["status"]
+		if cd <= 0.0:
+			status.text = "PRONTA"
+			status.add_theme_color_override("font_color", Color(0.6, 0.9, 0.55))
+		else:
+			status.text = "RECARGA %.0fs" % cd
+			status.add_theme_color_override("font_color", Color(0.85, 0.6, 0.3))
+
 func _refresh_stats() -> void:
 	_level_label.text = "Nv %d  ·  %d/%d XP" % [GameState.level, GameState.xp, GameState.xp_needed()]
 	_xp_bar.value = GameState.xp_progress() * 100.0
@@ -308,6 +381,10 @@ func _refresh_stats() -> void:
 # ------------------------------------------------------------- processo -----
 func _process(delta: float) -> void:
 	_time += delta
+	_ability_timer -= delta
+	if _ability_timer <= 0.0:
+		_ability_timer = 0.25
+		_refresh_abilities()
 	if _player_cache == null or not is_instance_valid(_player_cache):
 		_player_cache = get_tree().get_first_node_in_group("player")
 	if _player_cache != null and in_game:

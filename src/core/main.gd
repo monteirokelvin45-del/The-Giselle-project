@@ -18,6 +18,8 @@ func _ready() -> void:
 	# Se o jogador aceitou a prova e ainda não venceu o Guardião, ele espera na arena
 	if GameState.main_stage == 5:
 		_spawn_guardian()
+	if GameState.main_stage >= 5:
+		_spawn_academia_portal()
 
 func _process(_delta: float) -> void:
 	if _player == null:
@@ -45,6 +47,16 @@ func _spawn_ambush() -> void:
 		enemy.position = d["pos"]
 		add_child(enemy)
 
+func _spawn_academia_portal() -> void:
+	var portal_scene := preload("res://scenes/scene_portal.tscn")
+	var portal = portal_scene.instantiate()
+	portal.set("target_scene", "res://scenes/academia.tscn")
+	portal.set("prompt_text", "E — Entrar na Academia Real de Veyra")
+	portal.set("ring_color", Color(0.9, 0.75, 0.3))
+	portal.set("glow_color", Color(0.85, 0.68, 0.25))
+	portal.position = Vector3(0.0, 1.7, -51.5)
+	add_child(portal)
+
 func _spawn_guardian() -> void:
 	var enemy_scene := preload("res://scenes/enemy.tscn")
 	var guardian = enemy_scene.instantiate()
@@ -64,6 +76,19 @@ func _on_guardian_died(_enemy: Node3D, enemy_type: String) -> void:
 	await get_tree().create_timer(1.6).timeout
 	GameState.notify("(Esc → Entrar no Sistema — se ousares)")
 
+func _buy(cost: int, what: String) -> bool:
+	if GameState.marcos < cost:
+		GameState.notify("Sem marcos suficientes (%d)." % cost)
+		return false
+	GameState.add_marcos(-cost)
+	GameState.notify("Compraste %s. (-%d marcos)" % [what, cost])
+	return true
+
+func respawn_position() -> Vector3:
+	if GameState.main_stage == 5:
+		return Vector3(10.0, 1.5, -45.0)   # arena do Guardião
+	return Vector3(0.0, 1.3, 34.0)       # vila de Noro
+
 func _on_dialogue_action(action: String) -> void:
 	match action:
 		"elen_talked":
@@ -82,6 +107,33 @@ func _on_dialogue_action(action: String) -> void:
 				GameState.wolf_quest_state = "active"
 				GameState.stats_changed.emit()
 				GameState.notify("Missão aceite: Lobos da Estrada (0/3)")
+		"shop_potion":
+			if _buy(30, "Poção"):
+				GameState.potions += 1
+				GameState.stats_changed.emit()
+				Audio.play("potion")
+		"shop_prego":
+			if _buy(45, "Prego de Ruptura"):
+				GameState.add_rupture(25.0)
+		"shop_balsamo":
+			if _buy(60, "Bálsamo de Salvação"):
+				var player := get_tree().get_first_node_in_group("player")
+				if player != null:
+					player.set("hp", GameState.max_hp())
+					player.set("stamina", GameState.max_stamina())
+				GameState.injury = 0
+				GameState.notify("Lesões tratadas. Vida e fôlego restaurados.")
+				GameState.stats_changed.emit()
+		"shop_elixir":
+			if _buy(120, "Elixir do Sistema"):
+				GameState.add_rupture(50.0)
+		"rest_durr":
+			var player := get_tree().get_first_node_in_group("player")
+			if player != null:
+				player.set("hp", GameState.max_hp())
+				player.set("stamina", GameState.max_stamina())
+			GameState.rest()
+			GameState.notify("Descansaste um dia. O corpo perdoa.")
 		"liora_met":
 			GameState.advance_stage(4)
 		"accept_trial":

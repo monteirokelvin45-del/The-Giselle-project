@@ -15,12 +15,31 @@ const NPC_MODELS := {
 	"aldeao": {"path": "res://assets/models/characters/Rogue.glb", "tint": Color(0.85, 0.9, 0.75), "scale": 0.98},
 	"liora": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(1.0, 0.97, 0.82), "scale": 1.0},
 	"dario": {"path": "res://assets/models/characters/Knight.glb", "tint": Color(0.8, 0.85, 1.0), "scale": 1.1},
+	"dario_academia": {"path": "res://assets/models/characters/Knight.glb", "tint": Color(0.8, 0.85, 1.0), "scale": 1.1},
+	"bram": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.85, 0.62, 0.4), "scale": 1.08},
+	"sena": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(0.7, 0.95, 0.65), "scale": 0.96},
+	"iven": {"path": "res://assets/models/characters/Rogue.glb", "tint": Color(0.6, 0.75, 1.0), "scale": 1.0},
+	"liora_academia": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(0.82, 0.88, 1.0), "scale": 1.0},
+	"voss": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(0.55, 0.5, 0.7), "scale": 0.94},
 }
 
 func _ready() -> void:
 	add_to_group("npc")
 	_build_visual()
 	_build_collision()
+
+const COMPANION_IDS := {"bram": "bram", "sena": "sena", "iven": "iven", "liora_academia": "liora"}
+const COMPANION_EXAMS := {"bram": "duelo", "sena": "floresta", "iven": "labirinto", "liora_academia": "equipas"}
+
+## Árvore certa para um companheiro conforme o estado da prova e a lealdade.
+func _companion_tree() -> String:
+	var cid := String(COMPANION_IDS.get(dialogue_id, ""))
+	var exam := String(COMPANION_EXAMS.get(dialogue_id, ""))
+	if not GameState.exams_done.has(exam):
+		return dialogue_id + "_pre"
+	if GameState.romance_id == "" and GameState.companion_loyalty(cid) >= 80:
+		return dialogue_id + "_romance"
+	return dialogue_id + "_done"
 
 func get_prompt() -> String:
 	return "E — Falar com %s" % npc_name
@@ -44,6 +63,12 @@ func _resolve_tree() -> String:
 			elif GameState.main_stage == 4:
 				return "dario"
 			return "dario_early"
+		"dario_academia":
+			return "dario_academia"
+		"bram", "sena", "iven", "liora_academia":
+			return _companion_tree()
+		"voss":
+			return "voss" if not GameState.exams_done.has("voss_met") else "voss_after"
 		_:
 			return dialogue_id
 
