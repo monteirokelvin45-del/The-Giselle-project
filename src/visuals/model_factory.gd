@@ -7,7 +7,7 @@ extends RefCounted
 ## vier virado ao contrário, ajustar MODEL_FACING_OFFSET.
 
 const MODEL_FACING_OFFSET := 0.0
-const LOCOMOTION_CLIPS := ["Idle", "Walking_A", "Running_A", "Blocking"]
+const LOCOMOTION_CLIPS := ["Idle", "Walking_A", "Running_A", "Blocking", "Walk", "Gallop"]
 
 # ------------------------------------------------------------ instanciar ----
 static func spawn_env(parent: Node3D, path: String, pos: Vector3, rot_y: float, scale_factor: float) -> Node3D:

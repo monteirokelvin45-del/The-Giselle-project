@@ -71,6 +71,7 @@ func _ready() -> void:
 	_build_visual()
 
 const CHARACTER_MODELS := {
+	"wolf": {"path": "res://assets/models/creatures/wolf.glb", "tint": Color(1.0, 1.0, 1.0), "scale": 1.0},
 	"salteador": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(1.0, 0.72, 0.62), "scale": 1.05},
 	"cinza": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(0.72, 0.7, 1.0), "scale": 1.0},
 	"guardiao": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.72, 0.66, 0.6), "scale": 2.3},
@@ -85,7 +86,7 @@ func _build_visual() -> void:
 			visual = result["visual"]
 			_anim_player = result["anim_player"]
 			return
-	# Fallback procedural (lobo e contingência)
+	# Fallback procedural (contingência; o lobo também cai aqui se o GLB falhar)
 	visual = Node3D.new()
 	visual.name = "Visual"
 	add_child(visual)
@@ -329,7 +330,8 @@ func _physics_process(delta: float) -> void:
 			_windup = 0.45
 			if _anim_player != null:
 				var mf := preload("res://src/visuals/model_factory.gd")
-				mf.play_anim(_anim_player, "Unarmed_Melee_Attack_Punch_A", 0.08, 0.45)
+				var attack_clip := "Attack" if enemy_type == "wolf" else "Unarmed_Melee_Attack_Punch_A"
+				mf.play_anim(_anim_player, attack_clip, 0.08, 0.45)
 				_anim_lock = 0.45
 			Audio.play("swing", -10.0, 0.6)
 
@@ -352,7 +354,8 @@ func _update_enemy_anim(delta: float) -> void:
 		_anim_lock -= delta
 		return
 	var speed_len := Vector2(velocity.x, velocity.z).length()
-	var target := "Walking_A" if speed_len > 0.6 else "Idle"
+	var walk_clip := "Walk" if enemy_type == "wolf" else "Walking_A"
+	var target := walk_clip if speed_len > 0.6 else "Idle"
 	if _anim_player.current_animation != target:
 		var mf := preload("res://src/visuals/model_factory.gd")
 		mf.play_anim(_anim_player, target, 0.2)
@@ -423,7 +426,8 @@ func take_damage(amount: float, posture_dmg: float, _from: Node3D = null) -> voi
 		mf.flash_model(visual, 0.1)
 	if _anim_player != null and not _dead:
 		var mf := preload("res://src/visuals/model_factory.gd")
-		mf.play_anim(_anim_player, "Hit_A", 0.08, 0.24)
+		var hit_clip := "Idle_HitReact1" if enemy_type == "wolf" else "Hit_A"
+		mf.play_anim(_anim_player, hit_clip, 0.08, 0.24)
 		_anim_lock = 0.24
 	if posture <= 0.0:
 		posture = max_posture * 0.65
@@ -459,7 +463,8 @@ func _die() -> void:
 	_dead = true
 	if _anim_player != null:
 		var mf := preload("res://src/visuals/model_factory.gd")
-		mf.play_anim(_anim_player, "Death_A", 0.12)
+		var death_clip := "Death" if enemy_type == "wolf" else "Death_A"
+		mf.play_anim(_anim_player, death_clip, 0.12)
 	if _slam_telegraph != null:
 		_slam_telegraph.queue_free()
 		_slam_telegraph = null

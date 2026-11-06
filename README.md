@@ -64,8 +64,12 @@ Evolução de qualidade sobre a v0.1 (o conteúdo de jogo é o mesmo; o mundo e 
   poço, castelos academias, torres e muralha do portão, árvores, rochas, montanhas e props
   (barris, caixas, sacos, escadas, tendas, bandeiras, alvos de treino...). Estruturas de colisão de jogo
   são independentes dos modelos.
+- **Lobo esquelético** (Quaternius, CC0): Idle/Walk/Attack/Death/HitReact — o inimigo
+  da Floresta deixou de ser "caixas com orelhas".
+- **Vegetação baixa** (gobkit, CC0): relva, arbustos e escarpas junto à estrada, floresta, vila
+  e portão — o chão deixou de ser um plano verde vazio.
 - **Canal de conjuração do Mago de Cinza**: feitiço é telegrafado (Spellcast_Raise → disparo)
-  e pode ser **interrompido pela Corrente de Âncora** — a mecânica anti-magia passou a ter um
+  e pode ser **interrompido pela Corrente de Âncora** — a mecânica anti-magia passou a ter uma
   janela real de contra-jogo.
 - **Game feel**: screen shake (impacto, parry, dano sofrido), partículas de impacto,
   números de dano flutuantes e *hit-flash* branco nos modelos.
@@ -142,7 +146,7 @@ src/
   system/                # a Sala Branca (Sistema) e bonecos de treino
   ui/                    # título, HUD, pausa, atributos, diálogos, decisão
   visuals/               # fábrica de modelos/animações + efeitos (shake, bursts)
-assets/models/           # modelos CC0 (KayKit): characters/ e env/ — ver docs/ASSETS.md
+assets/models/           # modelos CC0: characters/ env/ (KayKit), creatures/ (Quaternius), nature/ (gobkit) — ver docs/ASSETS.md
 assets/art/              # key art (título) + referência de personagem (kael_reference.jpg)
 assets/audio/            # SFX sintetizados (tools/synth_audio.py)
 tools/                   # validate.py (checagens) e synth_audio.py

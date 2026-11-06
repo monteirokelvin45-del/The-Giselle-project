@@ -16,7 +16,8 @@ Missão principal completa + 2 secundárias, combate com parry/postura/Ruptura,
 - [x] **Game feel básico**: screen shake, partículas de impacto, números de dano
       flutuantes, *hit-flash* branco, hit-stop ainda por fazer.
 - [x] **Mundo com modelos**: KayKit Medieval Hexagon (CC0) — edifícios, muralha da
-      Academia, montanhas, árvores e props.
+      Academia, montanhas, árvores e props + vegetação baixa gobkit (CC0).
+- [x] **Lobo esquelético** (Quaternius Ultimate Animated Animals, CC0).
 - [x] Correções de robustez (identificadores não declarados → script de inimigos não
       compilava; reset do estado de morte do jogador).
 - [ ] Cancelamento de movimento por ataque, hit-stop, câmara com spring-arm real.

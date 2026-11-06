@@ -1,17 +1,20 @@
 extends RefCounted
 ## Constrói o Vale de Noro e os arredores: vila, estrada, floresta, portão da
 ## Academia e a arena. Modelos KayKit Medieval Hexagon (CC0) para edifícios,
-## árvores e props; primitivos de código para terreno, estradas e detalhes.
-## Colisores invisíveis garantem a geometria de jogo (independente do modelo).
+## árvores e props; vegetação baixa gobkit (CC0); primitivos de código para
+## terreno, estradas e detalhes. Colisores invisíveis garantem a geometria de
+## jogo (independente do modelo).
 
 const SEED := 20240613
 const ENV := "res://assets/models/env/"
+const GOBKIT := "res://assets/models/nature/"
 
 static func build(root: Node3D) -> void:
 	var wb := preload("res://src/world/world_builder.gd").new()
 	wb.root = root
 	wb._build_environment()
 	wb._build_ground_and_road()
+	wb._build_flora()
 	wb._build_village()
 	wb._build_forest()
 	wb._build_academy_and_arena()
@@ -192,6 +195,47 @@ func _build_ground_and_road() -> void:
 	_road_segment(Vector3(0, 0, 36), Vector3(2.2, 0, 4), 4.4)
 	_road_segment(Vector3(2.2, 0, 4), Vector3(-1.6, 0, -27), 4.4)
 	_road_segment(Vector3(-1.6, 0, -27), Vector3(0, 0, -55), 4.6)
+
+func _flora(file: String, pos: Vector3, rot_y: float, scale_factor: float) -> Node3D:
+	return _env_mf.spawn_env(root, GOBKIT + file, pos, rot_y, scale_factor)
+
+## Vegetação baixa gobkit (CC0): relva ao longo da estrada e da floresta,
+## arbustos nos remates das construções e escarpas a enquadrar o fundo.
+## Apenas visual — sem colisores (porte baixo, fora do percurso do jogador).
+func _build_flora() -> void:
+	rng.seed = SEED + 97
+	var grasses := ["Grass001.glb", "Grass002.glb", "Grass003.glb"]
+	# Relva ao longo da estrada (ambos os lados)
+	for i in range(26):
+		var z := rng.randf_range(2.0, 33.5)
+		var side := 1.0 if rng.randf() > 0.5 else -1.0
+		var x := 1.2 + side * rng.randf_range(2.6, 4.3) + rng.randf_range(-0.6, 0.6)
+		_flora(grasses[rng.randi() % grasses.size()], Vector3(x, 0, z), rng.randf_range(0.0, TAU), rng.randf_range(0.8, 1.4))
+	# Relva na floresta (evita estrada e clareira da emboscada)
+	for i in range(42):
+		var x := rng.randf_range(-29.0, 29.0)
+		var z := rng.randf_range(-33.0, 0.0)
+		if absf(x) < 4.2:
+			continue
+		_flora(grasses[rng.randi() % grasses.size()], Vector3(x, 0, z), rng.randf_range(0.0, TAU), rng.randf_range(0.9, 1.5))
+	# Relva no acesso à Academia
+	for i in range(14):
+		var z := rng.randf_range(-53.0, -36.0)
+		var side := 1.0 if rng.randf() > 0.5 else -1.0
+		var x := -1.0 + side * rng.randf_range(2.7, 5.0)
+		_flora(grasses[rng.randi() % grasses.size()], Vector3(x, 0, z), rng.randf_range(0.0, TAU), rng.randf_range(0.8, 1.3))
+	# Arbustos como remate visual das construções e do acampamento
+	var bushes := [
+		Vector3(-8.4, 0, 27.0), Vector3(8.6, 0, 34.0), Vector3(-13.8, 0, 27.2),
+		Vector3(14.9, 0, 38.6), Vector3(-9.4, 0, -12.2), Vector3(5.4, 0, -52.2),
+	]
+	for p in bushes:
+		var bush := "Bush001.glb" if rng.randf() > 0.5 else "Bush002.glb"
+		_flora(bush, p, rng.randf_range(0.0, TAU), rng.randf_range(1.0, 1.5))
+	# Escarpas a enquadrar o portão da Academia e a margem da floresta
+	_flora("Cliff001.glb", Vector3(-23.0, 0, -56.5), 0.4, 2.7)
+	_flora("Cliff002.glb", Vector3(23.4, 0, -55.5), 2.2, 2.5)
+	_flora("Cliff003.glb", Vector3(-26.0, 0, -18.0), 1.1, 3.0)
 
 # ----------------------------------------------------------------- vila -----
 func _build_village() -> void:

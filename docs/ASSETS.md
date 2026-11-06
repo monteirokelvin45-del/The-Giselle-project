@@ -25,7 +25,7 @@ secção [Créditos](#créditos).
 | Tomás (aldeão) | `Rogue.glb` | tintura esverdeada |
 | Liora Venn | `Mage.glb` | tintura dourada/branca |
 | Mestre Dario Vale | `Knight.glb` | tintura azul-aço, escala 1.1 |
-| Lobo de Cinza | *(procedural)* | não há lobo CC0 adequado nos packs; mantém-se primitivos |
+| Lobo de Cinza | `creatures/wolf.glb` (Quaternius) | escala à medida do corpo (~1.0); clipes Attack/Walk/Death mapeados |
 
 ### Animações usadas (de 76 clipes embutidos em cada GLB)
 
@@ -56,6 +56,27 @@ Lobos procedural mantém o comportamento v0.1 (sem animação esquelética).
   usaram-se as árvores/montanhas do Medieval Hexagon (consistência de estilo,
   ~2 MB vs. centenas de MB).
 
+## Lobo — Quaternius (via mirror Papyszoo/CC0-Public-Domain-Models)
+
+| Item | Detalhe |
+|---|---|
+| Ficheiro | `assets/models/creatures/wolf.glb` (1,9 MB, glTF 2.0) |
+| Fonte | Quaternius — *Ultimate Animated Animal Pack*, mirror CC0 `Papyszoo/CC0-Public-Domain-Models` (`packs/quaternius-ultimateanimatedanimals/models/wolf/`) |
+| Licença | CC0-1.0 — ver `docs/licenses/quaternius-animated-animals-LICENSE.txt` |
+| Clipes (12, 153 canais) | Attack, Death, Eating, Gallop, Gallop_Jump, Idle, Idle_2, Idle_2_HeadLow, Idle_HitReact1/2, Jump_ToIdle, Walk |
+| Materiais | 4 materiais untextured (baseColorFactor) — sem atlas externo |
+| Integração | substitui o lobo procedural; clipes mapeados em `enemy.gd` (lobo: Attack/Idle/Walk/Death/Idle_HitReact1) |
+
+## Vegetação baixa — gobkit (CC0)
+
+| Item | Detalhe |
+|---|---|
+| Ficheiros | `assets/models/nature/{Grass001..003, Bush001..002, Cliff001..003}.glb` (~15 KB cada) |
+| Fonte | `Ariescar/gobkit-free-assets` (Nature Kit, CC0, ver `docs/licenses/gobkit-LICENSE.txt`) |
+| Integração | relva ao longo da estrada/floresta/acesso à Academia, arbustos nos remates e 3 escarpas nas bordas (só visual, sem colisores) |
+| Não usado | minions/animals do mesmo pack (clipes únicos "movement"/"clip", estilo destoante) |
+| Estilo | low-poly minimalista — coexiste com KayKit como camada de detalhe ao nível do solo |
+
 ## Áudio
 
 `assets/audio/*.wav` — efeitos sintetizados no próprio repositório
@@ -72,4 +93,7 @@ Lobos procedural mantém o comportamento v0.1 (sem animação esquelética).
 
 - **Kay Lousberg** — [KayKit Game Assets](https://kaylousberg.itch.io/)
   (personagens e mundo medieval, CC0).
+- **Quaternius** — Ultimate Animated Animal Pack (o lobo), CC0 — https://quaternius.com
+- **Gobkit / Alsomind Tech** — Nature Kit de vegetação, CC0 — https://gobkit.com
+  (mirror: `Ariescar/gobkit-free-assets`)
 - Motor: **Godot Engine** (MIT) — https://godotengine.org
