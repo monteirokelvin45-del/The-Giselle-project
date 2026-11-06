@@ -49,7 +49,8 @@ Detalhes e licenças: [`docs/ASSETS.md`](docs/ASSETS.md).
 | R | Beber poção (+45 vida) |
 | F | **Estado de Ruptura** (quando a barra está cheia) |
 | Tab | Fixar / largar alvo |
-| Esc | Menu de pausa (salvar/carregar, atributos, Sistema, a Decisão) |
+| Esc | Menu de pausa (salvar/carregar, atributos, Sistema, a Decisão, **Dificuldade**) |
+| Gamepad | A analógico — mover · R analógico — câmara · X ataque · Y pesado · A esquiva · B interagir · LB bloquear · RB Ruptura · L3 correr · R3 alvo · D-Pad↓ poção · Start pausa |
 
 ## O que mudou na v0.2
 
@@ -59,7 +60,7 @@ Evolução de qualidade sobre a v0.1 (o conteúdo de jogo é o mesmo; o mundo e 
   carvão, a condizer com a referência de personagem em `assets/art/kael_reference.jpg`),
   inimigos humanoides (Salteador = Barbarian tintada, Mago de Cinza = Mage tintada,
   Guardião = Barbarian gigante em pedra) e os 5 NPCs — cada um com **Idle/Walking/Running**,
-  **ataques**, **hit**, **block**, **dodge** e **morte** animado. O lobo mantém-se procedural.
+  **ataques**, **hit**, **block**, **dodge** e **morte** animados.
 - **Mundo com modelos KayKit Medieval Hexagon** (CC0): casas, taverna, capela, forja, mercado,
   poço, castelos academias, torres e muralha do portão, árvores, rochas, montanhas e props
   (barris, caixas, sacos, escadas, tendas, bandeiras, alvos de treino...). Estruturas de colisão de jogo
@@ -73,9 +74,17 @@ Evolução de qualidade sobre a v0.1 (o conteúdo de jogo é o mesmo; o mundo e 
   janela real de contra-jogo.
 - **Game feel**: screen shake (impacto, parry, dano sofrido), partículas de impacto,
   números de dano flutuantes e *hit-flash* branco nos modelos.
+- **Gamepad completo** e **dificuldade** Casual/Normal/Pesadelo (+50% XP) persistida no save.
+- **IA cooperante**: o Salteador protege o Mago de Cinza (guarda-costas) ou flanqueia pelo lado
+  oposto (dois Salteadores), e o Mago recua mais longe quando tem guarda — a emboscada já não é
+  três inimigos a correr na mesma linha reta.
+- **Hit-stop**: ~90–130 ms de pausa dramática em cada acerto (impacto a sério).
+- **Auditoria alargada** (`docs/AUDIT.md`): findings técnicos, conselho de especialistas com
+  votação e o roadmap de riscos abertos.
 - **Correções**: identificadores não declarados nos fallbacks procedurais (quebrariam a
   compilação do script de inimigos), reset de estado de morte (Kael volta a pôr-se de pé após
-  renascer), validação cruzada de todos os caminhos de modelos contra o disco.
+  renascer), validação cruzada de todos os caminhos de modelos contra o disco, tipagem estrita
+  do Godot 4 (`instantiate()` devolve `Node`).
 
 ## O que está pronto na v0.1
 

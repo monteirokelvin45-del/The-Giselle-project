@@ -13,6 +13,15 @@ var external_block := false
 var _layer: CanvasLayer
 var _hud: Control
 var _pause_overlay: Control
+var _difficulty_btn: Button
+
+func _difficulty_text() -> String:
+	return "Dificuldade: %s  ⟳" % GameState.difficulty_label()
+
+func _cycle_difficulty() -> void:
+	GameState.cycle_difficulty()
+	if _difficulty_btn != null:
+		_difficulty_btn.text = _difficulty_text()
 var _attributes_overlay: Control
 var _controls_overlay: Control
 var _decision_overlay: Control
@@ -385,6 +394,8 @@ func _build_pause() -> void:
 	var load_btn := _make_button("Carregar Jogo", _load_game)
 	load_btn.name = "LoadButton"
 	vbox.add_child(load_btn)
+	_difficulty_btn = _make_button(_difficulty_text(), _cycle_difficulty)
+	vbox.add_child(_difficulty_btn)
 	vbox.add_child(_make_button("Controlos", func(): _toggle_controls(true)))
 	vbox.add_child(_make_button("Sair para o Título", _quit_to_title))
 
@@ -459,6 +470,8 @@ func _make_button(text: String, callback: Callable) -> Button:
 	return btn
 
 func _open_pause() -> void:
+	if _difficulty_btn != null:
+		_difficulty_btn.text = _difficulty_text()
 	pause_open = true
 	_pause_overlay.visible = true
 	_refresh_pause_buttons()
@@ -604,6 +617,7 @@ func _build_controls() -> void:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
 	var lines := [
+		"— Teclado e rato —",
 		"W / ↑ — Avançar          S / ↓ — Recuar",
 		"A / ← — Esquerda          D / → — Direita",
 		"Rato — Mover a câmara (clique para focar)",
@@ -618,6 +632,13 @@ func _build_controls() -> void:
 		"F — Estado de Ruptura (quando a barra está cheia)",
 		"Tab — Fixar / largar inimigo",
 		"Esc — Menu de pausa",
+		"— Gamepad —",
+		"Analógico esq. — Mover          Analógico dir. — Câmara",
+		"X — Ataque leve          Y — Ataque pesado",
+		"A — Esquiva              B — Interagir",
+		"LB — Bloquear            RB — Estado de Ruptura",
+		"L3 — Correr              R3 — Fixar alvo",
+		"D-Pad ↓ — Poção          Start — Pausa",
 	]
 	for line in lines:
 		var l := _make_label(line, 14, Color(0.88, 0.87, 0.83))

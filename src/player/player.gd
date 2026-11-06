@@ -141,6 +141,12 @@ func _box(parent: Node3D, size: Vector3, pos: Vector3, mat: StandardMaterial3D) 
 func add_shake(amount: float) -> void:
 	_shake = minf(1.6, _shake + amount)
 
+func _hit_stop(duration: float) -> void:
+	# Pausa dramática de ~100 ms em todo o mundo (o temporizador ignora a escala de tempo)
+	var tree := get_tree()
+	Engine.time_scale = 0.2
+	tree.create_timer(duration, true, false, true).timeout.connect(func(): Engine.time_scale = 1.0)
+
 func _update_animation(delta: float, input_dir: Vector3) -> void:
 	if _anim_player == null or _dying:
 		return
@@ -350,6 +356,7 @@ func _do_attack(heavy: bool) -> void:
 		Audio.play("hit" if not heavy else "heavy_hit", 0.0, randf_range(0.9, 1.1))
 		GameState.add_rupture(5.0)
 		add_shake(0.35 if not heavy else 0.6)
+		_hit_stop(0.09 if not heavy else 0.13)
 		var mf := preload("res://src/visuals/model_factory.gd")
 		for enemy in get_tree().get_nodes_in_group("enemy"):
 			if not is_instance_valid(enemy):
@@ -372,6 +379,14 @@ func _do_attack(heavy: bool) -> void:
 
 # ------------------------------------------------------------------ física ---
 func _physics_process(delta: float) -> void:
+	# Câmara com o stick direito (gamepad); o rato funciona via _input
+	var look_x := Input.get_joy_axis(0, JOY_AXIS_RIGHT_X)
+	var look_y := Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y)
+	if absf(look_x) > 0.18:
+		_yaw -= look_x * 2.6 * delta
+	if absf(look_y) > 0.18:
+		_pitch = clampf(_pitch + look_y * 1.7 * delta, 0.08, 1.15)
+
 	if _attack_cooldown > 0.0:
 		_attack_cooldown -= delta
 	if _attack_cooldown_heavy > 0.0:
@@ -512,7 +527,7 @@ func _find_interactable() -> Node3D:
 func take_damage(amount: float, from_node: Node3D = null) -> void:
 	if _invuln_timer > 0.0:
 		return
-	var final := amount
+	var final := amount * GameState.difficulty_taken_mult()
 	var parried := false
 	if _blocking:
 		var t := Time.get_ticks_msec() / 1000.0 - _block_press_time

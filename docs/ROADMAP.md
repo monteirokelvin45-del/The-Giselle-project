@@ -23,7 +23,10 @@ Missão principal completa + 2 secundárias, combate com parry/postura/Ruptura,
 - [ ] Cancelamento de movimento por ataque, hit-stop, câmara com spring-arm real.
 - [ ] Combos aéreos, `Queda do Colosso`, `Corrida do Predador`, `Passo Vazio` como
       técnicas desbloqueáveis (cap 11, sec. 10 do GDD).
-- [ ] IA com coordenação básica (conjurador + tanque protegem-se; assassino flanqueia).
+- [x] IA com coordenação básica — guarda-costas (Salteador↔Mago) e flanqueamento em lados
+      opostos (v0.2, após auditoria — ver docs/AUDIT.md).
+- [x] Gamepad completo + dificuldade Casual/Normal/Pesadelo persistida no save.
+- [x] Hit-stop em acertos (~90–130 ms).
 - [ ] Lock-on com troca suave de alvo e câmara dinâmica.
 - [ ] Música dinâmica por intensidade (exploração → perigo → combate).
 

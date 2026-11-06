@@ -56,7 +56,7 @@ var visual: Node3D
 func _ready() -> void:
 	var stats: Dictionary = TYPES.get(enemy_type, TYPES["salteador"])
 	display_name = String(stats["name"])
-	max_hp = float(stats["hp"])
+	max_hp = float(stats["hp"]) * GameState.difficulty_enemy_hp_mult()
 	hp = max_hp
 	max_posture = float(stats["posture"])
 	posture = max_posture
@@ -282,10 +282,13 @@ func _physics_process(delta: float) -> void:
 				_fire_projectile(to_player.normalized())
 				_cast_timer = 2.4
 			return
+		var has_guard := _nearest_ally_of_type("salteador", 15.0) != null
+		var stand_far := 13.0 if has_guard else 11.5
+		var stand_near := 8.0 if has_guard else 6.0
 		var move := Vector3.ZERO
-		if dist > 11.5:
+		if dist > stand_far:
 			move = to_player.normalized()
-		elif dist < 6.0:
+		elif dist < stand_near:
 			move = -to_player.normalized()
 		else:
 			var perp := Vector3(-to_player.z, 0.0, to_player.x).normalized()
@@ -320,7 +323,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	if dist > float(stats["range"]) * 0.85:
-		var dir := to_player.normalized()
+		var dir := _coordinated_direction(to_player)
 		velocity.x = dir.x * float(stats["speed"])
 		velocity.z = dir.z * float(stats["speed"])
 	else:
@@ -346,6 +349,46 @@ func _physics_process(delta: float) -> void:
 
 	_update_enemy_anim(delta)
 	move_and_slide()
+
+func _nearest_ally_of_type(type: String, max_dist: float) -> Node3D:
+	var best: Node3D = null
+	var best_d := max_dist
+	for other in get_tree().get_nodes_in_group("enemy"):
+		if other == self or not is_instance_valid(other):
+			continue
+		if other.get("enemy_type") != type:
+			continue
+		var d := (other.global_position - global_position).length()
+		if d < best_d:
+			best_d = d
+			best = other
+	return best
+
+## Coordenenação leve: salteador protege o Mago de Cinza mais próximo
+## (coloca-se entre ele e o jogador); sem Mago por perto, dois salteadores
+## escolhem lados opostos de flanqueamento.
+func _coordinated_direction(to_player: Vector3) -> Vector3:
+	if enemy_type != "salteador":
+		return to_player.normalized()
+	var cinza := _nearest_ally_of_type("cinza", 32.0)
+	if cinza != null:
+		var dir_to_player := to_player.normalized()
+		var cover := cinza.global_position + dir_to_player * 3.4
+		var to_cover := cover - global_position
+		to_cover.y = 0.0
+		if to_cover.length() > 1.3:
+			return to_cover.normalized()
+		return dir_to_player
+	var ally := _nearest_ally_of_type("salteador", 48.0)
+	if ally != null:
+		var side := 1.0 if get_instance_id() > ally.get_instance_id() else -1.0
+		var perp := Vector3(-to_player.z, 0.0, to_player.x).normalized() * side
+		var flank := _player.global_position + perp * 2.8
+		var to_flank := flank - global_position
+		to_flank.y = 0.0
+		if to_flank.length() > 1.6:
+			return to_flank.normalized()
+	return to_player.normalized()
 
 func _update_enemy_anim(delta: float) -> void:
 	if _anim_player == null or _dead:

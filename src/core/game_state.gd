@@ -41,6 +41,34 @@ var artifact_unlocked: bool = false
 var evaluations_used: int = 0
 var ending: String = ""
 
+## Dificuldade: casual | normal | pesadelo (afetada por mults; ver DIFFICULTY)
+var difficulty: String = "normal"
+const DIFFICULTY := {
+	"casual": {"taken": 0.65, "enemy_hp": 0.75, "xp": 1.0, "label": "Casual (relaxado)"},
+	"normal": {"taken": 1.0, "enemy_hp": 1.0, "xp": 1.0, "label": "Normal"},
+	"pesadelo": {"taken": 1.35, "enemy_hp": 1.25, "xp": 1.5, "label": "Pesadelo (+50% XP)"},
+}
+const DIFFICULTY_ORDER := ["casual", "normal", "pesadelo"]
+
+func difficulty_taken_mult() -> float:
+	return float(DIFFICULTY.get(difficulty, DIFFICULTY["normal"])["taken"])
+
+func difficulty_enemy_hp_mult() -> float:
+	return float(DIFFICULTY.get(difficulty, DIFFICULTY["normal"])["enemy_hp"])
+
+func difficulty_xp_mult() -> float:
+	return float(DIFFICULTY.get(difficulty, DIFFICULTY["normal"])["xp"])
+
+func difficulty_label() -> String:
+	return String(DIFFICULTY.get(difficulty, DIFFICULTY["normal"])["label"])
+
+func cycle_difficulty() -> void:
+	var idx := DIFFICULTY_ORDER.find(difficulty)
+	idx = (idx + 1) % DIFFICULTY_ORDER.size()
+	difficulty = DIFFICULTY_ORDER[idx]
+	notify("Dificuldade: %s" % difficulty_label())
+	stats_changed.emit()
+
 var resume_pending: bool = false
 var saved_position: Vector3 = Vector3(0, 1, 34)
 var saved_hp: float = -1.0
@@ -55,6 +83,7 @@ func xp_progress() -> float:
 	return clampf(float(xp) / float(maxi(1, xp_needed())), 0.0, 1.0)
 
 func add_xp(amount: int) -> void:
+	amount = maxi(1, int(round(amount * difficulty_xp_mult())))
 	xp += amount
 	notify("+%d XP" % amount)
 	while xp >= xp_needed():
@@ -200,6 +229,7 @@ func on_herb_collected() -> void:
 func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 	var data := {
 		"version": 1,
+		"difficulty": difficulty,
 		"level": level, "xp": xp, "attribute_points": attribute_points,
 		"attributes": attributes, "marcos": marcos, "potions": potions,
 		"rupture": rupture, "main_stage": main_stage,
@@ -233,6 +263,10 @@ func load_game() -> bool:
 	if typeof(parsed) != TYPE_DICTIONARY:
 		notify("Ficheiro de gravação corrompido.")
 		return false
+	var saved_difficulty := String(parsed.get("difficulty", "normal"))
+	if not DIFFICULTY.has(saved_difficulty):
+		saved_difficulty = "normal"
+	difficulty = saved_difficulty
 	level = int(parsed.get("level", 1))
 	xp = int(parsed.get("xp", 0))
 	attribute_points = int(parsed.get("attribute_points", 0))
