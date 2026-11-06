@@ -29,6 +29,8 @@ const TYPES := {
 }
 
 @export var enemy_type: String = "salteador"
+## Multiplicador de vida extra — definido pelo nível de ameaça do Sistema.
+var power_mult: float = 1.0
 
 var display_name: String = "Inimigo"
 var hp: float = 50.0
@@ -56,7 +58,7 @@ var visual: Node3D
 func _ready() -> void:
 	var stats: Dictionary = TYPES.get(enemy_type, TYPES["salteador"])
 	display_name = String(stats["name"])
-	max_hp = float(stats["hp"]) * GameState.difficulty_enemy_hp_mult()
+	max_hp = float(stats["hp"]) * GameState.difficulty_enemy_hp_mult() * power_mult
 	hp = max_hp
 	max_posture = float(stats["posture"])
 	posture = max_posture

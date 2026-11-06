@@ -50,6 +50,63 @@ const DIFFICULTY := {
 }
 const DIFFICULTY_ORDER := ["casual", "normal", "pesadelo"]
 
+# ------------------------------------------------- v0.3 — O Sistema ----------
+const SAVE_VERSION := 2
+
+const THREAT_LEVELS := [
+	{"name": "Básico", "hp_mult": 0.75, "count": 2, "level_req": 1, "reward_mult": 1.0},
+	{"name": "Intermediário", "hp_mult": 1.0, "count": 3, "level_req": 1, "reward_mult": 1.25},
+	{"name": "Avançado", "hp_mult": 1.45, "count": 4, "level_req": 3, "reward_mult": 1.6},
+	{"name": "Mestre", "hp_mult": 2.1, "count": 5, "level_req": 5, "reward_mult": 2.1},
+	{"name": "Impossível", "hp_mult": 3.1, "count": 5, "level_req": 8, "reward_mult": 3.0},
+]
+
+const ARENA_ENVIRONMENTS := [
+	{"id": "arena", "name": "Arena Branca", "ground": Color(0.93, 0.93, 0.96), "fog": Color(0.97, 0.97, 1.0), "fog_density": 0.028, "light": Color(1.0, 1.0, 1.0), "ambient": Color(0.9, 0.9, 0.96)},
+	{"id": "floresta", "name": "Floresta de Ruun", "ground": Color(0.16, 0.28, 0.12), "fog": Color(0.35, 0.45, 0.3), "fog_density": 0.02, "light": Color(0.85, 0.95, 0.7), "ambient": Color(0.35, 0.45, 0.3)},
+	{"id": "deserto", "name": "Deserto de Sahr", "ground": Color(0.72, 0.6, 0.38), "fog": Color(0.82, 0.72, 0.5), "fog_density": 0.016, "light": Color(1.0, 0.9, 0.65), "ambient": Color(0.75, 0.65, 0.45)},
+	{"id": "montanha", "name": "Montanhas de Khar", "ground": Color(0.38, 0.4, 0.44), "fog": Color(0.45, 0.5, 0.58), "fog_density": 0.022, "light": Color(0.9, 0.93, 1.0), "ambient": Color(0.45, 0.48, 0.55)},
+	{"id": "vulcao", "name": "Vulcão de Orun", "ground": Color(0.09, 0.06, 0.06), "fog": Color(0.35, 0.14, 0.08), "fog_density": 0.03, "light": Color(1.0, 0.5, 0.25), "ambient": Color(0.45, 0.2, 0.12)},
+	{"id": "oceano", "name": "Arquipélago de Lume", "ground": Color(0.18, 0.38, 0.48), "fog": Color(0.4, 0.6, 0.7), "fog_density": 0.02, "light": Color(0.85, 0.97, 1.0), "ambient": Color(0.35, 0.5, 0.6)},
+	{"id": "cidade", "name": "Cidade Cinza", "ground": Color(0.35, 0.33, 0.31), "fog": Color(0.4, 0.38, 0.35), "fog_density": 0.019, "light": Color(1.0, 0.9, 0.75), "ambient": Color(0.4, 0.37, 0.33)},
+	{"id": "abismo", "name": "Fim do Abismo", "ground": Color(0.07, 0.05, 0.11), "fog": Color(0.12, 0.08, 0.2), "fog_density": 0.035, "light": Color(0.55, 0.35, 0.9), "ambient": Color(0.2, 0.14, 0.32)},
+]
+
+var threat_level: int = 0
+var arena_environment: String = "arena"
+var arena_enemy_count: int = 3
+var arena_time_limit: float = 60.0   # segundos; 0 = ilimitado
+var arena_potions: bool = true
+var evaluation_history: Array = []
+var system_memory: Dictionary = {"best_style": "", "refusals": 0, "evaluations": 0}
+
+# --------------------------------------- v0.4/v0.6 — Academia e mundo ------
+## Exames da Academia: id → true quando aprovado
+var exams_done: Dictionary = {}
+## Companheiros recrutados: id → lealdade (0–100)
+var companions: Dictionary = {}
+var romance_id: String = ""
+## Reputação nas fações (-100 a +100)
+var reputation: Dictionary = {
+	"imperial": 0,      # Conselho Imperial
+	"irmandade": 0,     # Irmandade do Vácuo
+	"ordem": 0,         # Ordem da Cinza
+	"arquivistas": 0,   # Arquivistas do Proibido
+	"academia": 0,      # Academia Real de Veyra
+}
+## Regiões visitadas / concluídas (id → nº de expedições limpas)
+var region_known: Dictionary = {"noro": true}
+var region_clears: Dictionary = {}
+var current_region: String = "noro"
+## Lesões: 0 = saudável, 1 = grave (-15% velocidade, -10% dano até descansar)
+var injury: int = 0
+
+# ------------------------------------------- v1.0 — Acessibilidade ----------
+var colorblind_mode: int = 0      # 0 desligado · 1 protanopia · 2 deuteranopia · 3 tritanopia
+var subtitle_scale: float = 1.0
+var custom_bindings: Dictionary = {}
+var music_enabled: bool = true
+
 func difficulty_taken_mult() -> float:
 	return float(DIFFICULTY.get(difficulty, DIFFICULTY["normal"])["taken"])
 
@@ -68,6 +125,76 @@ func cycle_difficulty() -> void:
 	difficulty = DIFFICULTY_ORDER[idx]
 	notify("Dificuldade: %s" % difficulty_label())
 	stats_changed.emit()
+
+# ------------------------------------------- Sistema: níveis e arena --------
+func threat_hp_mult() -> float:
+	return float(THREAT_LEVELS[clampi(threat_level, 0, THREAT_LEVELS.size() - 1)]["hp_mult"])
+
+func threat_count() -> int:
+	return int(THREAT_LEVELS[clampi(threat_level, 0, THREAT_LEVELS.size() - 1)]["count"])
+
+func threat_reward_mult() -> float:
+	return float(THREAT_LEVELS[clampi(threat_level, 0, THREAT_LEVELS.size() - 1)]["reward_mult"])
+
+func threat_level_req() -> int:
+	return int(THREAT_LEVELS[clampi(threat_level, 0, THREAT_LEVELS.size() - 1)]["level_req"])
+
+func threat_name() -> String:
+	return String(THREAT_LEVELS[clampi(threat_level, 0, THREAT_LEVELS.size() - 1)]["name"])
+
+func can_threat(idx: int) -> bool:
+	return level >= int(THREAT_LEVELS[clampi(idx, 0, THREAT_LEVELS.size() - 1)]["level_req"])
+
+const REPUTATION_FACTIONS := ["imperial", "irmandade", "ordem", "arquivistas", "academia"]
+const REPUTATION_NAMES := {
+	"imperial": "Conselho Imperial",
+	"irmandade": "Irmandade do Vácuo",
+	"ordem": "Ordem da Cinza",
+	"arquivistas": "Arquivistas do Proibido",
+	"academia": "Academia Real de Veyra",
+}
+
+func add_reputation(faction: String, amount: int) -> void:
+	if not reputation.has(faction):
+		return
+	reputation[faction] = clampi(int(reputation[faction]) + amount, -100, 100)
+	var verb := "melhorada" if amount >= 0 else "piorada"
+	notify("Reputação %s %s (%d)" % [String(REPUTATION_NAMES.get(faction, faction)), verb, int(reputation[faction])])
+	stats_changed.emit()
+
+func reputation_rank(faction: String) -> String:
+	var r := int(reputation.get(faction, 0))
+	if r <= -30: return "Hostil"
+	if r < 0: return "Desconfiado"
+	if r < 20: return "Neutro"
+	if r < 50: return "Conhecido"
+	if r < 80: return "Respeitado"
+	return "Lendário"
+
+func companion_loyalty(id: String) -> int:
+	return int(companions.get(id, 0))
+
+func add_companion_loyalty(id: String, amount: int) -> void:
+	if not companions.has(id):
+		companions[id] = 0
+	companions[id] = clampi(int(companions[id]) + amount, 0, 100)
+	stats_changed.emit()
+
+func rest() -> void:
+	injury = 0
+	stats_changed.emit()
+
+func add_injury() -> void:
+	if injury == 0:
+		injury = 1
+		notify("LESÃO GRAVE — -15% velocidade, -10% dano até descansares (forja de GARR, casa da Elen ou dormitórios).")
+		stats_changed.emit()
+
+func environment_config() -> Dictionary:
+	for env in ARENA_ENVIRONMENTS:
+		if String(env["id"]) == arena_environment:
+			return env
+	return ARENA_ENVIRONMENTS[0]
 
 var resume_pending: bool = false
 var saved_position: Vector3 = Vector3(0, 1, 34)
@@ -104,10 +231,10 @@ func stamina_regen() -> float:
 	return 28.0 + float(int(attributes["fol"]) - 1) * 3.0
 
 func move_speed() -> float:
-	return 5.2 + float(int(attributes["vel"]) - 1) * 0.25
+	return (5.2 + float(int(attributes["vel"]) - 1) * 0.25) * (0.85 if injury > 0 else 1.0)
 
 func damage_mult() -> float:
-	return 1.0 + float(int(attributes["for"]) - 1) * 0.08
+	return (1.0 + float(int(attributes["for"]) - 1) * 0.08) * (0.90 if injury > 0 else 1.0)
 
 func posture_mult() -> float:
 	return 1.0 + float(int(attributes["tec"]) - 1) * 0.10
@@ -228,7 +355,7 @@ func on_herb_collected() -> void:
 # ------------------------------------------------------------------ save ---
 func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 	var data := {
-		"version": 1,
+		"version": SAVE_VERSION,
 		"difficulty": difficulty,
 		"level": level, "xp": xp, "attribute_points": attribute_points,
 		"attributes": attributes, "marcos": marcos, "potions": potions,
@@ -237,32 +364,39 @@ func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 		"wolf_quest_state": wolf_quest_state, "herb_quest_state": herb_quest_state,
 		"ambush_spawned": ambush_spawned, "artifact_unlocked": artifact_unlocked,
 		"evaluations_used": evaluations_used, "ending": ending,
+		"threat_level": threat_level, "arena_environment": arena_environment,
+		"arena_enemy_count": arena_enemy_count, "arena_time_limit": arena_time_limit,
+		"arena_potions": arena_potions,
+		"evaluation_history": evaluation_history, "system_memory": system_memory,
+		"exams_done": exams_done, "companions": companions, "romance_id": romance_id,
+		"reputation": reputation, "region_known": region_known,
+		"region_clears": region_clears, "current_region": current_region,
+		"injury": injury,
+		"colorblind_mode": colorblind_mode, "subtitle_scale": subtitle_scale,
+		"custom_bindings": custom_bindings, "music_enabled": music_enabled,
 		"px": pos.x, "py": pos.y, "pz": pos.z, "hp": hp, "stamina": stamina,
 	}
-	var f := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	var payload := JSON.stringify(data)
+	data["checksum"] = payload.sha256_text()
+	var tmp_path := SAVE_PATH + ".tmp"
+	var f := FileAccess.open(tmp_path, FileAccess.WRITE)
 	if f == null:
 		notify("Não foi possível guardar o jogo.")
 		return false
 	f.store_string(JSON.stringify(data, "  "))
 	f.close()
+	# Backup do save anterior antes de o substituir
+	if FileAccess.file_exists(SAVE_PATH):
+		DirAccess.rename_absolute(SAVE_PATH, SAVE_PATH + ".bak")
+	var err := DirAccess.rename_absolute(tmp_path, SAVE_PATH)
+	if err != OK:
+		notify("Não foi possível guardar o jogo.")
+		return false
 	game_saved.emit()
 	notify("Jogo guardado.")
 	return true
 
-func has_save() -> bool:
-	return FileAccess.file_exists(SAVE_PATH)
-
-func load_game() -> bool:
-	if not has_save():
-		notify("Não existe jogo guardado.")
-		return false
-	var f := FileAccess.open(SAVE_PATH, FileAccess.READ)
-	var raw := f.get_as_text()
-	f.close()
-	var parsed = JSON.parse_string(raw)
-	if typeof(parsed) != TYPE_DICTIONARY:
-		notify("Ficheiro de gravação corrompido.")
-		return false
+func _apply_save_dict(parsed: Dictionary) -> void:
 	var saved_difficulty := String(parsed.get("difficulty", "normal"))
 	if not DIFFICULTY.has(saved_difficulty):
 		saved_difficulty = "normal"
@@ -286,9 +420,69 @@ func load_game() -> bool:
 	artifact_unlocked = bool(parsed.get("artifact_unlocked", false))
 	evaluations_used = int(parsed.get("evaluations_used", 0))
 	ending = String(parsed.get("ending", ""))
+	threat_level = clampi(int(parsed.get("threat_level", 0)), 0, THREAT_LEVELS.size() - 1)
+	arena_environment = String(parsed.get("arena_environment", "arena"))
+	arena_enemy_count = clampi(int(parsed.get("arena_enemy_count", 3)), 1, 5)
+	arena_time_limit = float(parsed.get("arena_time_limit", 60.0))
+	arena_potions = bool(parsed.get("arena_potions", true))
+	evaluation_history = parsed.get("evaluation_history", [])
+	if typeof(evaluation_history) != TYPE_ARRAY:
+		evaluation_history = []
+	var mem: Dictionary = parsed.get("system_memory", {})
+	system_memory = {"best_style": String(mem.get("best_style", "")), "refusals": int(mem.get("refusals", 0)), "evaluations": int(mem.get("evaluations", 0))}
+	exams_done = parsed.get("exams_done", {})
+	if typeof(exams_done) != TYPE_DICTIONARY:
+		exams_done = {}
+	companions = parsed.get("companions", {})
+	if typeof(companions) != TYPE_DICTIONARY:
+		companions = {}
+	romance_id = String(parsed.get("romance_id", ""))
+	var rep: Dictionary = parsed.get("reputation", {})
+	for faction in REPUTATION_FACTIONS:
+		reputation[faction] = clampi(int(rep.get(faction, 0)), -100, 100)
+	region_known = parsed.get("region_known", {"noro": true})
+	if typeof(region_known) != TYPE_DICTIONARY:
+		region_known = {"noro": true}
+	region_clears = parsed.get("region_clears", {})
+	if typeof(region_clears) != TYPE_DICTIONARY:
+		region_clears = {}
+	current_region = String(parsed.get("current_region", "noro"))
+	injury = clampi(int(parsed.get("injury", 0)), 0, 1)
+	colorblind_mode = clampi(int(parsed.get("colorblind_mode", 0)), 0, 3)
+	subtitle_scale = clampf(float(parsed.get("subtitle_scale", 1.0)), 0.8, 1.6)
+	custom_bindings = parsed.get("custom_bindings", {})
+	if typeof(custom_bindings) != TYPE_DICTIONARY:
+		custom_bindings = {}
+	music_enabled = bool(parsed.get("music_enabled", true))
 	saved_position = Vector3(float(parsed.get("px", 0.0)), float(parsed.get("py", 1.0)), float(parsed.get("pz", 34.0)))
 	saved_hp = float(parsed.get("hp", -1.0))
 	saved_stamina = float(parsed.get("stamina", -1.0))
+
+func has_save() -> bool:
+	return FileAccess.file_exists(SAVE_PATH)
+
+func load_game() -> bool:
+	if not has_save():
+		notify("Não existe jogo guardado.")
+		return false
+	var raw := FileAccess.get_file_as_string(SAVE_PATH)
+	var parsed = JSON.parse_string(raw)
+	if typeof(parsed) != TYPE_DICTIONARY:
+		# Tentar o backup antes de desistir
+		var bak := FileAccess.get_file_as_string(SAVE_PATH + ".bak")
+		parsed = JSON.parse_string(bak) if bak != "" else null
+		if typeof(parsed) != TYPE_DICTIONARY:
+			notify("Ficheiro de gravação corrompido.")
+			return false
+		notify("Gravação principal corrompida — restaurado o backup.")
+	var stored_checksum := String((parsed as Dictionary).get("checksum", ""))
+	if stored_checksum != "":
+		var data := parsed as Dictionary
+		data.erase("checksum")
+		if JSON.stringify(data).sha256_text() != stored_checksum:
+			notify("Gravação adulterada ou corrompida (checksum inválido).")
+			return false
+	_apply_save_dict(parsed)
 	resume_pending = true
 	stats_changed.emit()
 	notify("Jogo carregado.")
@@ -317,4 +511,20 @@ func reset_for_new_game() -> void:
 	saved_position = Vector3(0, 1, 34)
 	saved_hp = -1.0
 	saved_stamina = -1.0
+	threat_level = 0
+	arena_environment = "arena"
+	arena_enemy_count = 3
+	arena_time_limit = 60.0
+	arena_potions = true
+	evaluation_history.clear()
+	system_memory = {"best_style": "", "refusals": 0, "evaluations": 0}
+	exams_done.clear()
+	companions.clear()
+	romance_id = ""
+	for faction in REPUTATION_FACTIONS:
+		reputation[faction] = 0
+	region_known = {"noro": true}
+	region_clears.clear()
+	current_region = "noro"
+	injury = 0
 	stats_changed.emit()

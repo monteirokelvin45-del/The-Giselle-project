@@ -44,6 +44,11 @@ var current_interactable: Node3D = null
 var total_swings: int = 0
 var total_hits: int = 0
 var total_damage_taken: float = 0.0
+var total_parries: int = 0
+var light_hits: int = 0
+var heavy_hits: int = 0
+var hits_taken_attacking: int = 0
+var first_hit_msec: int = -1
 
 var visual: Node3D
 var camera: Camera3D
@@ -73,6 +78,11 @@ func reset_combat_stats() -> void:
 	total_swings = 0
 	total_hits = 0
 	total_damage_taken = 0.0
+	total_parries = 0
+	light_hits = 0
+	heavy_hits = 0
+	hits_taken_attacking = 0
+	first_hit_msec = -1
 
 func facing_direction() -> Vector3:
 	return Vector3(sin(_facing), 0.0, cos(_facing))
@@ -358,6 +368,12 @@ func _do_attack(heavy: bool) -> void:
 	_play_attack_anim(heavy)
 	if hit_any:
 		total_hits += 1
+		if first_hit_msec < 0:
+			first_hit_msec = Time.get_ticks_msec()
+		if heavy:
+			heavy_hits += 1
+		else:
+			light_hits += 1
 		attack_landed.emit()
 		Audio.play("hit" if not heavy else "heavy_hit", 0.0, randf_range(0.9, 1.1))
 		GameState.add_rupture(5.0)
@@ -546,6 +562,7 @@ func take_damage(amount: float, from_node: Node3D = null) -> void:
 		if t <= GameState.parry_window():
 			parried = true
 		if parried:
+			total_parries += 1
 			Audio.play("parry")
 			GameState.add_rupture(16.0)
 			add_shake(0.55)
@@ -568,8 +585,12 @@ func take_damage(amount: float, from_node: Node3D = null) -> void:
 			GameState.notify("Fôlego esgotado — não consegues bloquear!")
 	if GameState.rupture_time_left > 0.0:
 		final *= 0.5
+	if _attack_cooldown > 0.0 or _attack_cooldown_heavy > 0.0:
+		hits_taken_attacking += 1
 	hp -= final
 	total_damage_taken += final
+	if final >= GameState.max_hp() * 0.25:
+		GameState.add_injury()
 	if _anim_player != null and not _dying:
 		var mf := preload("res://src/visuals/model_factory.gd")
 		mf.play_anim(_anim_player, "Hit_A", 0.1, 0.3)
