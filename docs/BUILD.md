@@ -31,11 +31,18 @@ Instalado e verificado: `scons` 4.11.1, `cmake` 4.4.4, `shellcheck` 0.11.0,
 `tools/synth_music.py`). Já existiam na base: `gcc`/`g++` 12.2, `make`,
 `python3` 3.11, `node` 22, `npm` 10, `git` 2.39, `gh` 2.23, ImageMagick 6.
 
-**Não instalável neste sandbox:** Android SDK/JDK — `dl.google.com`,
-Adoptium/BellSoft, `deb.debian.org` estão bloqueados (só github, npm e pypi).
-O export de APK tem de correr numa máquina com Android Studio + JDK; o preset
-(`export_presets.cfg`) já está preparado e avisos do import foram eliminados
-(`export_filter` na secção `[preset.N]`).
+**Não instalável neste sandbox:**
+- Android SDK/JDK/keytool — `dl.google.com`, Adoptium/BellSoft e
+  `deb.debian.org` estão bloqueados (só github, npm e pypi). O export de APK
+  tem de correr numa máquina com Android Studio + JDK; o preset
+  (`export_presets.cfg`) já está preparado e avisos do import foram eliminados
+  (`export_filter` na secção `[preset.N]`).
+- Templates de export com gráficos (linuxbsd/x11, Wayland, Windows) — faltam os
+  headers de desenvolvimento (`/usr/include/X11`, `GL`, `vulkan`, `EGL`
+  inexistentes; apenas `libX11.so.6` runtime). Só seria compilável um template
+  x11=no (headless), cujo output não renderiza — não vale o tempo de build.
+- xvfb / Mesa GL — não há apt; sem GL por software, não há validação visual
+  local. A primeira validação visual é sempre na máquina do utilizador (F5).
 
 Os scripts shell do repositório passam `shellcheck -S style` limpos.
 
