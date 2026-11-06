@@ -15,12 +15,13 @@ elif [ -f "$PROJ/tools/.bin/godot.gz" ]; then
 	GODOT_BIN="/tmp/giselle_godot"
 	if [ ! -x "$GODOT_BIN" ] || [ "$GODOT_BIN" -ot "$PROJ/tools/.bin/godot.gz" ]; then
 		echo "== tools/.bin/godot.gz encontrado — a extrair para $GODOT_BIN (uma vez por sessão)"
-		gzip -dc "$PROJ/tools/.bin/godot.gz" > "$GODOT_BIN" && chmod +x "$GODOT_BIN" || { echo "   ! falha ao extrair godot.gz"; exit 1; }
+		if ! gzip -dc "$PROJ/tools/.bin/godot.gz" > "$GODOT_BIN"; then echo "   ! falha ao extrair godot.gz"; exit 1; fi
+		chmod +x "$GODOT_BIN"
 	fi
 else
 	GODOT_BIN="godot"
 fi
-cd "$PROJ"
+cd "$PROJ" || exit 1
 
 echo "== versão ($GODOT_BIN)"
 "$GODOT_BIN" --headless --version || exit 1
@@ -32,7 +33,8 @@ fail=0
 run_scene () {
 	local scene="$1" frames="${2:-120}"
 	echo "== smoke: $scene ($frames frames)"
-	local log="/tmp/smoke_$(basename "$scene" .tscn).log"
+	local log
+	log="/tmp/smoke_$(basename "$scene" .tscn).log"
 	"$GODOT_BIN" --headless --path "$PROJ" "$scene" --quit-after "$frames" > "$log" 2>&1
 	local code=$?
 	if grep -iE "SCRIPT ERROR|Parse Error|Failed to|Nonexistent|ERROR" "$log" | head -10; then

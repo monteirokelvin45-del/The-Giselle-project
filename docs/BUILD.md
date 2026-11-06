@@ -14,6 +14,31 @@ artefactos da release no GitHub redireccionam para S3 fora da lista; o `apt`
 não tem rede). A saída encontrada: **compilar o Godot 4.7.2 a partir do
 código-fonte** (codeload.github.com funciona).
 
+## Ambiente persistente (instalado 2026-11-06)
+
+Apenas `$HOME` persiste entre sessões (e `$HOME/.local` **não** persiste).
+Por isso as ferramentas pip vão parar a `${GISELLE_ENV:-$HOME/.giselle-env}`:
+
+```bash
+tools/setup_env.sh           # instala tudo (idempotente)
+tools/setup_env.sh --check   # só verifica
+export PATH="$HOME/.giselle-env/bin:$PATH"
+tools/godot.sh --version     # extrai tools/.bin/godot.gz para /tmp e executa
+```
+
+Instalado e verificado: `scons` 4.11.1, `cmake` 4.4.4, `shellcheck` 0.11.0,
+`ffmpeg` (imageio-ffmpeg n9.0.2), `numpy` 2.4.6 (necessária a
+`tools/synth_music.py`). Já existiam na base: `gcc`/`g++` 12.2, `make`,
+`python3` 3.11, `node` 22, `npm` 10, `git` 2.39, `gh` 2.23, ImageMagick 6.
+
+**Não instalável neste sandbox:** Android SDK/JDK — `dl.google.com`,
+Adoptium/BellSoft, `deb.debian.org` estão bloqueados (só github, npm e pypi).
+O export de APK tem de correr numa máquina com Android Studio + JDK; o preset
+(`export_presets.cfg`) já está preparado e avisos do import foram eliminados
+(`export_filter` na secção `[preset.N]`).
+
+Os scripts shell do repositório passam `shellcheck -S style` limpos.
+
 ## Como foi feito
 
 ```bash
