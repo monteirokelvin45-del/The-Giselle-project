@@ -18,14 +18,19 @@ GameState="*res://src/core/game_state.gd"
 Audio="*res://src/core/audio.gd"
 Dialogue="*res://src/ui/dialogue.gd"
 UI="*res://src/ui/ui.gd"
+Touch="*res://src/mobile/touch_controls.gd"
 
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+window/handheld/orientation="landscape"
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 window/title="A Academia do Zero"
 
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true

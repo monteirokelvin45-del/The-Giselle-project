@@ -307,6 +307,12 @@ func _try_dodge() -> void:
 func _input_vector() -> Vector3:
 	var ix := Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
 	var iz := Input.get_action_strength("move_forward") - Input.get_action_strength("move_back")
+	var touch := get_node_or_null("/root/Touch")
+	if touch:
+		var tv: Vector2 = touch.get("move_vector")
+		if tv.length() > 0.12:
+			ix += tv.x
+			iz += -tv.y
 	var forward := Vector3(-sin(_yaw), 0.0, -cos(_yaw))
 	var right := Vector3(cos(_yaw), 0.0, -sin(_yaw))
 	var move := forward * iz + right * ix
@@ -386,6 +392,12 @@ func _physics_process(delta: float) -> void:
 		_yaw -= look_x * 2.6 * delta
 	if absf(look_y) > 0.18:
 		_pitch = clampf(_pitch + look_y * 1.7 * delta, 0.08, 1.15)
+	var touch := get_node_or_null("/root/Touch")
+	if touch:
+		var look_touch: Vector2 = touch.consume_look()
+		if look_touch.length() > 0.01:
+			_yaw -= look_touch.x * 0.0042
+			_pitch = clampf(_pitch + look_touch.y * 0.0032, 0.08, 1.15)
 
 	if _attack_cooldown > 0.0:
 		_attack_cooldown -= delta

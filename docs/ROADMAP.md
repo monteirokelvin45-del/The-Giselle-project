@@ -26,6 +26,8 @@ Missão principal completa + 2 secundárias, combate com parry/postura/Ruptura,
 - [x] IA com coordenação básica — guarda-costas (Salteador↔Mago) e flanqueamento em lados
       opostos (v0.2, após auditoria — ver docs/AUDIT.md).
 - [x] Gamepad completo + dificuldade Casual/Normal/Pesadelo persistida no save.
+- [x] **Android**: controlos táteis (joystick + câmara por arrasto + botões), landscape,
+      export preset — alvo: gama alta (escolha do dono). iOS fica para quando houver Mac/Xcode.
 - [x] Hit-stop em acertos (~90–130 ms).
 - [ ] Lock-on com troca suave de alvo e câmara dinâmica.
 - [ ] Música dinâmica por intensidade (exploração → perigo → combate).

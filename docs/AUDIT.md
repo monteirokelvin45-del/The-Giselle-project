@@ -58,6 +58,14 @@ Cada persona: 3 pontos nas propostas que mais importam.
 
 ## 3. Implementado nesta iteração
 
+> **Addendum (mesmo dia) — Android confirmado pelo dono do projeto**: alvo
+> "gama alta", Android apenas (iOS pendente de Mac/Xcode). Controlos táteis
+> standard (joystick dinâmico + câmara por arrasto + botões de ação via
+> `InputEventAction` — a lógica do jogo não mudou), `window/handheld/orientation=landscape`,
+> stretch `canvas_items`/`expand`, ETC2/ASTC, ícones, `export_presets.cfg`.
+> Novo autoload `Touch` (camada 30), visível só em Main/SalaBranca e com menus
+> fechados. Ver "Jogar no Android" no README.
+
 1. **Gamepad completo** (`input_setup.gd`, `player.gd`): movimento analógico
    (L3/eixos com deadzone 0.2), câmara por stick direito (yaw/pitch com deadzone),
    todos os botões mapeados (X ataque leve, Y pesado, A esquiva, B interagir,

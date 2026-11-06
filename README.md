@@ -33,6 +33,38 @@ no repositório em `assets/models/`, e os efeitos sonoros são sintetizados em
 `assets/audio/`. A key art do título foi gerada por IA (`assets/art/key_art.jpg`).
 Detalhes e licenças: [`docs/ASSETS.md`](docs/ASSETS.md).
 
+## Jogar no Android (novo)
+
+O jogo agora também corre em Android (telemóveis de gama alta — escolha do dono do projeto):
+
+1. Instala o **Godot Engine 4.2+** e no **Editor → Preferências → Exportar → Android** configura
+   o `JAVA_HOME` e o caminho do Android SDK (o editor gera a keystore de debug sozinho).
+2. Abre o projeto → **Projeto → Exportar… → Android** — o preset já está pronto em
+   `export_presets.cfg` (package `com.thegiselleproject.academiazero`, minSdk 24, arm64-v8a,
+   sem permissão de Internet — o jogo é offline). Confirma os ícones gerados em
+   `assets/art/icons/` e ajusta se o Godot reclamar.
+3. **Exportar projeto** → instala o `.apk` com `adb install app.apk` ou por ficheiro.
+4. **Nunca commites keystore nem passwords** — o preset vem sem assinatura de release.
+
+**Como se joga no ecrã de toque** (definido com o dono do projeto):
+
+| Zona | Ação |
+|---|---|
+| Metade esquerda (tocar e arrastar) | Joystick virtual — mover |
+| Metade direita (arrastar) | Câmara |
+| LEVE / FORTE | Ataque leve (combo) / pesado |
+| ESQV | Esquiva |
+| BLOQ (segurar) | Bloquear / parry no instante certo |
+| E | Interagir / Corrente de Âncora |
+| POT | Beber poção |
+| RUPT | Estado de Ruptura |
+| ALVO | Fixar alvo |
+| II | Pausa |
+
+Os botões táteis só aparecem em cenas de jogo (Main/Sala Branca), fora de diálogos/menus, e
+emitem as **mesmas ações de input** do teclado — a lógica do jogo é idêntica nas duas plataformas.
+Para testar o esquema no PC, põe `const FORCE_TOUCH := true` em `src/mobile/touch_controls.gd`.
+
 ## Controlos
 
 | Tecla | Ação |
@@ -53,6 +85,10 @@ Detalhes e licenças: [`docs/ASSETS.md`](docs/ASSETS.md).
 | Gamepad | A analógico — mover · R analógico — câmara · X ataque · Y pesado · A esquiva · B interagir · LB bloquear · RB Ruptura · L3 correr · R3 alvo · D-Pad↓ poção · Start pausa |
 
 ## O que mudou na v0.2
+
+- **Android**: controlos táteis completos (joystick dinâmico + câmara por arrasto + botões de
+  ação que reutilizam o mesmo pipeline de input), orientação landscape, stretch `canvas_items`,
+  texturas ETC2/ASTC, ícones e `export_presets.cfg` prontos. Ver [Jogar no Android](#jogar-no-android-novo).
 
 Evolução de qualidade sobre a v0.1 (o conteúdo de jogo é o mesmo; o mundo e o combate ganharam vida):
 

@@ -6,3 +6,10 @@
 .DS_Store
 build/
 export/
+
+# Android builds
+*.apk
+*.aab
+.gradle/
+android/build/
+export/
