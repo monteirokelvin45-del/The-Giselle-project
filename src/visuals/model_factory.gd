@@ -15,7 +15,10 @@ static func spawn_env(parent: Node3D, path: String, pos: Vector3, rot_y: float, 
 	if scene == null:
 		push_warning("Modelo em falta: %s" % path)
 		return null
-	var inst := scene.instantiate()
+	var inst := scene.instantiate() as Node3D
+	if inst == null:
+		push_warning("Cena não é Node3D: %s" % path)
+		return null
 	inst.position = pos
 	inst.rotation.y = rot_y
 	inst.scale = Vector3.ONE * scale_factor
@@ -33,7 +36,11 @@ static func spawn_character(parent: Node3D, path: String, pos: Vector3, tint: Co
 	visual.name = "Visual"
 	visual.position = pos
 	parent.add_child(visual)
-	var model := scene.instantiate()
+	var model := scene.instantiate() as Node3D
+	if model == null:
+		push_warning("Cena não é Node3D: %s" % path)
+		visual.queue_free()
+		return result
 	model.name = "Model"
 	model.scale = Vector3.ONE * scale_factor
 	model.rotation.y = MODEL_FACING_OFFSET

@@ -490,7 +490,7 @@ func _refresh_pause_buttons() -> void:
 		load_btn.disabled = not in_vale or not GameState.has_save()
 
 func _save_game() -> void:
-	var player := get_tree().get_first_node_in_group("player")
+	var player = get_tree().get_first_node_in_group("player")
 	if player == null:
 		notify("Sem jogador no mundo.")
 		return
@@ -508,7 +508,7 @@ func _load_game() -> void:
 		get_tree().reload_current_scene()
 
 func _enter_system() -> void:
-	var player := get_tree().get_first_node_in_group("player")
+	var player = get_tree().get_first_node_in_group("player")
 	if player == null:
 		return
 	GameState.system_return = player.global_position

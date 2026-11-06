@@ -8,7 +8,7 @@ func _ready() -> void:
 	var world_builder := preload("res://src/world/world_builder.gd")
 	world_builder.build(self)
 	var player_scene := preload("res://scenes/player.tscn")
-	var player := player_scene.instantiate()
+	var player = player_scene.instantiate()
 	player.position = Vector3(0.0, 1.3, 34.0)
 	add_child(player)
 	_player = player
@@ -40,14 +40,14 @@ func _spawn_ambush() -> void:
 		{"type": "cinza", "pos": Vector3(0.5, 0.2, -17.0)},
 	]
 	for d in defs:
-		var enemy := enemy_scene.instantiate()
+		var enemy = enemy_scene.instantiate()
 		enemy.set("enemy_type", d["type"])
 		enemy.position = d["pos"]
 		add_child(enemy)
 
 func _spawn_guardian() -> void:
 	var enemy_scene := preload("res://scenes/enemy.tscn")
-	var guardian := enemy_scene.instantiate()
+	var guardian = enemy_scene.instantiate()
 	guardian.set("enemy_type", "guardiao")
 	guardian.position = Vector3(17.0, 0.3, -44.0)
 	guardian.died.connect(_on_guardian_died)

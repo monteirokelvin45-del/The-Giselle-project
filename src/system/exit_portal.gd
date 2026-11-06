@@ -38,7 +38,7 @@ func get_prompt() -> String:
 	return "E — Sair do Sistema"
 
 func interact() -> void:
-	var scene := get_tree().current_scene
+	var scene = get_tree().current_scene
 	if scene != null and scene.has_method("open_evaluation"):
 		scene.open_evaluation()
 

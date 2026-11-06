@@ -104,7 +104,7 @@ func _process(delta: float) -> void:
 	_t += delta
 	if visual:
 		visual.position.y = sin(_t * 1.8) * 0.025
-		var player := get_tree().get_first_node_in_group("player")
+		var player = get_tree().get_first_node_in_group("player")
 		if player != null:
 			var to_p := player.global_position - global_position
 			to_p.y = 0.0

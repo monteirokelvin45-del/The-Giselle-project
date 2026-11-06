@@ -386,7 +386,7 @@ func _spawn_npcs() -> void:
 		{"name": "Mestre Dario Vale", "id": "dario", "color": Color(0.22, 0.28, 0.5), "pos": Vector3(17.0, 0.0, -42.6)},
 	]
 	for d in defs:
-		var npc := npc_scene.instantiate()
+		var npc = npc_scene.instantiate()
 		npc.set("npc_name", d["name"])
 		npc.set("dialogue_id", d["id"])
 		npc.set("robe_color", d["color"])
@@ -402,7 +402,7 @@ func _spawn_pickups() -> void:
 		var z := rng.randf_range(-32.0, -2.0)
 		if absf(x) < 3.6:
 			continue
-		var pickup := pickup_scene.instantiate()
+		var pickup = pickup_scene.instantiate()
 		pickup.position = Vector3(x, 0.55, z)
 		root.add_child(pickup)
 		placed += 1
@@ -411,7 +411,7 @@ func _spawn_enemies() -> void:
 	var enemy_scene := preload("res://scenes/enemy.tscn")
 	var wolves := [Vector3(-7.0, 0.2, -13.0), Vector3(8.5, 0.2, -21.0), Vector3(3.5, 0.2, -5.0)]
 	for pos in wolves:
-		var wolf := enemy_scene.instantiate()
+		var wolf = enemy_scene.instantiate()
 		wolf.set("enemy_type", "wolf")
 		wolf.position = pos
 		root.add_child(wolf)

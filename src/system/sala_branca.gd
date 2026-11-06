@@ -27,7 +27,7 @@ func _ready() -> void:
 	_spawn_dummies()
 	_spawn_portal()
 	var player_scene := preload("res://scenes/player.tscn")
-	var player := player_scene.instantiate()
+	var player = player_scene.instantiate()
 	player.position = Vector3(0.0, 1.3, 5.0)
 	add_child(player)
 	_player = player
@@ -107,7 +107,7 @@ func _spawn_dummies() -> void:
 
 func _spawn_portal() -> void:
 	var portal_scene := preload("res://scenes/exit_portal.tscn")
-	var portal := portal_scene.instantiate()
+	var portal = portal_scene.instantiate()
 	portal.position = Vector3(0.0, 1.7, -13.5)
 	add_child(portal)
 
