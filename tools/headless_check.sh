@@ -10,6 +10,13 @@ if [ $# -ge 1 ]; then
 	GODOT_BIN="$1"
 elif [ -x "$PROJ/tools/.bin/godot" ]; then
 	GODOT_BIN="$PROJ/tools/.bin/godot"
+elif [ -f "$PROJ/tools/.bin/godot.gz" ]; then
+	# /tmp é efémero entre sessões — extrair o binário comprimido para lá
+	GODOT_BIN="/tmp/giselle_godot"
+	if [ ! -x "$GODOT_BIN" ] || [ "$GODOT_BIN" -ot "$PROJ/tools/.bin/godot.gz" ]; then
+		echo "== tools/.bin/godot.gz encontrado — a extrair para $GODOT_BIN (uma vez por sessão)"
+		gzip -dc "$PROJ/tools/.bin/godot.gz" > "$GODOT_BIN" && chmod +x "$GODOT_BIN" || { echo "   ! falha ao extrair godot.gz"; exit 1; }
+	fi
 else
 	GODOT_BIN="godot"
 fi

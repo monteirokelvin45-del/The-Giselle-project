@@ -2,9 +2,11 @@
 
 > **Nota sobre persistência**: `/tmp` neste ambiente é apagado entre sessões —
 > o binário compilado e a árvore de fonte do Godot **não sobrevivem**.
-> O procedimento abaixo é reproduzível (~51 min). Depois de compilar, copia o
-> binário para `tools/.bin/godot` (ignorado pelo git, persiste no workspace)
-> — `tools/headless_check.sh` usa-o automaticamente quando existe.
+> O procedimento abaixo é reproduzível (~40-50 min). O binário (158 MB) está
+> guardado comprimido em `tools/.bin/godot.gz` (ignorado pelo git, persiste no
+> workspace) — `tools/headless_check.sh` extrai-o automaticamente para /tmp
+> na primeira utilização de cada sessão. Para o usar manualmente:
+> `gzip -dc tools/.bin/godot.gz > /tmp/giselle_godot && chmod +x /tmp/giselle_godot`.
 
 O ambiente de trabalho **não consegue descarregar binários oficiais do Godot**
 (`downloads.tuxfamily.org`/`godotengine.org` estão fora da lista de hosts; os
