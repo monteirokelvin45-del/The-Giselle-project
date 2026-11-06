@@ -644,6 +644,9 @@ func _finish_simulation() -> void:
 	# Recompensa por ameaça
 	var reward := int(60.0 * GameState.threat_reward_mult())
 	GameState.add_xp(reward)
+	# O Sistema observa — a Academia reconhece, a Irmandade sorri
+	GameState.add_reputation("academia", 2)
+	GameState.add_reputation("irmandade", 1)
 	# Bónus de avaliação (regra v0.1 mantida)
 	var bonus_text := ""
 	if GameState.evaluations_used >= 5:

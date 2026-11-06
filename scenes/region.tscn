@@ -1,0 +1,6 @@
+[gd_scene format=3 load_steps=2]
+
+[ext_resource type="Script" path="res://src/world/region.gd" id="1_region"]
+
+[node name="Region" type="Node3D"]
+script = ExtResource("1_region")

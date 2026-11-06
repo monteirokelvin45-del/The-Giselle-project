@@ -57,11 +57,11 @@ func _should_show() -> bool:
 	var cs := get_tree().current_scene
 	if cs == null:
 		return false
-	if cs.name != "Main" and cs.name != "SalaBranca":
+	if cs.name != "Main" and cs.name != "SalaBranca" and cs.name != "Academia" and cs.name != "Region":
 		return false
 	var ui := get_node_or_null("/root/UI")
 	if ui:
-		for flag in ["pause_open", "attributes_open", "controls_open", "decision_open", "ending_open", "external_block"]:
+		for flag in ["pause_open", "attributes_open", "controls_open", "decision_open", "ending_open", "external_block", "map_open", "factions_open"]:
 			if bool(ui.get(flag)):
 				return false
 	var dlg := get_node_or_null("/root/Dialogue")

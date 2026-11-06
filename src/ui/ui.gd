@@ -9,6 +9,8 @@ var controls_open := false
 var decision_open := false
 var ending_open := false
 var external_block := false
+var map_open := false
+var factions_open := false
 
 var _layer: CanvasLayer
 var _hud: Control
@@ -84,6 +86,8 @@ func _ready() -> void:
 	_build_pause()
 	_build_attributes()
 	_build_controls()
+	_build_map()
+	_build_factions()
 	_build_decision()
 	_build_ending()
 	GameState.notify.connect(notify)
@@ -91,7 +95,7 @@ func _ready() -> void:
 	GameState.stats_changed.connect(_refresh_stats)
 
 func is_blocking() -> bool:
-	return pause_open or attributes_open or controls_open or decision_open or ending_open or external_block
+	return pause_open or attributes_open or controls_open or decision_open or ending_open or external_block or map_open or factions_open
 
 func set_in_game(value: bool) -> void:
 	in_game = value
@@ -438,6 +442,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		if controls_open:
 			_toggle_controls(false)
 			return
+		if map_open:
+			_toggle_map(false)
+			return
+		if factions_open:
+			_toggle_factions(false)
+			return
 		if Dialogue.active:
 			return
 		if pause_open:
@@ -461,6 +471,8 @@ func _build_pause() -> void:
 	vbox.add_child(sub)
 	vbox.add_child(_make_button("Continuar", _close_pause))
 	vbox.add_child(_make_button("Atributos", func(): _toggle_attributes(true)))
+	vbox.add_child(_make_button("Mapa de Arkanor", func(): _toggle_map(true)))
+	vbox.add_child(_make_button("Facções", func(): _toggle_factions(true)))
 	var system_btn := _make_button("Entrar no Sistema (Sala Branca)", _enter_system)
 	system_btn.name = "SystemButton"
 	vbox.add_child(system_btn)
@@ -617,9 +629,202 @@ func _close_all_overlays() -> void:
 	controls_open = false
 	decision_open = false
 	ending_open = false
-	for overlay in [_pause_overlay, _attributes_overlay, _controls_overlay, _decision_overlay, _ending_overlay]:
+	map_open = false
+	factions_open = false
+	for overlay in [_pause_overlay, _attributes_overlay, _controls_overlay, _decision_overlay, _ending_overlay, _map_overlay, _factions_overlay]:
 		if overlay:
 			overlay.visible = false
+
+# ------------------------------------------------------------------ mapa ----
+const TRAVEL_DESTS := [
+	{"id": "noro", "name": "Vale de Noro", "desc": "Casa. O poço, a forja e a estrada.", "level_req": 1, "scene": "res://scenes/main.tscn"},
+	{"id": "academia", "name": "Academia Real de Veyra", "desc": "A prova de admissão reabriu as portas.", "level_req": 1, "scene": "res://scenes/academia.tscn"},
+]
+var _map_overlay: Control
+var _map_rows: VBoxContainer
+var _factions_overlay: Control
+var _factions_rows: VBoxContainer
+
+func _make_travel_button(text: String) -> Button:
+	var btn := Button.new()
+	btn.text = text
+	btn.custom_minimum_size = Vector2(110, 34)
+	btn.add_theme_font_size_override("font_size", 13)
+	var normal := StyleBoxFlat.new()
+	normal.bg_color = Color(0.22, 0.19, 0.1, 0.95)
+	normal.border_color = Color(0.85, 0.72, 0.4, 0.9)
+	normal.set_border_width_all(1)
+	normal.set_corner_radius_all(6)
+	btn.add_theme_stylebox_override("normal", normal)
+	var disabled_style := normal.duplicate() as StyleBoxFlat
+	disabled_style.bg_color = Color(0.13, 0.13, 0.14, 0.9)
+	disabled_style.border_color = Color(0.4, 0.4, 0.42, 0.8)
+	btn.add_theme_stylebox_override("disabled", disabled_style)
+	btn.add_theme_color_override("font_color", Color(0.95, 0.87, 0.6))
+	btn.add_theme_color_override("font_disabled_color", Color(0.55, 0.55, 0.57))
+	return btn
+
+func _build_map() -> void:
+	_map_overlay = _make_dim_overlay()
+	var panel := _make_panel(700, 620)
+	_map_overlay.add_child(panel)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	panel.add_child(vbox)
+	var title := _make_label("MAPA DE ARKANO", 24, Color(0.97, 0.82, 0.3))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+	var sub := _make_label("Onde queres que a estrada te leve, Kael?", 13, Color(0.72, 0.7, 0.66))
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(sub)
+	_map_rows = VBoxContainer.new()
+	_map_rows.add_theme_constant_override("separation", 6)
+	_map_rows.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(_map_rows)
+	vbox.add_child(_make_button("Fechar", func(): _toggle_map(false)))
+
+func _all_destinations() -> Array:
+	var dests: Array = TRAVEL_DESTS.duplicate()
+	for r in GameState.REGIONS:
+		var d := (r as Dictionary).duplicate()
+		d["scene"] = "res://scenes/region.tscn"
+		dests.append(d)
+	return dests
+
+func _refresh_map() -> void:
+	for child in _map_rows.get_children():
+		child.queue_free()
+	for dest in _all_destinations():
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		var left := VBoxContainer.new()
+		left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var id := String(dest["id"])
+		var req := int(dest["level_req"])
+		var name_label := _make_label(String(dest["name"]), 15, Color(0.95, 0.87, 0.6))
+		left.add_child(name_label)
+		var desc_label := _make_label(String(dest.get("desc", "")), 11, Color(0.68, 0.66, 0.62))
+		left.add_child(desc_label)
+		var status := "—"
+		if id != "noro" and id != "academia":
+			var clears := GameState.region_clear_count(id)
+			var known := bool(GameState.region_known.get(id, false))
+			if clears > 0:
+				status = "Explorada ×%d" % clears
+			elif known:
+				status = "Descoberta, não concluída"
+			else:
+				status = "Desconhecida"
+		status += "  ·  Nv %d+" % req
+		var status_label := _make_label(status, 11, Color(0.47, 0.75, 0.78))
+		left.add_child(status_label)
+		row.add_child(left)
+		var unlocked := GameState.level >= req
+		var travel_btn := _make_travel_button("Viajar" if unlocked else "🔒 Nv %d" % req)
+		travel_btn.disabled = not unlocked
+		travel_btn.pressed.connect(_travel_to.bind(dest))
+		row.add_child(travel_btn)
+		_map_rows.add_child(row)
+
+func _travel_to(dest: Dictionary) -> void:
+	var id := String(dest["id"])
+	if id != "noro" and id != "academia":
+		if not GameState.region_unlocked(id):
+			GameState.notify("Ainda não estás à altura (Nv %d)." % int(dest["level_req"]))
+			return
+		GameState.current_region = id
+		if not GameState.region_known.get(id, false):
+			GameState.region_known[id] = true
+			GameState.notify("Região descoberta: %s" % String(dest["name"]))
+		GameState.stats_changed.emit()
+	_toggle_map(false)
+	pause_open = false
+	if _pause_overlay:
+		_pause_overlay.visible = false
+	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	get_tree().change_scene_to_file(String(dest["scene"]))
+
+func _toggle_map(open_it: bool) -> void:
+	map_open = open_it
+	if _map_overlay == null:
+		return
+	_map_overlay.visible = open_it
+	if open_it:
+		_refresh_map()
+		_pause_overlay.visible = false
+	elif pause_open:
+		_pause_overlay.visible = true
+
+# --------------------------------------------------------------- fações -----
+const FACTION_ORDER := ["imperial", "academia", "ordem", "arquivistas", "irmandade"]
+
+func _build_factions() -> void:
+	_factions_overlay = _make_dim_overlay()
+	var panel := _make_panel(620, 560)
+	_factions_overlay.add_child(panel)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 8)
+	panel.add_child(vbox)
+	var title := _make_label("FACÇÕES DE ARKANO", 24, Color(0.97, 0.82, 0.3))
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title)
+	var sub := _make_label("A tua reputação abre e fecha portas — e finais.", 13, Color(0.72, 0.7, 0.66))
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(sub)
+	_factions_rows = VBoxContainer.new()
+	_factions_rows.add_theme_constant_override("separation", 10)
+	_factions_rows.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(_factions_rows)
+	vbox.add_child(_make_button("Fechar", func(): _toggle_factions(false)))
+
+func _refresh_factions() -> void:
+	for child in _factions_rows.get_children():
+		child.queue_free()
+	for faction in FACTION_ORDER:
+		var rep := int(GameState.reputation.get(faction, 0))
+		var rank := GameState.reputation_rank(faction)
+		var block := PanelContainer.new()
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(0.11, 0.105, 0.12, 0.9)
+		style.set_corner_radius_all(8)
+		style.set_border_width_all(1)
+		style.border_color = Color(0.4, 0.37, 0.32, 0.7)
+		style.content_margin_left = 12.0
+		style.content_margin_right = 12.0
+		style.content_margin_top = 8.0
+		style.content_margin_bottom = 8.0
+		block.add_theme_stylebox_override("panel", style)
+		var row_vbox := VBoxContainer.new()
+		row_vbox.add_theme_constant_override("separation", 3)
+		block.add_child(row_vbox)
+		var top := HBoxContainer.new()
+		var name_label := _make_label(String(GameState.REPUTATION_NAMES.get(faction, faction)), 14, Color(0.95, 0.9, 0.78))
+		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		top.add_child(name_label)
+		var rank_color := Color(0.7, 0.7, 0.72)
+		if rep >= 20: rank_color = Color(0.62, 0.88, 0.62)
+		elif rep < -30: rank_color = Color(0.92, 0.55, 0.45)
+		var rank_label := _make_label("%s  (%+d)" % [rank, rep], 12, rank_color)
+		top.add_child(rank_label)
+		row_vbox.add_child(top)
+		var bar := _make_bar(520, 8, Color(0.78, 0.68, 0.35))
+		bar.min_value = -100.0
+		bar.max_value = 100.0
+		bar.value = float(rep)
+		row_vbox.add_child(bar)
+		_factions_rows.add_child(block)
+
+func _toggle_factions(open_it: bool) -> void:
+	factions_open = open_it
+	if _factions_overlay == null:
+		return
+	_factions_overlay.visible = open_it
+	if open_it:
+		_refresh_factions()
+		_pause_overlay.visible = false
+	elif pause_open:
+		_pause_overlay.visible = true
 
 # ------------------------------------------------------------ atributos ------
 var _attr_points_label: Label

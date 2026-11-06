@@ -1,0 +1,201 @@
+extends Node3D
+## Região de expedição (v0.5) — mundo paramétrico por const REGIONS do GameState.
+## Cada visita: seis inimigos escalados, clima aleatório e um ciclo dia/noite.
+
+const KIT := "res://assets/models/env/decoration/nature/"
+const GOBKIT := "res://assets/models/nature/"
+
+var _cfg: Dictionary = {}
+var _sun: DirectionalLight3D
+var _env: Environment
+var _sky_mat: ProceduralSkyMaterial
+var _alive: int = 0
+var _day_t: float = 0.3
+var _clears: int = 0
+var _banner: Label
+var _banner_layer: CanvasLayer
+var _banner_timer: float = 0.0
+var _player: Node3D = null
+var _env_mf := preload("res://src/visuals/model_factory.gd")
+var _storm: bool = false
+
+func _ready() -> void:
+	var region_id := GameState.current_region
+	_cfg = GameState.region_config(region_id)
+	_storm = randf() < 0.3
+	_clears = int(GameState.region_clears.get(region_id, 0))
+	_build_environment()
+	_build_ground_and_props()
+	_spawn_enemies()
+	_spawn_exit_portal()
+	_build_banner()
+	var player_scene := preload("res://scenes/player.tscn")
+	var player = player_scene.instantiate()
+	player.position = respawn_position()
+	add_child(player)
+	_player = player
+	UI.set_in_game(true)
+	var text := "%s — %s" % [String(_cfg["name"]).to_upper(), String(_cfg["desc"])]
+	if _storm:
+		text += "  ·  TEMPESTADE À MEDIDA"
+	_show_banner(text, 4.5)
+
+func respawn_position() -> Vector3:
+	return Vector3(0.0, 1.3, 6.0)
+
+func _build_environment() -> void:
+	var world_env := WorldEnvironment.new()
+	_env = Environment.new()
+	var sky := Sky.new()
+	_sky_mat = ProceduralSkyMaterial.new()
+	_sky_mat.sky_top_color = _cfg["sky_top"]
+	_sky_mat.sky_horizon_color = _cfg["sky_horizon"]
+	_sky_mat.ground_bottom_color = Color(_cfg["ground"]).darkened(0.4)
+	_sky_mat.ground_horizon_color = Color(_cfg["sky_horizon"]).darkened(0.25)
+	sky.sky_material = _sky_mat
+	_env.sky = sky
+	_env.background_mode = Environment.BG_SKY
+	_env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	_env.ambient_light_energy = 0.62
+	_env.fog_enabled = true
+	_env.fog_density = float(_cfg["fog_density"]) * (1.55 if _storm else 1.0)
+	_env.fog_light_color = _cfg["fog"]
+	world_env.environment = _env
+	add_child(world_env)
+	_sun = DirectionalLight3D.new()
+	_sun.rotation_degrees = Vector3(-35.0, -25.0, 0.0)
+	_sun.light_energy = (0.78 if _storm else 1.15)
+	_sun.light_color = _cfg["sun"]
+	_sun.shadow_enabled = true
+	_sun.directional_shadow_max_distance = 80.0
+	_sun.shadow_map_size = 2048
+	add_child(_sun)
+
+func _build_ground_and_props() -> void:
+	var ground := StandardMaterial3D.new()
+	ground.albedo_color = _cfg["ground"]
+	ground.roughness = 0.95
+	var body := StaticBody3D.new()
+	var mesh := MeshInstance3D.new()
+	var bm := BoxMesh.new()
+	bm.size = Vector3(180.0, 1.0, 180.0)
+	mesh.mesh = bm
+	mesh.material_override = ground
+	body.add_child(mesh)
+	var col := CollisionShape3D.new()
+	var cs := BoxShape3D.new()
+	cs.size = bm.size
+	col.shape = cs
+	body.add_child(col)
+	body.position = Vector3(0, -0.5, 0)
+	add_child(body)
+	# Adereços da região (determinístico por visita)
+	var prop_bonus := 1.0
+	if String(_cfg["id"]) == "ruun":
+		prop_bonus = 1.6
+	var count := int(12.0 * prop_bonus)
+	for i in range(count):
+		var angle := TAU * float(i) / float(count) + randf() * 0.6
+		var radius := 16.0 + randf() * 30.0
+		var pos := Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
+		if _cfg.get("id", "") == "ruun" and randf() < 0.55:
+			_env_mf.spawn_env(self, KIT + "tree_single_A.gltf", pos, randf() * TAU, randf_range(1.2, 2.1))
+		else:
+			_env_mf.spawn_env(self, KIT + String(_cfg["prop"]), pos, randf() * TAU, randf_range(1.0, 2.4))
+	# Relva salpicada
+	for i in range(16):
+		var pos := Vector3(randf_range(-55.0, 55.0), 0.0, randf_range(-55.0, 55.0))
+		_env_mf.spawn_env(self, GOBKIT + "Grass001.glb", pos, randf() * TAU, randf_range(0.8, 1.4))
+
+func _spawn_enemies() -> void:
+	var enemy_scene := preload("res://scenes/enemy.tscn")
+	var types: Array = _cfg["types"]
+	for i in range(types.size()):
+		var enemy = enemy_scene.instantiate()
+		enemy.set("enemy_type", String(types[i]))
+		enemy.set("power_mult", float(_cfg["power"]))
+		var angle := TAU * float(i) / float(types.size()) + randf() * 0.8
+		var radius := 15.0 + randf() * 25.0
+		enemy.position = Vector3(cos(angle) * radius, 0.3, sin(angle) * radius)
+		enemy.died.connect(_on_enemy_died)
+		add_child(enemy)
+	_alive = types.size()
+
+func _spawn_exit_portal() -> void:
+	var portal_scene := preload("res://scenes/scene_portal.tscn")
+	var portal = portal_scene.instantiate()
+	portal.set("target_scene", "res://scenes/main.tscn")
+	portal.set("prompt_text", "E — Voltar ao Vale de Noro")
+	portal.set("ring_color", Color(0.6, 0.85, 1.0))
+	portal.set("glow_color", Color(0.4, 0.7, 0.95))
+	portal.position = Vector3(0.0, 1.7, 10.0)
+	add_child(portal)
+
+func _build_banner() -> void:
+	_banner_layer = CanvasLayer.new()
+	_banner_layer.layer = 17
+	add_child(_banner_layer)
+	_banner = Label.new()
+	_banner.anchor_left = 0.5
+	_banner.anchor_right = 0.5
+	_banner.anchor_top = 0.16
+	_banner.anchor_bottom = 0.16
+	_banner.offset_left = -520.0
+	_banner.offset_right = 520.0
+	_banner.offset_top = 0.0
+	_banner.offset_bottom = 46.0
+	_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_banner.add_theme_font_size_override("font_size", 22)
+	_banner.add_theme_color_override("font_color", Color(0.95, 0.9, 0.7))
+	_banner.add_theme_constant_override("outline_size", 6)
+	_banner.add_theme_color_override("font_outline_color", Color(0.05, 0.05, 0.08, 0.9))
+	_banner.visible = false
+	_banner_layer.add_child(_banner)
+
+func _show_banner(text: String, duration: float) -> void:
+	_banner.text = text
+	_banner.visible = true
+	_banner.modulate.a = 1.0
+	_banner_timer = duration
+
+func _process(delta: float) -> void:
+	# Ciclo dia/noite (compressão: ~4 minutos por ciclo completo)
+	_day_t += delta / 240.0
+	if _day_t > 1.0:
+		_day_t -= 1.0
+	var day_angle := lerp(-20.0, -160.0, _day_t)
+	_sun.rotation_degrees.x = day_angle
+	var daylight := clampf(sin(_day_t * PI), 0.0, 1.0)
+	_sun.light_energy = (0.3 + 0.85 * daylight) * (0.65 if _storm else 1.0)
+	_env.ambient_light_energy = 0.3 + 0.5 * daylight
+	_env.fog_density = float(_cfg["fog_density"]) * (1.55 if _storm else 1.0) * (1.0 + 0.5 * (1.0 - daylight))
+	var horizon_day: Color = _cfg["sky_horizon"]
+	var horizon_night := Color(0.02, 0.02, 0.06)
+	_sky_mat.sky_horizon_color = horizon_day.lerp(horizon_night, 1.0 - daylight)
+	if _banner_timer > 0.0:
+		_banner_timer -= delta
+		if _banner_timer <= 1.0:
+			_banner.modulate.a = clampf(_banner_timer, 0.0, 1.0)
+		if _banner_timer <= 0.0:
+			_banner.visible = false
+
+func _on_enemy_died(_enemy: Node3D, _enemy_type: String) -> void:
+	_alive -= 1
+	if _alive <= 0:
+		_region_complete()
+
+func _region_complete() -> void:
+	var region_id := GameState.current_region
+	GameState.region_clears[region_id] = int(GameState.region_clears.get(region_id, 0)) + 1
+	GameState.region_known[region_id] = true
+	var xp := int(_cfg["xp"]) + 25 * int(GameState.region_clears[region_id])
+	var marcos := int(_cfg["marcos"]) + 15 * int(GameState.region_clears[region_id])
+	GameState.add_xp(xp)
+	GameState.add_marcos(marcos)
+	GameState.add_reputation("ordem", 4)
+	GameState.stats_changed.emit()
+	_show_banner("REGIÃO CONCLUÍDA — %s  ·  +%d XP  ·  +%d marcos" % [String(_cfg["name"]), xp, marcos], 5.0)
+	Audio.play("levelup")
+
+func portal_exit() -> void:
+	get_tree().change_scene_to_file("res://scenes/main.tscn")

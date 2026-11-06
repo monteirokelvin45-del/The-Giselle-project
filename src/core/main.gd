@@ -69,6 +69,8 @@ func _on_guardian_died(_enemy: Node3D, enemy_type: String) -> void:
 	if enemy_type != "guardiao":
 		return
 	GameState.artifact_unlocked = true
+	GameState.add_reputation("imperial", 10)
+	GameState.add_reputation("academia", 10)
 	GameState.advance_stage(6)
 	GameState.stats_changed.emit()
 	Audio.play("levelup")

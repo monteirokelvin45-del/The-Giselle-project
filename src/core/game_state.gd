@@ -61,6 +61,40 @@ const THREAT_LEVELS := [
 	{"name": "Impossível", "hp_mult": 3.1, "count": 5, "level_req": 8, "reward_mult": 3.0},
 ]
 
+## v0.5 — Regiões do mundo aberto (viagem rápida)
+const REGIONS := [
+	{"id": "ruun", "name": "Floresta de Ruun", "level_req": 3, "power": 1.5, "xp": 150, "marcos": 90,
+		"desc": "Pinhais eternos e lobos de cinza.",
+		"ground": Color(0.14, 0.26, 0.11), "fog": Color(0.3, 0.42, 0.27), "fog_density": 0.021,
+		"sky_top": Color(0.2, 0.35, 0.45), "sky_horizon": Color(0.55, 0.62, 0.48), "sun": Color(0.88, 0.95, 0.78),
+		"prop": "tree_single_A.gltf", "types": ["wolf", "wolf", "salteador", "salteador", "cinza", "salteador"]},
+	{"id": "sahr", "name": "Deserto de Sahr", "level_req": 5, "power": 1.9, "xp": 200, "marcos": 120,
+		"desc": "Dunas infinitas e túmulos de Primeiros Engenheiros.",
+		"ground": Color(0.68, 0.56, 0.35), "fog": Color(0.8, 0.69, 0.46), "fog_density": 0.017,
+		"sky_top": Color(0.32, 0.42, 0.62), "sky_horizon": Color(0.9, 0.78, 0.55), "sun": Color(1.0, 0.9, 0.68),
+		"prop": "rock_single_A.gltf", "types": ["salteador", "salteador", "cinza", "salteador", "wolf", "cinza"]},
+	{"id": "khar", "name": "Montanhas de Khar", "level_req": 7, "power": 2.35, "xp": 260, "marcos": 150,
+		"desc": "Picos de pedra e relâmpagos que nunca se apagam.",
+		"ground": Color(0.34, 0.36, 0.41), "fog": Color(0.42, 0.47, 0.55), "fog_density": 0.024,
+		"sky_top": Color(0.16, 0.22, 0.36), "sky_horizon": Color(0.55, 0.6, 0.7), "sun": Color(0.85, 0.9, 1.0),
+		"prop": "rock_single_C.gltf", "types": ["cinza", "cinza", "salteador", "guardiao", "cinza", "salteador"]},
+	{"id": "lume", "name": "Arquipélago de Lume", "level_req": 9, "power": 2.8, "xp": 330, "marcos": 190,
+		"desc": "Ilhas de pedra clara e faróis de fósforo azul.",
+		"ground": Color(0.16, 0.36, 0.45), "fog": Color(0.38, 0.58, 0.68), "fog_density": 0.021,
+		"sky_top": Color(0.14, 0.3, 0.48), "sky_horizon": Color(0.6, 0.82, 0.88), "sun": Color(0.82, 0.96, 1.0),
+		"prop": "rock_single_A.gltf", "types": ["cinza", "cinza", "cinza", "salteador", "guardiao", "cinza"]},
+	{"id": "aer", "name": "Ilhas de Aer", "level_req": 11, "power": 3.35, "xp": 420, "marcos": 240,
+		"desc": "Rochas suspensas num mar de nuvens.",
+		"ground": Color(0.28, 0.3, 0.4), "fog": Color(0.62, 0.64, 0.74), "fog_density": 0.034,
+		"sky_top": Color(0.22, 0.28, 0.55), "sky_horizon": Color(0.85, 0.8, 0.92), "sun": Color(0.9, 0.88, 1.0),
+		"prop": "rock_single_C.gltf", "types": ["guardiao", "cinza", "cinza", "guardiao", "cinza", "cinza"]},
+	{"id": "orun", "name": "Fim do Abismo", "level_req": 13, "power": 4.0, "xp": 550, "marcos": 320,
+		"desc": "O lugar de onde nenhum Núcleo voltou a subir.",
+		"ground": Color(0.07, 0.05, 0.12), "fog": Color(0.14, 0.09, 0.22), "fog_density": 0.038,
+		"sky_top": Color(0.02, 0.02, 0.06), "sky_horizon": Color(0.3, 0.16, 0.45), "sun": Color(0.55, 0.35, 0.95),
+		"prop": "rock_single_C.gltf", "types": ["guardiao", "cinza", "guardiao", "cinza", "cinza", "cinza"]},
+]
+
 const ARENA_ENVIRONMENTS := [
 	{"id": "arena", "name": "Arena Branca", "ground": Color(0.93, 0.93, 0.96), "fog": Color(0.97, 0.97, 1.0), "fog_density": 0.028, "light": Color(1.0, 1.0, 1.0), "ambient": Color(0.9, 0.9, 0.96)},
 	{"id": "floresta", "name": "Floresta de Ruun", "ground": Color(0.16, 0.28, 0.12), "fog": Color(0.35, 0.45, 0.3), "fog_density": 0.02, "light": Color(0.85, 0.95, 0.7), "ambient": Color(0.35, 0.45, 0.3)},
@@ -189,6 +223,21 @@ func add_injury() -> void:
 		injury = 1
 		notify("LESÃO GRAVE — -15% velocidade, -10% dano até descansares (forja de GARR, casa da Elen ou dormitórios).")
 		stats_changed.emit()
+
+func region_config(region_id: String) -> Dictionary:
+	for r in REGIONS:
+		if String(r["id"]) == region_id:
+			return r
+	return REGIONS[0]
+
+func region_level_req(region_id: String) -> int:
+	return int(region_config(region_id)["level_req"])
+
+func region_unlocked(region_id: String) -> bool:
+	return level >= region_level_req(region_id)
+
+func region_clear_count(region_id: String) -> int:
+	return int(region_clears.get(region_id, 0))
 
 func environment_config() -> Dictionary:
 	for env in ARENA_ENVIRONMENTS:

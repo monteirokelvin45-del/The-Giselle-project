@@ -253,6 +253,7 @@ func _on_dialogue_action(action: String) -> void:
 		"voss_meet":
 			GameState.exams_done["voss_met"] = true
 			GameState.add_reputation("arquivistas", 10)
+			GameState.add_reputation("irmandade", 5)
 			GameState.stats_changed.emit()
 		"romance_bram": _romance("bram")
 		"romance_sena": _romance("sena")
