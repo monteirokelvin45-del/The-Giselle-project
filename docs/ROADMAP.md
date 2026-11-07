@@ -169,6 +169,10 @@ por reputação, decisões e estado do mundo.
       CPU-side: ms de frame/física, memória estática, objetos/nós/órfãos).
       Medição em hardware real (GPU/LOD/draw calls) continua em aberto —
       exige F5 numa máquina com os drivers do alvo (Android).
+- [x] **Composição de mapas v1.0** (2026-11-07): todos os mapas (Vale, Veyra
+      e as 6 expedições) com dupla densidade visual e POIs originais via
+      `src/world/map_kit.gd` (docs/WORLD.md; GDD cap. 41). Sem assets novos;
+      F5/GPU/Android por medir (PLAYTEST §D).
 - [x] Meta-quests globais (ver v0.7; implementadas 2026-11-07 — Estado de
       mundo persistido, consequência global: bloqueio de fim + reputação +
       créditos; ver GDD 38–39). QA humano/F5 em hardware continua por fazer.

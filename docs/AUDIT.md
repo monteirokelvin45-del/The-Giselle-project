@@ -606,3 +606,34 @@ meta-quests (`8c73ae5`) a monitorizar no check do PR. **Bloqueado
 honestamente (falta ao dono):** F5 + GPU (rim/toon/clipping), Android
 (touch/fps/thermal), QA nativo EN/ES, testes com humanos — ver
 `docs/PLAYTEST.md`.
+
+---
+
+# 18. Addendum — Composição v1.0 dos mapas (2026-11-07)
+
+**Pedido explícito do dono:** «todos os mapas com alta qualidade floresta,
+tudo mesmo» → escopo total: Vale + Academia + 6 expedições; qualidade =
+densidade/atmosfera **+ POIs**; orçamento = densidade máxima aceite.
+
+**Entregue (código, zero assets novos — tudo KayKit/gobkit CC0):**
+`src/world/map_kit.gd` (composição partilhada, seeds fixas, ring-scatter com
+raio de exclusão, colisores só no essencial); `region.gd::_compose_biome`
+(composição por bioma); `world_builder.gd` (Vale: 96 árvores + saplings +
+22 rochas + 14 arbustos + 8 marcos de pedra + POIs: acampamento abandonado,
+ruínas dos Engenheiros, posto colapsado); `academy.gd::_build_gardens_extra`
+(sebes, 9 árvores, braseiros da linhagem); composições únicas por região —
+Ruun (dupla copa 66+34 + templo engolido), Sahr (oásis de pedra + obelisco
+solar + caravana), Khar (para-raios runado + posto de vigia), Lume (anel de
+escarpas + farol de fósforo azul + doca), Aer (ilhas flutuantes + arco
+partido), Orun (altar de 7 colunas + fenda incandescente de 30 m, zero
+vegetação). Ver tabela completa e limites em `docs/WORLD.md`.
+
+**Verificado:** gdparse 6/6 · validate.py · i18n 460/460 · CI (boot das cenas
+region/main/academia) no push. **Não verificável aqui (F5 do dono):** FPS
+com a densidade máxima no Android, clipping de colisores, ordenação
+cel/materiais na profundidade, sombras de 200+ instâncias. Se o Android
+ressentir, cortar 30–40% dos `*_scatter` por bioma — um parâmetro cada
+(ver WORLD.md).
+
+**Fora do escopo de caso pensado (registado):** HeightMap/relevo real, água
+real, fluxo de jogo novo nos POIs.

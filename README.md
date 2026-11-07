@@ -99,6 +99,10 @@ Para testar o esquema no PC, põe `const FORCE_TOUCH := true` em `src/mobile/tou
 - **Romances com memória**: epílogos variam com a lealdade (prova superada
   juntos ⇒ versão «provada»). Ver `docs/GDD.md` cap. 40.
 - **i18n completo**: 460/460 chaves PT/EN/ES com `l10n_build.py --check` no CI.
+- **Todos os mapas em composição v1.0**: composição única por bioma (dupla copa
+  para a floresta de Ruun) e POIs originais — acampamento abandonado, templos,
+  torre, obeliscos, farol, doca, ilhas flutuantes, altar do Abismo.
+  Ver `docs/WORLD.md` e cap. 41 do GDD.
 - **QA humano**: checklist obrigatória em `docs/PLAYTEST.md` (F5, GPU, Android,
   QA nativo) — nada disso pode ser substituído por CI.
 

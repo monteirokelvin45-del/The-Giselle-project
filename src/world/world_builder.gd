@@ -12,11 +12,13 @@ const GOBKIT := "res://assets/models/nature/"
 static func build(root: Node3D) -> void:
 	var wb := preload("res://src/world/world_builder.gd").new()
 	wb.root = root
+	wb._mk = preload("res://src/world/map_kit.gd").new(root, 13579)
 	wb._build_environment()
 	wb._build_ground_and_road()
 	wb._build_flora()
 	wb._build_village()
 	wb._build_forest()
+	wb._build_landmarks()
 	wb._build_academy_and_arena()
 	wb._build_mountains()
 	wb._spawn_npcs()
@@ -24,6 +26,7 @@ static func build(root: Node3D) -> void:
 	wb._spawn_enemies()
 
 var root: Node3D
+var _mk  # MapKit (RefCounted) — composición v1.0
 var rng := RandomNumberGenerator.new()
 var _env_mf := preload("res://src/visuals/model_factory.gd")
 
@@ -227,7 +230,15 @@ func _build_flora() -> void:
 	var bushes := [
 		Vector3(-8.4, 0, 27.0), Vector3(8.6, 0, 34.0), Vector3(-13.8, 0, 27.2),
 		Vector3(14.9, 0, 38.6), Vector3(-9.4, 0, -12.2), Vector3(5.4, 0, -52.2),
+		Vector3(11.8, 0, 30.5), Vector3(-14.5, 0, 37.3), Vector3(2.5, 0, 40.5),
+		Vector3(-6.5, 0, 17.0), Vector3(6.8, 0, 12.0), Vector3(-2.8, 0, -8.0),
+		Vector3(12.5, 0, -6.5), Vector3(-13.2, 0, -33.0),
 	]
+	# Marcos de pedra ao longo da estrada (contagem de milhas do Vale)
+	for p in [Vector3(3.4, 0, 26.0), Vector3(-3.2, 0, 16.0), Vector3(4.6, 0, 6.0),
+			Vector3(-3.4, 0, -4.0), Vector3(3.0, 0, -14.0), Vector3(-3.8, 0, -24.0),
+			Vector3(4.4, 0, -34.0), Vector3(-2.4, 0, -45.0)]:
+		_mk.milestone(p)
 	for p in bushes:
 		var bush := "Bush001.glb" if rng.randf() > 0.5 else "Bush002.glb"
 		_flora(bush, p, rng.randf_range(0.0, TAU), rng.randf_range(1.0, 1.5))
@@ -321,8 +332,16 @@ func _build_forest() -> void:
 		"decoration/nature/trees_A_medium.gltf",
 		"decoration/nature/trees_B_medium.gltf",
 	]
+	# Saplings sob a copa (sem colisão — porte felino)
+	for i in range(38):
+		var sx := rng.randf_range(-29.0, 29.0)
+		var sz := rng.randf_range(-33.0, 0.0)
+		if absf(sx) < 3.6 or (absf(sx) < 4.5 and sz > -18.0 and sz < -8.0):
+			continue
+		var sap := "decoration/nature/tree_single_A.gltf" if rng.randf() > 0.5 else "decoration/nature/tree_single_B.gltf"
+		_env(sap, Vector3(sx, 0, sz), rng.randf_range(0.0, TAU), rng.randf_range(0.5, 0.75))
 	var tree_positions: Array[Vector3] = []
-	for i in range(64):
+	for i in range(96):
 		var x := rng.randf_range(-30.0, 30.0)
 		var z := rng.randf_range(-34.0, 1.0)
 		# Manter a estrada livre
@@ -342,7 +361,7 @@ func _build_forest() -> void:
 		_env(model, p, rng.randf_range(0.0, TAU), s)
 	# Rochas KayKit
 	var rock_models := ["decoration/nature/rock_single_A.gltf", "decoration/nature/rock_single_C.gltf"]
-	for i in range(14):
+	for i in range(22):
 		var x := rng.randf_range(-28.0, 28.0)
 		var z := rng.randf_range(-33.0, 2.0)
 		if absf(x) < 3.8:
@@ -417,6 +436,17 @@ func _build_mountains() -> void:
 		var s := rng.randf_range(4.5, 7.0)
 		var model: String = mountain_models[rng.randi_range(0, mountain_models.size() - 1)]
 		_env(model, Vector3(x, 0, z), rng.randf_range(0.0, TAU), s)
+
+
+# ------------------------------------------------------- marcos v1.0 -------
+func _build_landmarks() -> void:
+	## POIs originais: o mundo não é só cenário — conta história.
+	# Acampamento de caçadores abandonado (extremo oeste da floresta)
+	_mk.tent_camp(Vector3(-17.5, 0.0, -26.0), true)
+	# Ruínas de engenharia engolidas pela mata (leste)
+	_mk.engineer_ruins(Vector3(15.5, 0.0, -24.0))
+	# Posto de observação colapsado, meio da mata norte
+	_mk.post(Vector3(6.2, 0.0, -38.0), 1.5)
 
 # ------------------------------------------------------------- spawns -------
 func _spawn_npcs() -> void:

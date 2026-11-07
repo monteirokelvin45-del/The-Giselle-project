@@ -797,3 +797,26 @@ de romance passam a ter **duas versões**: a padrão e a «provada» (lealdade
 porque o jogo ainda não tem um verbo de promessa quebrável — seria UI sem
 substância. Quando existir, entra aqui o terceiro tier.
 
+## 41. Os Mapas de Arkanor (composição v1.0)
+
+**Princípio:** o mapa não é fundo — é narrativa silenciosa. Cada região
+conta uma história antes de qualquer palavra: a floresta guarda um templo
+dos Engenheiros engolido pela vegetação; o deserto finge vazio enquanto
+alinha túmulos e um obelisco solar; os picos de Khar para-raios marcam o
+obligatório; Lume finge-se de férias com farol e doca; Aer suspende pedra
+no ar; Orun não finge nada.
+
+**Receita por mapa:** composição em duas camadas (perimeter de "paredes" do
+bioma + detalhe interno), scatter determinístico (Seed fixa — a floresta do
+Vale é sempre a mesma floresta), raio de exclusão do ponto de spawn,
+colisão só onde importa, vegetação baixa sem colisão.
+
+**POIs (pontos de interesse):** acampamento abandonado, templos/ruínas,
+torre de vigia, obeliscos, farol, doca, altar do Abismo — construídos com
+rutinas originais sobre o kit CC0 (`map_kit.gd`). Cada POI é estático e
+estético: sem novos inimigos/quests, sem novas mecânicas. Qualquer um deles
+pode virar âncora de quest no futuro sem retrabalho de arte.
+
+**O que isto NÃO é:** relevo (HeightMap) nem água real — o chão em jogo
+continua plano; as paredes do bioma é que fazem a montanha. Ver
+`docs/WORLD.md` (tabela completa + limites).

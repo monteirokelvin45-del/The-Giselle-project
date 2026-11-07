@@ -31,6 +31,7 @@ func _ready() -> void:
 	_build_ground()
 	_build_buildings()
 	_build_props()
+	_build_gardens_extra()
 	_build_npcs()
 	_spawn_exit_portal()
 	_spawn_rest_point()
@@ -236,6 +237,30 @@ func _spawn_rest_point() -> void:
 	rp.set_script(preload("res://src/interaction/rest_point.gd"))
 	rp.position = Vector3(-38.0, 0.0, 4.0)
 	add_child(rp)
+
+
+## v1.0 — jardins e porta: sebes baixas, flora densa, braseiros da linhagem.
+func _build_gardens_extra() -> void:
+	var mk = preload("res://src/world/map_kit.gd").new(self, 8642)
+	var PORTAL := Vector3(0.0, 0.0, 44.0)
+	mk.flora_scatter(42, 12, 6.0, 42.0, PORTAL, 7.0, 24)
+	mk.tree_scatter(9, 14.0, 40.0, PORTAL, 7.0,
+		["decoration/nature/tree_single_A.gltf", "decoration/nature/trees_A_medium.gltf", "decoration/nature/tree_single_B.gltf"],
+		0.9, 1.6, 25)
+	var basalt := mk.mat(Color(0.16, 0.13, 0.2), 0.3, 0.6)
+	var ember := mk.mat(Color(1.0, 0.45, 0.1), 0.0, 0.6, Color(1.0, 0.42, 0.08), 2.6)
+	for sx in [-1.0, 1.0]:
+		var p := Vector3(sx * 3.6, 0.0, -27.5)
+		mk.visual_cyl(0.4, 0.46, 1.15, p + Vector3(0.0, 0.58, 0.0), basalt)
+		mk.visual_cyl(0.3, 0.34, 0.16, p + Vector3(0.0, 1.2, 0.0), ember)
+		mk.fire_light(p + Vector3(0.0, 1.9, 0.0), Color(1.0, 0.5, 0.16), 1.9, 5.5)
+		mk.collider_cyl(0.5, 1.3, p + Vector3(0.0, 0.65, 0.0))
+	# Sebes ao longo dos jardins (corredores abertos)
+	var hedge := mk.mat(Color(0.2, 0.32, 0.16), 0.0, 0.9)
+	for hz in [-14.0, -2.0, 10.0]:
+		for sx in [-1.0, 1.0]:
+			mk.visual_box(Vector3(6.2, 0.85, 0.7), Vector3(sx * 8.0, 0.43, hz), hedge)
+			mk.collider_box(Vector3(6.2, 0.85, 0.7), Vector3(sx * 8.0, 0.43, hz))
 
 # ---------------------------------------------------------------- exames ----
 func _on_dialogue_action(action: String) -> void:

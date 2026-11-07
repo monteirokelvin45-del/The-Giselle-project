@@ -113,7 +113,8 @@ func _build_storm() -> void:
 func _build_ground_and_props() -> void:
 	var ground := StandardMaterial3D.new()
 	ground.albedo_color = _cfg["ground"]
-	ground.roughness = 0.95
+	ground.roughness = 0.97
+	ground.metallic = 0.02
 	var body := StaticBody3D.new()
 	var mesh := MeshInstance3D.new()
 	var bm := BoxMesh.new()
@@ -128,23 +129,77 @@ func _build_ground_and_props() -> void:
 	body.add_child(col)
 	body.position = Vector3(0, -0.5, 0)
 	add_child(body)
-	# Adereços da região (determinístico por visita)
-	var prop_bonus := 1.0
-	if String(_cfg["id"]) == "ruun":
-		prop_bonus = 1.6
-	var count := int(12.0 * prop_bonus)
-	for i in range(count):
-		var angle := TAU * float(i) / float(count) + randf() * 0.6
-		var radius := 16.0 + randf() * 30.0
-		var pos := Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
-		if _cfg.get("id", "") == "ruun" and randf() < 0.55:
-			_env_mf.spawn_env(self, KIT + "tree_single_A.gltf", pos, randf() * TAU, randf_range(1.2, 2.1))
-		else:
-			_env_mf.spawn_env(self, KIT + String(_cfg["prop"]), pos, randf() * TAU, randf_range(1.0, 2.4))
-	# Relva salpicada
-	for i in range(16):
-		var pos := Vector3(randf_range(-55.0, 55.0), 0.0, randf_range(-55.0, 55.0))
-		_env_mf.spawn_env(self, GOBKIT + "Grass001.glb", pos, randf() * TAU, randf_range(0.8, 1.4), 55.0)
+	_compose_biome(String(_cfg["id"]))
+
+## Composição v1.0 de cada região: densidade alta + POIs originais
+## (ver docs/WORLD.md). Respeita a exclusão do spawn/portal em (0, 8).
+func _compose_biome(region_id: String) -> void:
+	var mk = preload("res://src/world/map_kit.gd").new(self, 9001 + region_id.hash())
+	const AVOID := Vector3(0.0, 0.0, 8.0)
+	var rocks: Array[String] = ["decoration/nature/rock_single_A.gltf", "decoration/nature/rock_single_C.gltf"]
+	var mountains: Array[String] = ["decoration/nature/mountain_A.gltf", "decoration/nature/mountain_B.gltf", "decoration/nature/mountain_C.gltf"]
+	match region_id:
+		"ruun":
+			# Floresta primeva: dupla copa + sob-bosque denso + acampamento e templo engolido
+			mk.mountain_ring(80.0, 96.0, 15, mountains, 0.0, 5.5, 8.5, 5)
+			mk.rock_scatter(26, 15.0, 66.0, AVOID, 9.0, rocks, 0.7, 2.0, 5)
+			mk.flora_scatter(72, 44, 9.0, 68.0, AVOID, 8.0, 5)
+			mk.double_canopy(66, 34, 13.0, 66.0, AVOID, 9.0, 5)
+			mk.tent_camp(Vector3(-19.0, 0.0, -13.0), false)
+			mk.engineer_ruins(Vector3(17.0, 0.0, -21.0))
+		"sahr":
+			# Dunas mortas: oásis de pedra, túmulos e um obelisco solar
+			mk.mountain_ring(74.0, 94.0, 15, [mountains[0], mountains[1]], 0.0, 4.0, 7.0, 6)
+			mk.rock_scatter(48, 11.0, 68.0, AVOID, 9.0, rocks, 0.9, 3.0, 6)
+			mk.flora_scatter(16, 26, 10.0, 64.0, AVOID, 9.0, 6)
+			mk.engineer_ruins(Vector3(16.0, 0.0, -17.0))
+			mk.obelisk(Vector3(-19.0, 0.0, -12.0), 7.2, Color(1.0, 0.82, 0.35))
+			mk.tent_camp(Vector3(-9.0, 0.0, 15.0), true)
+		"khar":
+			# Vale fechado de atrito e gelo: paredes altas, para-raios e um posto
+			mk.mountain_ring(70.0, 88.0, 19, mountains, 0.0, 6.0, 10.0, 7)
+			mk.rock_scatter(52, 12.0, 64.0, AVOID, 9.0, rocks, 0.9, 3.4, 7)
+			mk.flora_scatter(22, 12, 10.0, 58.0, AVOID, 9.0, 7)
+			mk.flora("Cliff001.glb", Vector3(52.0, 0.0, 44.0), 0.7, 2.4)
+			mk.flora("Cliff002.glb", Vector3(-56.0, 0.0, -32.0), 2.1, 2.8)
+			mk.flora("Cliff003.glb", Vector3(-50.0, 0.0, 46.0), 1.2, 2.2)
+			mk.flora("Cliff001.glb", Vector3(55.0, 0.0, -44.0), 4.4, 2.6)
+			mk.watchtower(Vector3(-23.0, 0.0, 12.0))
+			mk.obelisk(Vector3(18.0, 0.0, -15.0), 6.4, Color(0.72, 0.87, 1.0))
+		"lume":
+			# Atoll de pedra clara: recife partido, farol de fósforo, doca
+			mk.mountain_ring(76.0, 90.0, 11, [mountains[0], mountains[1]], 0.0, 2.5, 4.2, 8)
+			mk.rock_scatter(44, 11.0, 66.0, AVOID, 9.0, rocks, 0.8, 2.4, 8)
+			for i in range(16):
+				var angle := TAU * float(i) / 16.0
+				var atoll_r := 24.0 + 26.0 * fmod(absf(sin(angle * 3.7 + 1.3)), 1.0)
+				var atoll_pos := Vector3(cos(angle) * atoll_r, 0.0, sin(angle) * atoll_r)
+				var atoll_s := 1.5 + 1.2 * fmod(absf(sin(angle * 5.3 + 0.7)), 1.0)
+				mk.flora("Cliff002.glb", atoll_pos, angle + PI * 0.5, atoll_s)
+			mk.flora_scatter(34, 14, 8.0, 56.0, AVOID, 8.0, 8)
+			mk.lighthouse(Vector3(23.0, 0.0, -16.0))
+			mk.dock(Vector3(-14.0, 0.0, 14.0))
+		"aer":
+			# Arquipélago celeste: ilhas invertidas, arco quebrado, posto de observação
+			mk.floating_islands(9, 7.0, 24.0, 9)
+			mk.rock_scatter(30, 11.0, 64.0, AVOID, 9.0, rocks, 0.8, 2.6, 9)
+			mk.flora_scatter(22, 9, 9.0, 56.0, AVOID, 9.0, 9)
+			mk.sky_arch(Vector3(17.0, 0.0, -14.0))
+			mk.watchtower(Vector3(-19.0, 0.0, -12.0))
+			mk.obelisk(Vector3(12.0, 0.0, -19.0), 6.2, Color(0.88, 0.85, 1.0))
+		"orun":
+			# Fim do Abismo: basalt negro, altar e a fenda que nunca fecha
+			mk.rock_scatter(38, 11.0, 66.0, AVOID, 9.0, rocks, 0.9, 3.2, 10)
+			mk.floating_islands(6, 9.0, 28.0, 10)
+			mk.abyss_altar(Vector3(0.0, 0.0, -20.0))
+			mk.crack_glow(Vector3(2.0, 0.0, 2.0), 30.0)
+			mk.obelisk(Vector3(-24.0, 0.0, -6.0), 4.6, Color(0.55, 0.3, 0.9))
+			mk.obelisk(Vector3(25.0, 0.0, -8.0), 4.1, Color(0.55, 0.3, 0.9))
+		_:
+			mk.mountain_ring(74.0, 92.0, 13, mountains, 0.0, 5.0, 8.0, 42)
+			mk.rock_scatter(24, 12.0, 70.0, AVOID, 9.0, rocks, 0.8, 2.2, 42)
+			mk.flora_scatter(40, 18, 9.0, 66.0, AVOID, 8.0, 42)
+
 
 func _spawn_enemies() -> void:
 	var enemy_scene := preload("res://scenes/enemy.tscn")
