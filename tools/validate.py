@@ -35,7 +35,11 @@ for dirpath, _dirs, files in os.walk(ROOT):
 
 print(f"[1/4] gdparse em {len(gd_files)} scripts GDScript...")
 for gd in sorted(gd_files):
-    result = subprocess.run(["gdparse", gd], capture_output=True, text=True)
+    try:
+        result = subprocess.run(["gdparse", gd], capture_output=True, text=True)
+    except FileNotFoundError:
+        print("ERRO: `gdparse` não encontrado — instala com: pip3 install -r requirements-dev.txt")
+        sys.exit(2)
     if result.returncode != 0 or result.stdout.strip():
         msg = (result.stderr or result.stdout).strip()
         fail(f"GDScript inválido: {os.path.relpath(gd, ROOT)}\n{msg}")
