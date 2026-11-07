@@ -126,8 +126,13 @@ por reputação, decisões e estado do mundo.
 - [x] **Música dinâmica** (3 temas sintetizados: exploração / combate /
       Sistema) + interruptor no menu de pausa; save corruption-proofing
       já existia (sha256 + .tmp atómico + .bak).
-- [x] **Localização — andaime**: `tools/l10n_extract.py` +
-      `docs/l10n/strings_pt.csv` (415 strings) + `docs/LOCALIZATION.md`.
+- [x] **Localização — andaime** (2026-11-06): `tools/l10n_extract.py` +
+      `docs/l10n/strings_pt.csv` + `docs/LOCALIZATION.md`.
+- [x] **Localização em runtime PT/EN/ES** (2026-11-07): `tr()` em ~110 sítios,
+      troca no arranque + no ecrã de título (PT→EN→ES, persistida no save),
+      421 chaves EN+ES completas (`l10n/game.csv`), gate `validate.py` [5/5]
+      no CI, seleção de idioma no título com reload uniforme.
+      Ver `docs/LOCALIZATION.md` e `docs/AUDIT.md` §15.
 - [x] **Engine executada neste ambiente**: Godot 4.7.2 compilado do
       código-fonte (headless linuxbsd); 5 cenas em smoke boot limpas; 11
       24 asserções de jogabilidade verdes (save/load, XP, técnicas, combate
@@ -143,8 +148,8 @@ por reputação, decisões e estado do mundo.
       (`cycle_tts_voice`), escolhida via `tts_voice` no save.
 - [ ] Testes com jogadores reais (algo que este repositório ainda não pode
       fazer).
-- [ ] Traduções EN/ES (o runtime ainda não troca de idioma — ver
-      docs/LOCALIZATION.md).
+- [x] Traduções EN/ES e troca de idioma em runtime (2026-11-07, 421/421;
+      QA por falante nativo e revisão visual em F5 continuam por fazer).
 - [~] **Sonda de performance** criada (`tools/perf_probe.tscn`, headless,
       CPU-side: ms de frame/física, memória estática, objetos/nós/órfãos).
       Medição em hardware real (GPU/LOD/draw calls) continua em aberto —

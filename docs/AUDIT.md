@@ -448,3 +448,55 @@ import de recursos, boot das 5 cenas sem erros, 24 asserções de jogabilidade,
 (o limite natural): correção visual, GPU/GL Compatibility, Android,
 testes com humanos, performance real. Continuam a exigir F5 na máquina do
 dono do projeto.
+
+---
+
+# 15. Addendum — i18n runtime PT/EN/ES (2026-11-07)
+
+**O que era dívida:** toda a UI/diálogos/finais estavam embutidos em PT;
+`tr()` não existia; existia só andaime (`strings_pt.csv` + extractor).
+
+**Entregue:** troca de idioma em runtime entre Português, English e Español.
+~110 sítios `.text`/`notify(...)` envolvidos em `tr()`; `notify()` traduz no
+choke point (todas as notificações, incl. as pré-existentes); os helpers
+`_*_text()`/`objective_text()`/`_build_credits_text()` passam a devolver
+strings compostas já traduzíveis; o **typewriter** do diálogo fatia o texto
+JÁ traduzido (nunca `tr()` por substring). Chaves = literais PT → se uma
+chave faltar, `tr()` devolve a chave: o jogo continua íntegro no original.
+
+- Seletor **Português/English/Español** no ecrã de título (canto inf. dto.),
+  com `reload_current_scene()` — troca imediata e uniforme (a UI é construída
+  uma vez por cena; recarregar é a única troca garantidamente coerente).
+- `locale` persistido no save (campo aditivo; saves v2 antigos carregam PT);
+  `TranslationServer.set_locale` no boot (autoload `GameState._ready`) e no
+  `_apply_save_dict`.
+- `l10n/game.csv` — 421 chaves, EN+ES completas (registo literário do
+  original preservado; nomes próprios ficam PT de propósito).
+- `tools/l10n_build.py` — re-extrai e atualiza mantendo traduções; `--check`
+  falha em falta/TODO/chaves obsoletas. `validate.py` ganhou passo `[5/5]` →
+  **o CI passa a falhar se uma string nova entrar sem EN/ES**.
+
+**Falhou 1× e foi corrigido no CI:** `tr()` dentro de `static func`
+(`model_factory.gd:spawn_damage_number`) — `tr()` é método de `Object`, não
+existe em contexto estático; `headless_check` falhou no primeiro push.
+Corrigido (o número de dano nunca precisou de tr) — pipe ausente de classes
+lint estáticas; lição registada: `tr()` só em context de instância e nunca
+por substring. `8a7fd8a` — **verde no CI** (validate 5/5 com gate i18n,
+headless_check, smoke 24/24, flows 5/5) e PR #1 com check `pass`.
+
+**Honestidade — o que ainda NÃO é verdade nesta peça:**
+1. QA por falante nativo não existe (traduções são do autor; ES neutro).
+2. Revisão visual em F5 não existe — EN corre 1.3× mais largo; caixas de
+   texto apertadas podem rebentar.
+3. `.translation` binários serão gerados no primeiro `--import` local e
+   commitados a seguir; até lá `tr()` é pass-through PT em runtimes sem
+   traduções registadas (nada parte, mas EN/ES só em runtime com a
+   importação feita).
+4. Sem namespaces nas chaves (decisivo para 421 strings); migrar só se a
+   tabela explodir.
+5. Granularidade: `±`/`⟳`/`%` embutidos em chaves de formatos — tradutores
+   devem mantê-los.
+6. Romances com memória de ações continuam fora de escopo (v1.1+).
+
+Supersedes: dívida «Tradução runtime inexistente» (§6.3 #2) e o fecho de
+scope no addendum v1.0.
