@@ -259,7 +259,7 @@ func _romance(id: String) -> void:
 	GameState.romance_id = id
 	GameState.add_companion_loyalty(id, 30)
 	GameState.add_reputation("academia", 5)
-	GameState.notify("O laço com %s aprofundou-se." % String(COMPANION_NAMES.get(id, id)))
+	GameState.notify(tr("O laço com %s aprofundou-se.") % String(COMPANION_NAMES.get(id, id)))
 	GameState.stats_changed.emit()
 
 func _start_exam(exam_id: String) -> void:
@@ -284,7 +284,7 @@ func _start_exam(exam_id: String) -> void:
 		enemy.died.connect(_on_exam_enemy_died)
 		add_child(enemy)
 	_exam_alive = enemy_list.size()
-	GameState.notify("%s iniciada! A arena a este." % String(cfg["name"]))
+	GameState.notify(tr("%s iniciada! A arena a este.") % String(cfg["name"]))
 	Audio.play("rupture", -2.0)
 
 func _on_exam_enemy_died(_enemy: Node3D, _enemy_type: String) -> void:
@@ -303,7 +303,7 @@ func _complete_exam(exam_id: String) -> void:
 	GameState.add_xp(int(cfg["xp"]))
 	GameState.add_marcos(int(cfg["marcos"]))
 	GameState.add_reputation("academia", 15)
-	GameState.notify("PROVA SUPERADA — %s junta-se a ti!" % String(COMPANION_NAMES.get(companion, companion)))
+	GameState.notify(tr("PROVA SUPERADA — %s junta-se a ti!") % String(COMPANION_NAMES.get(companion, companion)))
 	GameState.stats_changed.emit()
 	Audio.play("levelup")
 

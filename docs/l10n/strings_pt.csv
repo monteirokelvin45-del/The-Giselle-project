@@ -73,7 +73,7 @@ PT-0071,src/core/game_state.gd,503,Lobos de Cinza na estrada: %d/3
 PT-0072,src/core/game_state.gd,505,Lobos de Cinza: concluído ✓
 PT-0073,src/core/game_state.gd,507,Fibras de Ruína: %d/5
 PT-0074,src/core/game_state.gd,509,Luz para as Lâmpadas: concluído ✓
-PT-0075,src/core/game_state.gd,516,Novo objetivo — 
+PT-0075,src/core/game_state.gd,516,Novo objetivo — %s
 PT-0076,src/core/game_state.gd,522,Lobo de Cinza derrotado (%d/3)
 PT-0077,src/core/game_state.gd,527,Missão concluída: Lobos da Estrada! +60 marcos
 PT-0078,src/core/game_state.gd,535,Fibra de Ruína recolhida (%d/5)
@@ -353,64 +353,70 @@ PT-0351,src/ui/ui.gd,222,"Liora fica. Não como conselheira, não como mestre �
 PT-0352,src/ui/ui.gd,223,"Bram funde duas lâminas numa só — «para quem for», diz ele, e não explica mais.\nAs noites de festa da forja passam a ter sempre dois copos na mesa."
 PT-0353,src/ui/ui.gd,224,"Sena planta algo novo no jardim da Academia: uma árvore que ninguém reconhece.\n«Nasce quando o amor quer», diz ela. Chama-se, por agora, apenas «Kael»."
 PT-0354,src/ui/ui.gd,225,"Iven navega. Sempre navegou. Mas agora, na última vigília antes de cada viagem, escreve uma carta — e a carta começa sempre da mesma maneira:\n«Kael, o porto continua aqui à tua espera.»"
-PT-0355,src/ui/ui.gd,318,◈ 75 marcos
-PT-0356,src/ui/ui.gd,320,Poções: 2  (R)
-PT-0357,src/ui/ui.gd,365,◈ OBJETIVO
-PT-0358,src/ui/ui.gd,411,RUPTURA PRONTA — [F]
-PT-0359,src/ui/ui.gd,455,M1 ataque leve · M2 pesado · Espaço esquiva · Q bloquear/parry\nE interagir/Corrente · R poção · F Ruptura · Tab fixar · Esc menu
-PT-0360,src/ui/ui.gd,499,PASSO VAZIO
-PT-0361,src/ui/ui.gd,500,CORRIDA DO PREDADOR
-PT-0362,src/ui/ui.gd,501,QUEDA DO COLOSSO
-PT-0363,src/ui/ui.gd,504,%s — %s
-PT-0364,src/ui/ui.gd,533,MURMÚRIO DE VÉU
-PT-0365,src/ui/ui.gd,534,ECO DE FORJA
-PT-0366,src/ui/ui.gd,536,PASSO DE HORIZONTE
-PT-0367,src/ui/ui.gd,571,RECARGA %.0fs
-PT-0368,src/ui/ui.gd,599,Nv %d  ·  %d/%d XP
-PT-0369,src/ui/ui.gd,601,◈ %d marcos
-PT-0370,src/ui/ui.gd,602,Poções: %d  (R)
-PT-0371,src/ui/ui.gd,704,A ACADEMIA DO ZERO
-PT-0372,src/ui/ui.gd,707,— PAUSADO —
-PT-0373,src/ui/ui.gd,712,Mapa de Arkanor
-PT-0374,src/ui/ui.gd,714,Entrar no Sistema (Sala Branca)
-PT-0375,src/ui/ui.gd,717,A DECISÃO
-PT-0376,src/ui/ui.gd,720,Guardar Jogo
-PT-0377,src/ui/ui.gd,721,Carregar Jogo
-PT-0378,src/ui/ui.gd,739,Sair para o Título
-PT-0379,src/ui/ui.gd,837,Sistema (disponível no Vale)
-PT-0380,src/ui/ui.gd,850,Sem jogador no mundo.
-PT-0381,src/ui/ui.gd,853,Só podes guardar no Vale.
-PT-0382,src/ui/ui.gd,859,Só podes carregar no Vale.
-PT-0383,src/ui/ui.gd,893,Vale de Noro
-PT-0384,src/ui/ui.gd,893,"Casa. O poço, a forja e a estrada."
-PT-0385,src/ui/ui.gd,894,A prova de admissão reabriu as portas.
-PT-0386,src/ui/ui.gd,929,MAPA DE ARKANO
-PT-0387,src/ui/ui.gd,932,"Onde queres que a estrada te leve, Kael?"
-PT-0388,src/ui/ui.gd,968,Explorada ×%d
-PT-0389,src/ui/ui.gd,970,"Descoberta, não concluída"
-PT-0390,src/ui/ui.gd,973,  ·  Nv %d+
-PT-0391,src/ui/ui.gd,978,🔒 Nv %d
-PT-0392,src/ui/ui.gd,988,Ainda não estás à altura (Nv %d).
-PT-0393,src/ui/ui.gd,993,Região descoberta: %s
-PT-0394,src/ui/ui.gd,1024,FACÇÕES DE ARKANO
-PT-0395,src/ui/ui.gd,1027,A tua reputação abre e fecha portas — e finais.
-PT-0396,src/ui/ui.gd,1063,%s  (%+d)
-PT-0397,src/ui/ui.gd,1096,Atributos — 0 pontos
-PT-0398,src/ui/ui.gd,1099,Saudável · Fadiga 0/3
-PT-0399,src/ui/ui.gd,1124,O teu maior talento é sobreviver. Mas talento sem treino é só sobrevivência.
-PT-0400,src/ui/ui.gd,1133,Sem pontos de atributo. Níveis e o Sistema dão pontos.
-PT-0401,src/ui/ui.gd,1145,Atributos — %d ponto(s) disponível(eis)
-PT-0402,src/ui/ui.gd,1147,Estado: %s (lesão %d/%d) · Fadiga %d/%d
-PT-0403,src/ui/ui.gd,1174,— Clica num botão e primes a nova tecla/botão —
-PT-0404,src/ui/ui.gd,1191,Repor predefinições
-PT-0405,src/ui/ui.gd,1192,«A ausência de magia é a arma mais antiga do mundo.»
-PT-0406,src/ui/ui.gd,1220,O Guardião da Prova jaz aos teus pés. Os portões de Veyra estão abertos — e todas as portas do mundo também.\nA tua reputação entre as fações abre caminhos que o menu não mostra. O que fazes agora com a força que construíste?
-PT-0407,src/ui/ui.gd,1236,\nRequer: %s %d  (tens %d)
-PT-0408,src/ui/ui.gd,1255,"\n\n— «Incluindo, claro», pensa Kael.\n"
-PT-0409,src/ui/ui.gd,1279,Voltar ao Título
-PT-0410,src/ui/ui.gd,1283,"A ACADEMIA DO ZERO — vertical slice\nKael Noro, o rapaz sem Núcleo\nVladimir, o Guardião da Prova\nElen Noro · Garr · Tomás · Liora Venn · Mestre Dario Vale\n\nO mundo de Arkanor continua. Tu também.\nObrigado por jogar.\n\nNv %d · %d marcos · %d XP totais"
-PT-0411,src/visuals/model_factory.gd,16,Modelo em falta: %s
-PT-0412,src/visuals/model_factory.gd,20,Cena não é Node3D: %s
-PT-0413,src/visuals/model_factory.gd,50,Personagem em falta: %s
-PT-0414,src/world/region.gd,47,  ·  TEMPESTADE À MEDIDA
-PT-0415,src/world/region.gd,261,REGIÃO CONCLUÍDA — %s  ·  +%d XP  ·  +%d marcos
+PT-0355,src/ui/ui.gd,319,◈ 75 marcos
+PT-0356,src/ui/ui.gd,321,Poções: 2  (R)
+PT-0357,src/ui/ui.gd,366,◈ OBJETIVO
+PT-0358,src/ui/ui.gd,412,RUPTURA PRONTA — [F]
+PT-0359,src/ui/ui.gd,456,M1 ataque leve · M2 pesado · Espaço esquiva · Q bloquear/parry\nE interagir/Corrente · R poção · F Ruptura · Tab fixar · Esc menu
+PT-0360,src/ui/ui.gd,500,PASSO VAZIO
+PT-0361,src/ui/ui.gd,501,CORRIDA DO PREDADOR
+PT-0362,src/ui/ui.gd,502,QUEDA DO COLOSSO
+PT-0363,src/ui/ui.gd,505,%s — %s
+PT-0364,src/ui/ui.gd,534,MURMÚRIO DE VÉU
+PT-0365,src/ui/ui.gd,535,ECO DE FORJA
+PT-0366,src/ui/ui.gd,537,PASSO DE HORIZONTE
+PT-0367,src/ui/ui.gd,572,RECARGA %.0fs
+PT-0368,src/ui/ui.gd,600,Nv %d  ·  %d/%d XP
+PT-0369,src/ui/ui.gd,602,◈ %d marcos
+PT-0370,src/ui/ui.gd,603,Poções: %d  (R)
+PT-0371,src/ui/ui.gd,705,A ACADEMIA DO ZERO
+PT-0372,src/ui/ui.gd,708,— PAUSADO —
+PT-0373,src/ui/ui.gd,713,Mapa de Arkanor
+PT-0374,src/ui/ui.gd,715,Entrar no Sistema (Sala Branca)
+PT-0375,src/ui/ui.gd,718,A DECISÃO
+PT-0376,src/ui/ui.gd,721,Guardar Jogo
+PT-0377,src/ui/ui.gd,722,Carregar Jogo
+PT-0378,src/ui/ui.gd,740,Sair para o Título
+PT-0379,src/ui/ui.gd,838,Sistema (disponível no Vale)
+PT-0380,src/ui/ui.gd,851,Sem jogador no mundo.
+PT-0381,src/ui/ui.gd,854,Só podes guardar no Vale.
+PT-0382,src/ui/ui.gd,860,Só podes carregar no Vale.
+PT-0383,src/ui/ui.gd,894,Vale de Noro
+PT-0384,src/ui/ui.gd,894,"Casa. O poço, a forja e a estrada."
+PT-0385,src/ui/ui.gd,895,A prova de admissão reabriu as portas.
+PT-0386,src/ui/ui.gd,930,MAPA DE ARKANO
+PT-0387,src/ui/ui.gd,933,"Onde queres que a estrada te leve, Kael?"
+PT-0388,src/ui/ui.gd,969,Explorada ×%d
+PT-0389,src/ui/ui.gd,971,"Descoberta, não concluída"
+PT-0390,src/ui/ui.gd,974,  ·  Nv %d+
+PT-0391,src/ui/ui.gd,979,🔒 Nv %d
+PT-0392,src/ui/ui.gd,989,Ainda não estás à altura (Nv %d).
+PT-0393,src/ui/ui.gd,994,Região descoberta: %s
+PT-0394,src/ui/ui.gd,1025,FACÇÕES DE ARKANO
+PT-0395,src/ui/ui.gd,1028,A tua reputação abre e fecha portas — e finais.
+PT-0396,src/ui/ui.gd,1064,%s  (%+d)
+PT-0397,src/ui/ui.gd,1097,Atributos — 0 pontos
+PT-0398,src/ui/ui.gd,1100,Saudável · Fadiga 0/3
+PT-0399,src/ui/ui.gd,1125,O teu maior talento é sobreviver. Mas talento sem treino é só sobrevivência.
+PT-0400,src/ui/ui.gd,1134,Sem pontos de atributo. Níveis e o Sistema dão pontos.
+PT-0401,src/ui/ui.gd,1146,Atributos — %d ponto(s) disponível(eis)
+PT-0402,src/ui/ui.gd,1148,Estado: %s (lesão %d/%d) · Fadiga %d/%d
+PT-0403,src/ui/ui.gd,1175,— Clica num botão e primes a nova tecla/botão —
+PT-0404,src/ui/ui.gd,1192,Repor predefinições
+PT-0405,src/ui/ui.gd,1193,«A ausência de magia é a arma mais antiga do mundo.»
+PT-0406,src/ui/ui.gd,1221,O Guardião da Prova jaz aos teus pés. Os portões de Veyra estão abertos — e todas as portas do mundo também.\nA tua reputação entre as fações abre caminhos que o menu não mostra. O que fazes agora com a força que construíste?
+PT-0407,src/ui/ui.gd,1237,\nRequer: %s %d  (tens %d)
+PT-0408,src/ui/ui.gd,1256,"\n\n— «Incluindo, claro», pensa Kael.\n"
+PT-0409,src/ui/ui.gd,1280,Voltar ao Título
+PT-0410,src/ui/ui.gd,1285,A ACADEMIA DO ZERO — vertical slice
+PT-0411,src/ui/ui.gd,1286,"Kael Noro, o rapaz sem Núcleo"
+PT-0412,src/ui/ui.gd,1287,"Vladimir, o Guardião da Prova"
+PT-0413,src/ui/ui.gd,1288,Elen Noro · Garr · Tomás · Liora Venn · Mestre Dario Vale
+PT-0414,src/ui/ui.gd,1290,O mundo de Arkanor continua. Tu também.
+PT-0415,src/ui/ui.gd,1291,Obrigado por jogar.
+PT-0416,src/ui/ui.gd,1293,Nv %d · %d marcos · %d XP totais
+PT-0417,src/visuals/model_factory.gd,16,Modelo em falta: %s
+PT-0418,src/visuals/model_factory.gd,20,Cena não é Node3D: %s
+PT-0419,src/visuals/model_factory.gd,50,Personagem em falta: %s
+PT-0420,src/world/region.gd,47,  ·  TEMPESTADE À MEDIDA
+PT-0421,src/world/region.gd,261,REGIÃO CONCLUÍDA — %s  ·  +%d XP  ·  +%d marcos

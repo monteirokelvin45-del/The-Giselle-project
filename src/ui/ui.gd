@@ -27,12 +27,12 @@ var _rebind_rows: Dictionary = {}
 var _rebind_hint: Label
 
 func _music_text() -> String:
-	return "Música: %s" % ("Ligada" if GameState.music_enabled else "Desligada")
+	return tr("Música: %s") % (tr("Ligada") if GameState.music_enabled else tr("Desligada"))
 
 func _toggle_music() -> void:
 	Audio.set_music_enabled(not GameState.music_enabled)
-	_music_btn.text = _music_text()
-	notify("Música %s." % ("ativada" if GameState.music_enabled else "desligada"))
+	_music_btn.text = tr(_music_text())
+	notify(tr("Música %s.") % ("ativada" if GameState.music_enabled else "desligada"))
 
 func _reapply_binding(dict: Dictionary) -> bool:
 	if _rebinding == "":
@@ -44,14 +44,14 @@ func _reapply_binding(dict: Dictionary) -> bool:
 	Keymap.apply_custom_bindings(GameState.custom_bindings)
 	var btn = _rebind_rows.get(_rebinding)
 	if btn != null:
-		btn.text = Keymap.binding_summary(_rebinding)
-	notify("Controlo atualizado: %s" % String(Keymap.ACTION_NAMES.get(_rebinding, _rebinding)))
+		btn.text = tr(Keymap.binding_summary(_rebinding))
+	notify(tr("Controlo atualizado: %s") % String(Keymap.ACTION_NAMES.get(_rebinding, _rebinding)))
 	_cancel_rebind()
 	return true
 
 func _start_rebind(action: String) -> void:
 	_rebinding = action
-	_rebind_hint.text = "Prime a nova tecla/botão para «%s» — Esc cancela" % String(Keymap.ACTION_NAMES.get(action, action))
+	_rebind_hint.text = tr("Prime a nova tecla/botão para «%s» — Esc cancela") % String(Keymap.ACTION_NAMES.get(action, action))
 	_rebind_hint.visible = true
 
 func _cancel_rebind() -> void:
@@ -67,13 +67,13 @@ func _reset_bindings() -> void:
 	notify("Controlos repostos para as predefinições.")
 
 func _colorblind_text() -> String:
-	return "Daltonismo: %s" % ["Desligado", "Protanopia", "Deuteranopia", "Tritanopia"][clampi(GameState.colorblind_mode, 0, 3)]
+	return tr("Daltonismo: %s") % [tr("Desligado"), tr("Protanopia"), tr("Deuteranopia"), tr("Tritanopia")][clampi(GameState.colorblind_mode, 0, 3)]
 
 func _cycle_colorblind() -> void:
 	GameState.colorblind_mode = (GameState.colorblind_mode + 1) % 4
-	_colorblind_btn.text = _colorblind_text()
+	_colorblind_btn.text = tr(_colorblind_text())
 	_apply_colorblind()
-	notify("Modo de daltonismo: %s" % ["desligado", "protanopia", "deuteranopia", "tritanopia"][GameState.colorblind_mode])
+	notify(tr("Modo de daltonismo: %s") % ["desligado", "protanopia", "deuteranopia", "tritanopia"][GameState.colorblind_mode])
 
 func _apply_colorblind() -> void:
 	var palettes := [
@@ -93,7 +93,7 @@ func _apply_colorblind() -> void:
 			(sb as StyleBoxFlat).bg_color = p[i]
 
 func _subtitle_text() -> String:
-	return "Legenda: %d%%" % int(GameState.subtitle_scale * 100.0)
+	return tr("Legenda: %d%%") % int(GameState.subtitle_scale * 100.0)
 
 func _cycle_subtitle() -> void:
 	var scales := [0.8, 1.0, 1.25, 1.5]
@@ -105,43 +105,43 @@ func _cycle_subtitle() -> void:
 	idx = (idx + 1) % scales.size()
 	GameState.subtitle_scale = scales[idx]
 	Dialogue.set_subtitle_scale(GameState.subtitle_scale)
-	_subtitle_btn.text = _subtitle_text()
-	notify("Tamanho da legenda: %d%%" % int(GameState.subtitle_scale * 100.0))
+	_subtitle_btn.text = tr(_subtitle_text())
+	notify(tr("Tamanho da legenda: %d%%") % int(GameState.subtitle_scale * 100.0))
 
 func _aim_text() -> String:
-	return "Assistência de mira: %s" % ("Ligada" if GameState.aim_assist else "Desligada")
+	return tr("Assistência de mira: %s") % (tr("Ligada") if GameState.aim_assist else tr("Desligada"))
 
 func _cycle_aim_assist() -> void:
 	GameState.aim_assist = not GameState.aim_assist
-	_aim_btn.text = _aim_text()
-	notify("Assistência de mira %s." % ("ativada" if GameState.aim_assist else "desligada"))
+	_aim_btn.text = tr(_aim_text())
+	notify(tr("Assistência de mira %s.") % ("ativada" if GameState.aim_assist else "desligada"))
 
 func _narration_text() -> String:
-	return "Narração de menus: %s" % ("Ligada" if GameState.menu_narration else "Desligada")
+	return tr("Narração de menus: %s") % (tr("Ligada") if GameState.menu_narration else tr("Desligada"))
 
 func _cycle_narration() -> void:
 	GameState.menu_narration = not GameState.menu_narration
-	_narration_btn.text = _narration_text()
-	notify("Narração de menus %s." % ("ativada" if GameState.menu_narration else "desligada"))
+	_narration_btn.text = tr(_narration_text())
+	notify(tr("Narração de menus %s.") % ("ativada" if GameState.menu_narration else "desligada"))
 
 func _voice_text() -> String:
-	return "Narração — voz: %s  ⟳" % GameState.tts_voice_label()
+	return tr("Narração — voz: %s  ⟳") % GameState.tts_voice_label()
 
 func _cycle_voice() -> void:
 	GameState.cycle_tts_voice()
-	_voice_btn.text = _voice_text()
-	notify("Voz da narração: %s" % GameState.tts_voice_label())
+	_voice_btn.text = tr(_voice_text())
+	notify(tr("Voz da narração: %s") % GameState.tts_voice_label())
 
 func _tts_say(text: String) -> void:
 	GameState.tts_say(text)
 
 func _difficulty_text() -> String:
-	return "Dificuldade: %s  ⟳" % GameState.difficulty_label()
+	return tr("Dificuldade: %s  ⟳") % tr(GameState.difficulty_label())
 
 func _cycle_difficulty() -> void:
 	GameState.cycle_difficulty()
 	if _difficulty_btn != null:
-		_difficulty_btn.text = _difficulty_text()
+		_difficulty_btn.text = tr(_difficulty_text())
 var _attributes_overlay: Control
 var _controls_overlay: Control
 var _decision_overlay: Control
@@ -253,16 +253,17 @@ func set_in_game(value: bool) -> void:
 	_crosshair.visible = value
 	if value:
 		_refresh_stats()
-		_objective_label.text = GameState.objective_text()
+		_objective_label.text = tr(GameState.objective_text())
 		_rebuild_side_objectives()
 	else:
 		_close_all_overlays()
 		get_tree().paused = false
 
 func notify(text: String) -> void:
+	var shown := tr(text)
 	if GameState.menu_narration:
-		_tts_say(text)
-	_notif_queue.append(text)
+		_tts_say(shown)
+	_notif_queue.append(shown)
 	if _notif_queue.size() > 4:
 		_notif_queue.pop_front()
 
@@ -463,13 +464,13 @@ func _build_hud() -> void:
 
 func _make_label(text: String, size: int, color: Color) -> Label:
 	var label := Label.new()
-	label.text = text
+	label.text = tr(text)
 	label.add_theme_font_size_override("font_size", size)
 	label.add_theme_color_override("font_color", color)
 	return label
 
 func _on_objective_changed(_text: String) -> void:
-	_objective_label.text = GameState.objective_text()
+	_objective_label.text = tr(GameState.objective_text())
 	_rebuild_side_objectives()
 
 func _rebuild_side_objectives() -> void:
@@ -501,12 +502,12 @@ func _make_technique_slot(tid: String) -> Dictionary:
 		"queda_colosso": {"key": "Z", "name": "QUEDA DO COLOSSO"},
 	}[tid]
 	var name_label := Label.new()
-	name_label.text = "%s — %s" % [String(info["key"]), String(info["name"])]
+	name_label.text = tr("%s — %s") % [String(info["key"]), String(info["name"])]
 	name_label.add_theme_font_size_override("font_size", 9)
 	name_label.add_theme_color_override("font_color", Color(0.82, 0.7, 1.0))
 	vbox.add_child(name_label)
 	var status_label := Label.new()
-	status_label.text = "PRONTA"
+	status_label.text = tr("PRONTA")
 	status_label.add_theme_font_size_override("font_size", 13)
 	status_label.add_theme_color_override("font_color", Color(0.75, 0.6, 0.98))
 	vbox.add_child(status_label)
@@ -536,12 +537,12 @@ func _make_ability_slot(aid: String) -> Dictionary:
 		"iven": {"key": "4", "name": "PASSO DE HORIZONTE"},
 	}[aid]
 	var name_label := Label.new()
-	name_label.text = "%s — %s" % [String(info["key"]), String(info["name"])]
+	name_label.text = tr("%s — %s") % [String(info["key"]), String(info["name"])]
 	name_label.add_theme_font_size_override("font_size", 10)
 	name_label.add_theme_color_override("font_color", Color(0.72, 0.86, 0.97))
 	vbox.add_child(name_label)
 	var status_label := Label.new()
-	status_label.text = "PRONTA"
+	status_label.text = tr("PRONTA")
 	status_label.add_theme_font_size_override("font_size", 13)
 	status_label.add_theme_color_override("font_color", Color(0.6, 0.9, 0.55))
 	vbox.add_child(status_label)
@@ -565,10 +566,10 @@ func _refresh_abilities() -> void:
 			cd = float((cds as Dictionary).get(aid, 0.0))
 		var status: Label = slot["status"]
 		if cd <= 0.0:
-			status.text = "PRONTA"
+			status.text = tr("PRONTA")
 			status.add_theme_color_override("font_color", Color(0.6, 0.9, 0.55))
 		else:
-			status.text = "RECARGA %.0fs" % cd
+			status.text = tr("RECARGA %.0fs") % cd
 			status.add_theme_color_override("font_color", Color(0.85, 0.6, 0.3))
 	_refresh_techniques()
 
@@ -589,17 +590,17 @@ func _refresh_techniques() -> void:
 			cd = float((cds as Dictionary).get(tid, 0.0))
 		var status: Label = slot["status"]
 		if cd <= 0.0:
-			status.text = "PRONTA"
+			status.text = tr("PRONTA")
 			status.add_theme_color_override("font_color", Color(0.75, 0.6, 0.98))
 		else:
-			status.text = "RECARGA %.0fs" % cd
+			status.text = tr("RECARGA %.0fs") % cd
 			status.add_theme_color_override("font_color", Color(0.85, 0.6, 0.3))
 
 func _refresh_stats() -> void:
-	_level_label.text = "Nv %d  ·  %d/%d XP" % [GameState.level, GameState.xp, GameState.xp_needed()]
+	_level_label.text = tr("Nv %d  ·  %d/%d XP") % [GameState.level, GameState.xp, GameState.xp_needed()]
 	_xp_bar.value = GameState.xp_progress() * 100.0
-	_marcos_label.text = "◈ %d marcos" % GameState.marcos
-	_potions_label.text = "Poções: %d  (R)" % GameState.potions
+	_marcos_label.text = tr("◈ %d marcos") % GameState.marcos
+	_potions_label.text = tr("Poções: %d  (R)") % GameState.potions
 	_rebuild_side_objectives()
 
 # ------------------------------------------------------------- processo -----
@@ -627,7 +628,7 @@ func _process(delta: float) -> void:
 		var locked: Node3D = p.get("locked_enemy")
 		if locked != null and is_instance_valid(locked):
 			_posture_box.visible = true
-			_enemy_name_label.text = String(locked.get("display_name"))
+			_enemy_name_label.text = tr(String(locked.get("display_name")))
 			var max_posture := float(locked.get("max_posture"))
 			if max_posture > 0.0:
 				_posture_bar.value = clampf(float(locked.get("posture")) / max_posture * 100.0, 0.0, 100.0)
@@ -636,7 +637,7 @@ func _process(delta: float) -> void:
 		# Prompt de interação
 		var target: Node3D = p.get("current_interactable")
 		if target != null and is_instance_valid(target) and target.has_method("get_prompt"):
-			_prompt_label.text = target.get_prompt()
+			_prompt_label.text = tr(target.get_prompt())
 			_prompt_label.visible = not is_blocking() and not Dialogue.active
 		else:
 			_prompt_label.visible = false
@@ -648,7 +649,7 @@ func _process(delta: float) -> void:
 		if _notif_time <= 0.0:
 			_notif_label.modulate.a = 0.0
 	elif not _notif_queue.is_empty():
-		_notif_label.text = _notif_queue.pop_front()
+		_notif_label.text = tr(_notif_queue.pop_front())
 		_notif_label.modulate.a = 1.0
 		_notif_time = 2.8
 
@@ -783,7 +784,7 @@ func _make_panel(width: float, height: float) -> PanelContainer:
 
 func _make_button(text: String, callback: Callable) -> Button:
 	var btn := Button.new()
-	btn.text = text
+	btn.text = tr(text)
 	btn.custom_minimum_size = Vector2(0, 36)
 	btn.add_theme_font_size_override("font_size", 15)
 	var normal := StyleBoxFlat.new()
@@ -813,7 +814,7 @@ func _make_button(text: String, callback: Callable) -> Button:
 
 func _open_pause() -> void:
 	if _difficulty_btn != null:
-		_difficulty_btn.text = _difficulty_text()
+		_difficulty_btn.text = tr(_difficulty_text())
 	pause_open = true
 	_pause_overlay.visible = true
 	_refresh_pause_buttons()
@@ -834,9 +835,9 @@ func _refresh_pause_buttons() -> void:
 		system_btn.visible = GameState.artifact_unlocked
 		system_btn.disabled = not in_vale
 		if GameState.artifact_unlocked and not in_vale:
-			system_btn.text = "Sistema (disponível no Vale)"
+			system_btn.text = tr("Sistema (disponível no Vale)")
 		else:
-			system_btn.text = "Entrar no Sistema (Sala Branca)"
+			system_btn.text = tr("Entrar no Sistema (Sala Branca)")
 	var decision_btn := _pause_overlay.find_child("DecisionButton", true, false) as Button
 	if decision_btn:
 		decision_btn.visible = GameState.main_stage >= 6
@@ -900,7 +901,7 @@ var _factions_rows: VBoxContainer
 
 func _make_travel_button(text: String) -> Button:
 	var btn := Button.new()
-	btn.text = text
+	btn.text = tr(text)
 	btn.custom_minimum_size = Vector2(110, 34)
 	btn.add_theme_font_size_override("font_size", 13)
 	var normal := StyleBoxFlat.new()
@@ -985,12 +986,12 @@ func _travel_to(dest: Dictionary) -> void:
 	var id := String(dest["id"])
 	if id != "noro" and id != "academia":
 		if not GameState.region_unlocked(id):
-			GameState.notify("Ainda não estás à altura (Nv %d)." % int(dest["level_req"]))
+			GameState.notify(tr("Ainda não estás à altura (Nv %d).") % int(dest["level_req"]))
 			return
 		GameState.current_region = id
 		if not GameState.region_known.get(id, false):
 			GameState.region_known[id] = true
-			GameState.notify("Região descoberta: %s" % String(dest["name"]))
+			GameState.notify(tr("Região descoberta: %s") % String(dest["name"]))
 		GameState.stats_changed.emit()
 	_toggle_map(false)
 	pause_open = false
@@ -1116,7 +1117,7 @@ func _build_attributes() -> void:
 		row.add_child(value_label)
 		_attr_value_labels[key] = value_label
 		var add_btn := Button.new()
-		add_btn.text = "+"
+		add_btn.text = tr("+")
 		add_btn.custom_minimum_size = Vector2(36, 28)
 		add_btn.pressed.connect(func(): _add_attribute(key))
 		row.add_child(add_btn)
@@ -1142,9 +1143,9 @@ func _toggle_attributes(open_it: bool) -> void:
 		_pause_overlay.visible = true
 
 func _refresh_attribute_panel() -> void:
-	_attr_points_label.text = "Atributos — %d ponto(s) disponível(eis)" % GameState.attribute_points
+	_attr_points_label.text = tr("Atributos — %d ponto(s) disponível(eis)") % GameState.attribute_points
 	var estado: String = ["Saudável", "Magoado", "Grave"][clampi(GameState.injury, 0, 2)]
-	_attr_state_label.text = "Estado: %s (lesão %d/%d) · Fadiga %d/%d" % [estado, GameState.injury, GameState.MAX_INJURY, GameState.fatigue, GameState.MAX_FATIGUE]
+	_attr_state_label.text = tr("Estado: %s (lesão %d/%d) · Fadiga %d/%d") % [estado, GameState.injury, GameState.MAX_INJURY, GameState.fatigue, GameState.MAX_FATIGUE]
 	for key in GameState.ATTR_KEYS:
 		(_attr_value_labels[key] as Label).text = str(int(GameState.attributes[key]))
 
@@ -1233,7 +1234,7 @@ func _build_decision() -> void:
 			var rep := int(GameState.reputation.get(faction, 0))
 			if rep < amount:
 				var fname := String(GameState.REPUTATION_NAMES.get(faction, faction))
-				btn.text = "🔒 " + String(ending["choice"]) + "\nRequer: %s %d  (tens %d)" % [fname, amount, rep]
+				btn.text = "🔒 " + String(ending["choice"]) + tr("\nRequer: %s %d  (tens %d)") % [fname, amount, rep]
 				btn.disabled = true
 		vbox.add_child(btn)
 
@@ -1253,9 +1254,9 @@ func _choose_ending(key: String) -> void:
 	var rid := GameState.romance_id
 	if rid != "" and ROMANCE_EPILOGUES.has(rid):
 		ending_text += "\n\n— «Incluindo, claro», pensa Kael.\n" + String(ROMANCE_EPILOGUES[rid])
-	_ending_title.text = String(ending["title"])
-	_ending_text.text = ending_text
-	_credits_label.text = _build_credits_text()
+	_ending_title.text = tr(String(ending["title"]))
+	_ending_text.text = tr(ending_text)
+	_credits_label.text = tr(_build_credits_text())
 	_ending_overlay.visible = true
 
 func _build_ending() -> void:
@@ -1280,4 +1281,15 @@ func _build_ending() -> void:
 
 func _build_credits_text() -> String:
 	GameState.objective_changed.emit("")
-	return "A ACADEMIA DO ZERO — vertical slice\nKael Noro, o rapaz sem Núcleo\nVladimir, o Guardião da Prova\nElen Noro · Garr · Tomás · Liora Venn · Mestre Dario Vale\n\nO mundo de Arkanor continua. Tu também.\nObrigado por jogar.\n\nNv %d · %d marcos · %d XP totais" % [GameState.level, GameState.marcos, GameState.xp]
+	var lines := [
+		tr("A ACADEMIA DO ZERO — vertical slice"),
+		tr("Kael Noro, o rapaz sem Núcleo"),
+		tr("Vladimir, o Guardião da Prova"),
+		tr("Elen Noro · Garr · Tomás · Liora Venn · Mestre Dario Vale"),
+		"",
+		tr("O mundo de Arkanor continua. Tu também."),
+		tr("Obrigado por jogar."),
+		"",
+		tr("Nv %d · %d marcos · %d XP totais") % [GameState.level, GameState.marcos, GameState.xp],
+	]
+	return "\n".join(lines)

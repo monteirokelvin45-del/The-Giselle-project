@@ -338,7 +338,7 @@ func _build_ui() -> void:
 	vbox.add_child(_choices_box)
 
 	_hint_label = Label.new()
-	_hint_label.text = "E / Espaço — continuar ▸"
+	_hint_label.text = tr("E / Espaço — continuar ▸")
 	_hint_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 	_hint_label.add_theme_font_size_override("font_size", 12)
 	_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -370,8 +370,8 @@ func _show_node(node_id: String) -> void:
 		_finish()
 		return
 	_current_node = node
-	_name_label.text = String(node.get("name", "???"))
-	_text_label.text = String(node.get("text", ""))
+	_name_label.text = tr(String(node.get("name", "???")))
+	_text_label.text = tr(String(node.get("text", "")))
 	_text_label.visible_characters = 0
 	_char_count = 0.0
 	_typing = true
@@ -381,7 +381,7 @@ func _show_node(node_id: String) -> void:
 	var choices: Array = node.get("choices", [])
 	for choice in choices:
 		var btn := Button.new()
-		btn.text = String(choice.get("text", "..."))
+		btn.text = tr(String(choice.get("text", "...")))
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.add_theme_font_size_override("font_size", int(14 * _subtitle_scale))
 		var next_id := String(choice.get("next", ""))

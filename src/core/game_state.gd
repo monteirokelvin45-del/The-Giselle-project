@@ -151,6 +151,9 @@ var weapon_tempered: bool = false   # lâmina temperada na forja de Garr (+12% d
 var aim_assist: bool = true            # preferência: mira suave nos ataques corpo a corpo
 var menu_narration: bool = false       # preferência: TTS nas notificações de menu
 var tts_voice: String = ""           # preferência: id da voz TTS; "" = automática
+var locale: String = "pt"           # preferência: idioma da UI ("pt" | "en" | "es")
+const LOCALES := ["pt", "en", "es"]
+const ENDONYMS := {"pt": "Português", "en": "English", "es": "Español"}
 var rupture_activations: int = 0      # quantas vezes a Ruptura foi despertada
 var techniques_seen: Dictionary = {}   # técnicas já anunciadas como desbloqueadas
 var custom_bindings: Dictionary = {}
@@ -188,7 +191,7 @@ func cycle_difficulty() -> void:
 	var idx := DIFFICULTY_ORDER.find(difficulty)
 	idx = (idx + 1) % DIFFICULTY_ORDER.size()
 	difficulty = DIFFICULTY_ORDER[idx]
-	notify("Dificuldade: %s" % difficulty_label())
+	notify(tr("Dificuldade: %s") % tr(difficulty_label()))
 	stats_changed.emit()
 
 # ------------------------------------------- Sistema: níveis e arena --------
@@ -224,7 +227,7 @@ func add_reputation(faction: String, amount: int) -> void:
 		return
 	reputation[faction] = clampi(int(reputation[faction]) + amount, -100, 100)
 	var verb := "melhorada" if amount >= 0 else "piorada"
-	notify("Reputação %s %s (%d)" % [String(REPUTATION_NAMES.get(faction, faction)), verb, int(reputation[faction])])
+	notify(tr("Reputação %s %s (%d)") % [String(REPUTATION_NAMES.get(faction, faction)), verb, int(reputation[faction])])
 	stats_changed.emit()
 
 func reputation_rank(faction: String) -> String:
@@ -267,16 +270,16 @@ func try_train_attribute() -> bool:
 	## Treino com mestres (sec. 8): custo fixo de marcos, +1 fadiga. A fadiga é
 	## o travão anti-treino-infinito do GDD; só o repouso a repõe.
 	if marcos < TRAIN_ATTRIBUTE_COST:
-		notify("Sem marcos suficientes (%d)." % TRAIN_ATTRIBUTE_COST)
+		notify(tr("Sem marcos suficientes (%d).") % TRAIN_ATTRIBUTE_COST)
 		return false
 	if fatigue >= MAX_FATIGUE:
-		notify("Fadiga no limite (%d/%d) — não consegues treinar. Descansa (leitos e dormitórios)." % [fatigue, MAX_FATIGUE])
+		notify(tr("Fadiga no limite (%d/%d) — não consegues treinar. Descansa (leitos e dormitórios).") % [fatigue, MAX_FATIGUE])
 		return false
 	marcos -= TRAIN_ATTRIBUTE_COST
 	attribute_points += 1
 	fatigue += 1
 	stats_changed.emit()
-	notify("+1 ponto de atributo (Esc → Atributos). Fadiga %d/%d. O Mestre aprova." % [fatigue, MAX_FATIGUE])
+	notify(tr("+1 ponto de atributo (Esc → Atributos). Fadiga %d/%d. O Mestre aprova.") % [fatigue, MAX_FATIGUE])
 	return true
 
 func region_config(region_id: String) -> Dictionary:
@@ -318,12 +321,12 @@ func xp_progress() -> float:
 func add_xp(amount: int) -> void:
 	amount = maxi(1, int(round(amount * difficulty_xp_mult())))
 	xp += amount
-	notify("+%d XP" % amount)
+	notify(tr("+%d XP") % amount)
 	while xp >= xp_needed():
 		xp -= xp_needed()
 		level += 1
 		attribute_points += 2
-		notify("NÍVEL %d! +2 pontos de atributo (Esc → Atributos)" % level)
+		notify(tr("NÍVEL %d! +2 pontos de atributo (Esc → Atributos)") % level)
 		Audio.play("levelup")
 		_check_technique_unlock("corrida_predador")
 	stats_changed.emit()
@@ -427,7 +430,7 @@ func cycle_tts_voice() -> void:
 func try_spend_marcos(amount: int) -> bool:
 	var cost: int = maxi(0, amount)
 	if marcos < cost:
-		notify("Sem marcos suficientes (%d)." % cost)
+		notify(tr("Sem marcos suficientes (%d).") % cost)
 		return false
 	marcos -= cost
 	return true
@@ -453,7 +456,7 @@ func try_activate_rupture() -> bool:
 		notify("ESTADO DE RUPTURA — 8 segundos de fúria!")
 		stats_changed.emit()
 		return true
-	notify("Ruptura não está cheia (%d%%)" % int(rupture))
+	notify(tr("Ruptura não está cheia (%d%%)") % int(rupture))
 	return false
 
 func tick_rupture(delta: float) -> void:
@@ -488,38 +491,38 @@ func add_marcos(n: int) -> void:
 # ---------------------------------------------------------------- missões ---
 func objective_text() -> String:
 	match main_stage:
-		0: return "Fala com a tua mãe, Elen, na casa junto ao poço."
-		1: return "Visita Garr, o ferreiro, junto à forja no lado poente."
-		2: return "Atravessa a Floresta Baixa pela Estrada Imperial."
-		3: return "Chega ao Portão da Academia e fala com Liora Venn."
-		4: return "Vai à arena e fala com o Mestre Dario Vale."
-		5: return "Derrota o Guardião da Prova na arena."
-		6: return "Abre o menu (Esc) e toma A DECISÃO."
-		_: return "Fim da linha — por agora. O mundo continua sem ti... ou não."
+		0: return tr("Fala com a tua mãe, Elen, na casa junto ao poço.")
+		1: return tr("Visita Garr, o ferreiro, junto à forja no lado poente.")
+		2: return tr("Atravessa a Floresta Baixa pela Estrada Imperial.")
+		3: return tr("Chega ao Portão da Academia e fala com Liora Venn.")
+		4: return tr("Vai à arena e fala com o Mestre Dario Vale.")
+		5: return tr("Derrota o Guardião da Prova na arena.")
+		6: return tr("Abre o menu (Esc) e toma A DECISÃO.")
+		_: return tr("Fim da linha — por agora. O mundo continua sem ti... ou não.")
 
 func side_objectives() -> Array[String]:
 	var list: Array[String] = []
 	if wolf_quest_state == "active":
-		list.append("Lobos de Cinza na estrada: %d/3" % wolf_kills)
+		list.append(tr("Lobos de Cinza na estrada: %d/3") % wolf_kills)
 	elif wolf_quest_state == "done":
-		list.append("Lobos de Cinza: concluído ✓")
+		list.append(tr("Lobos de Cinza: concluído ✓"))
 	if herb_quest_state == "active":
-		list.append("Fibras de Ruína: %d/5" % herb_count)
+		list.append(tr("Fibras de Ruína: %d/5") % herb_count)
 	elif herb_quest_state == "done":
-		list.append("Luz para as Lâmpadas: concluído ✓")
+		list.append(tr("Luz para as Lâmpadas: concluído ✓"))
 	return list
 
 func advance_stage(to_stage: int) -> void:
 	if to_stage > main_stage:
 		main_stage = to_stage
 		objective_changed.emit(objective_text())
-		notify("Novo objetivo — " + objective_text())
+		notify(tr("Novo objetivo — %s") % objective_text())
 
 func on_wolf_killed() -> void:
 	if wolf_quest_state != "active":
 		return
 	wolf_kills += 1
-	notify("Lobo de Cinza derrotado (%d/3)" % wolf_kills)
+	notify(tr("Lobo de Cinza derrotado (%d/3)") % wolf_kills)
 	if wolf_kills >= 3:
 		wolf_quest_state = "done"
 		add_marcos(60)
@@ -532,7 +535,7 @@ func on_herb_collected() -> void:
 	if herb_quest_state != "active":
 		return
 	herb_count += 1
-	notify("Fibra de Ruína recolhida (%d/5)" % herb_count)
+	notify(tr("Fibra de Ruína recolhida (%d/5)") % herb_count)
 	if herb_count >= 5:
 		herb_quest_state = "done"
 		add_marcos(40)
@@ -543,6 +546,20 @@ func on_herb_collected() -> void:
 	stats_changed.emit()
 
 # ------------------------------------------------------------------ save ---
+func _ready() -> void:
+	_apply_locale()
+
+func _apply_locale() -> void:
+	if not LOCALES.has(locale):
+		locale = "pt"
+	TranslationServer.set_locale(locale)
+
+func cycle_locale() -> void:
+	var idx := LOCALES.find(locale)
+	locale = LOCALES[(idx + 1) % LOCALES.size()]
+	_apply_locale()
+	stats_changed.emit()
+
 func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 	var data := {
 		"version": SAVE_VERSION,
@@ -565,6 +582,7 @@ func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 		"colorblind_mode": colorblind_mode, "subtitle_scale": subtitle_scale,
 		"custom_bindings": custom_bindings, "music_enabled": music_enabled,
 		"weapon_tempered": weapon_tempered, "aim_assist": aim_assist, "menu_narration": menu_narration, "tts_voice": tts_voice,
+		"locale": locale,
 		"rupture_activations": rupture_activations, "techniques_seen": techniques_seen,
 		"px": pos.x, "py": pos.y, "pz": pos.z, "hp": hp, "stamina": stamina,
 	}
@@ -589,6 +607,10 @@ func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 	return true
 
 func _apply_save_dict(parsed: Dictionary) -> void:
+	var saved_locale := String(parsed.get("locale", "pt"))
+	if LOCALES.has(saved_locale):
+		locale = saved_locale
+	_apply_locale()
 	var saved_difficulty := String(parsed.get("difficulty", "normal"))
 	if not DIFFICULTY.has(saved_difficulty):
 		saved_difficulty = "normal"
@@ -790,6 +812,6 @@ func register_rupture_activation() -> void:
 func _check_technique_unlock(id: String) -> void:
 	if technique_unlocked(id) and not bool(techniques_seen.get(id, false)):
 		techniques_seen[id] = true
-		notify("TÉCNICA DESBLOQUEADA: %s (%s)" % [TECHNIQUES[id]["name"], TECHNIQUES[id]["key"]])
+		notify(tr("TÉCNICA DESBLOQUEADA: %s (%s)") % [TECHNIQUES[id]["name"], TECHNIQUES[id]["key"]])
 		Audio.play("levelup", -4.0, 0.8)
 

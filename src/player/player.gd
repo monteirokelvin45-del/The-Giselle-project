@@ -104,11 +104,11 @@ func heal_external(amount: float) -> void:
 
 func _use_technique(id: String) -> void:
 	if not GameState.technique_unlocked(id):
-		GameState.notify("Bloqueada: %s." % GameState.technique_requirement(id))
+		GameState.notify(tr("Bloqueada: %s.") % GameState.technique_requirement(id))
 		return
 	var cd := float(technique_cooldowns.get(id, 0.0))
 	if cd > 0.0:
-		GameState.notify("Técnica em recarga (%.0fs)." % cd)
+		GameState.notify(tr("Técnica em recarga (%.0fs).") % cd)
 		return
 	var forward := facing_direction()
 	var mf = preload("res://src/visuals/model_factory.gd")
@@ -131,7 +131,7 @@ func _use_technique(id: String) -> void:
 			Audio.play("swing", 0.0, 0.6)
 		"queda_colosso":
 			if GameState.rupture < 50.0:
-				GameState.notify("Precisas de 50%% de Ruptura (tens %.0f%%)." % GameState.rupture)
+				GameState.notify(tr("Precisas de 50%% de Ruptura (tens %.0f%%).") % GameState.rupture)
 				return
 			GameState.rupture = maxf(0.0, GameState.rupture - 50.0)
 			technique_cooldowns[id] = 20.0
@@ -154,7 +154,7 @@ func _use_ability(id: String) -> void:
 		GameState.notify("Ainda não tens este companheiro.")
 		return
 	if float(ability_cooldowns.get(id, 0.0)) > 0.0:
-		GameState.notify("Habilidade em recarga (%.0fs)." % float(ability_cooldowns[id]))
+		GameState.notify(tr("Habilidade em recarga (%.0fs).") % float(ability_cooldowns[id]))
 		return
 	match id:
 		"liora":
@@ -179,7 +179,7 @@ func _use_ability(id: String) -> void:
 					hit += 1
 			mf.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.2, 0.0), Color(0.95, 0.8, 0.4))
 			add_shake(0.7)
-			GameState.notify("Eco de Forja — %d inimigos atordoados!" % hit)
+			GameState.notify(tr("Eco de Forja — %d inimigos atordoados!") % hit)
 			Audio.play("heavy_hit", -2.0)
 			ability_cooldowns[id] = 18.0
 		"sena":
@@ -405,7 +405,7 @@ func _drink_potion() -> void:
 		var heal := GameState.potion_heal()
 		hp = minf(GameState.max_hp(), hp + heal)
 		Audio.play("potion")
-		GameState.notify("+%d vida" % int(heal))
+		GameState.notify(tr("+%d vida") % int(heal))
 
 func _on_interact() -> void:
 	if current_interactable != null and is_instance_valid(current_interactable):
@@ -415,7 +415,7 @@ func _on_interact() -> void:
 
 func _try_chain() -> void:
 	if _chain_cooldown > 0.0:
-		GameState.notify("A Corrente ainda está a enrolar-se... (%.1fs)" % _chain_cooldown)
+		GameState.notify(tr("A Corrente ainda está a enrolar-se... (%.1fs)") % _chain_cooldown)
 		return
 	var nearest: Node3D = null
 	var nearest_dist := 13.0
@@ -831,7 +831,7 @@ func _die() -> void:
 		mf.play_anim(_anim_player, "Death_A", 0.12)
 	var loss := int(GameState.marcos * 0.1)
 	GameState.add_marcos(-loss)
-	GameState.notify("Kael caiu... Acordas na aldeia. (-%d marcos)" % loss)
+	GameState.notify(tr("Kael caiu... Acordas na aldeia. (-%d marcos)") % loss)
 	hp = GameState.max_hp()
 	stamina = GameState.max_stamina()
 	GameState.rupture = 0.0

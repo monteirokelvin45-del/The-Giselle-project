@@ -92,10 +92,10 @@ func _on_guardian_died(_enemy: Node3D, enemy_type: String) -> void:
 
 func _buy(cost: int, what: String) -> bool:
 	if GameState.marcos < cost:
-		GameState.notify("Sem marcos suficientes (%d)." % cost)
+		GameState.notify(tr("Sem marcos suficientes (%d).") % cost)
 		return false
 	GameState.add_marcos(-cost)
-	GameState.notify("Compraste %s. (-%d marcos)" % [what, cost])
+	GameState.notify(tr("Compraste %s. (-%d marcos)") % [what, cost])
 	return true
 
 func respawn_position() -> Vector3:
@@ -143,7 +143,7 @@ func _on_dialogue_action(action: String) -> void:
 				GameState.notify("Estás inteiro — não tens lesões.")
 			elif GameState.try_spend_marcos(45):
 				var healed := GameState.heal_injury(1)
-				GameState.notify("Remendo do curandeiro: %d nível(is) de lesão tratada(s)." % healed)
+				GameState.notify(tr("Remendo do curandeiro: %d nível(is) de lesão tratada(s).") % healed)
 				GameState.stats_changed.emit()
 		"shop_elixir":
 			if _buy(120, "Elixir do Sistema"):

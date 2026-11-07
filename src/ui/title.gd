@@ -45,7 +45,7 @@ func _build() -> void:
 	margin.add_child(col)
 
 	var kicker := Label.new()
-	kicker.text = "UM MUNDO COM MAGIA. UM RAPAZ SEM ELA."
+	kicker.text = tr("UM MUNDO COM MAGIA. UM RAPAZ SEM ELA.")
 	kicker.add_theme_font_size_override("font_size", 13)
 	kicker.add_theme_color_override("font_color", Color(0.88, 0.74, 0.32))
 	kicker.add_theme_constant_override("outline_size", 4)
@@ -53,7 +53,7 @@ func _build() -> void:
 	col.add_child(kicker)
 
 	var title := Label.new()
-	title.text = "A ACADEMIA\nDO ZERO"
+	title.text = tr("A ACADEMIA\nDO ZERO")
 	title.add_theme_font_size_override("font_size", 84)
 	title.add_theme_color_override("font_color", Color(0.97, 0.95, 0.88))
 	title.add_theme_constant_override("outline_size", 10)
@@ -61,7 +61,7 @@ func _build() -> void:
 	col.add_child(title)
 
 	var subtitle := Label.new()
-	subtitle.text = "Kael Noro, o rapaz sem Núcleo, e o mundo que esqueceu os sem-magia."
+	subtitle.text = tr("Kael Noro, o rapaz sem Núcleo, e o mundo que esqueceu os sem-magia.")
 	subtitle.add_theme_font_size_override("font_size", 16)
 	subtitle.add_theme_color_override("font_color", Color(0.85, 0.83, 0.78))
 	subtitle.add_theme_constant_override("outline_size", 5)
@@ -85,9 +85,25 @@ func _build() -> void:
 	quit_btn.pressed.connect(_on_quit)
 	col.add_child(quit_btn)
 
+	# Botão de idioma (canto inferior direito) — alterna PT → EN → ES
+	var lang_btn := Button.new()
+	lang_btn.text = String(GameState.ENDONYMS.get(GameState.locale, GameState.locale)) + "  ⟳"
+	lang_btn.custom_minimum_size = Vector2(150, 36)
+	lang_btn.anchor_left = 1.0
+	lang_btn.anchor_right = 1.0
+	lang_btn.anchor_top = 1.0
+	lang_btn.anchor_bottom = 1.0
+	lang_btn.offset_left = -170.0
+	lang_btn.offset_right = -20.0
+	lang_btn.offset_top = -46.0
+	lang_btn.offset_bottom = -10.0
+	lang_btn.focus_mode = Control.FOCUS_NONE
+	lang_btn.pressed.connect(_on_cycle_language)
+	add_child(lang_btn)
+
 	# Versão em baixo
 	var version := Label.new()
-	version.text = "Vertical Slice v0.1 · Arkanor, o Vale de Noro · Feito em Godot 4"
+	version.text = tr("Vertical Slice v0.1 · Arkanor, o Vale de Noro · Feito em Godot 4")
 	version.add_theme_font_size_override("font_size", 11)
 	version.add_theme_color_override("font_color", Color(0.62, 0.6, 0.55, 0.9))
 	version.anchor_top = 1.0
@@ -99,7 +115,7 @@ func _build() -> void:
 
 func _menu_button(text: String, size: int) -> Button:
 	var btn := Button.new()
-	btn.text = text
+	btn.text = tr(text)
 	btn.focus_entered.connect(func(): GameState.tts_say(btn.text))
 	btn.mouse_entered.connect(func(): GameState.tts_say(btn.text))
 	btn.custom_minimum_size = Vector2(300, 52 if size > 16 else 44)
@@ -139,6 +155,11 @@ func _on_new_game() -> void:
 	Audio.play("click")
 	GameState.reset_for_new_game()
 	get_tree().change_scene_to_file("res://scenes/main.tscn")
+
+func _on_cycle_language() -> void:
+	Audio.play("click")
+	GameState.cycle_locale()
+	get_tree().reload_current_scene()
 
 func _on_quit() -> void:
 	Audio.play("click")

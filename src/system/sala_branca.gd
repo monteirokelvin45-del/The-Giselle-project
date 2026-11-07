@@ -187,7 +187,7 @@ func _process(delta: float) -> void:
 	if _subtitle_index < SUBTITLES.size():
 		_subtitle_timer -= delta
 		if _subtitle_timer <= 0.0:
-			_subtitle_label.text = SUBTITLES[_subtitle_index]
+			_subtitle_label.text = tr(SUBTITLES[_subtitle_index])
 			_subtitle_label.visible = true
 			_subtitle_label.modulate.a = 1.0
 			_subtitle_index += 1
@@ -235,7 +235,7 @@ func _build_setup_ui() -> void:
 	_setup_panel.add_child(vbox)
 
 	var title := Label.new()
-	title.text = "O SISTEMA — SIMULAÇÃO"
+	title.text = tr("O SISTEMA — SIMULAÇÃO")
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 21)
 	title.add_theme_color_override("font_color", Color(0.16, 0.16, 0.22))
@@ -247,7 +247,7 @@ func _build_setup_ui() -> void:
 
 	# Ameaça (5 níveis com requisitos)
 	var threat_label := Label.new()
-	threat_label.text = "Ameaça"
+	threat_label.text = tr("Ameaça")
 	threat_label.add_theme_font_size_override("font_size", 15)
 	threat_label.add_theme_color_override("font_color", Color(0.3, 0.3, 0.36))
 	vbox.add_child(threat_label)
@@ -274,7 +274,7 @@ func _build_setup_ui() -> void:
 	# Poções
 	var pot_row := HBoxContainer.new()
 	var pot_label := Label.new()
-	pot_label.text = "Poções no chão"
+	pot_label.text = tr("Poções no chão")
 	pot_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pot_label.add_theme_font_size_override("font_size", 15)
 	pot_label.add_theme_color_override("font_color", Color(0.3, 0.3, 0.36))
@@ -292,18 +292,18 @@ func _build_setup_ui() -> void:
 	vbox.add_child(_reward_label)
 
 	var run_btn := Button.new()
-	run_btn.text = "▶  EXECUTAR SIMULAÇÃO"
+	run_btn.text = tr("▶  EXECUTAR SIMULAÇÃO")
 	run_btn.custom_minimum_size = Vector2(0, 42)
 	run_btn.add_theme_font_size_override("font_size", 17)
 	run_btn.pressed.connect(_on_execute)
 	vbox.add_child(run_btn)
 	var train_btn := Button.new()
-	train_btn.text = "Voltar a treinar"
+	train_btn.text = tr("Voltar a treinar")
 	train_btn.custom_minimum_size = Vector2(0, 32)
 	train_btn.pressed.connect(_close_setup)
 	vbox.add_child(train_btn)
 	var leave_btn := Button.new()
-	leave_btn.text = "Regressar ao Vale"
+	leave_btn.text = tr("Regressar ao Vale")
 	leave_btn.custom_minimum_size = Vector2(0, 32)
 	leave_btn.pressed.connect(_return_to_vale)
 	vbox.add_child(leave_btn)
@@ -313,13 +313,13 @@ func _build_setup_ui() -> void:
 func _cycle_row(parent: VBoxContainer, label_text: String) -> Label:
 	var row := HBoxContainer.new()
 	var label := Label.new()
-	label.text = label_text
+	label.text = tr(label_text)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.add_theme_font_size_override("font_size", 15)
 	label.add_theme_color_override("font_color", Color(0.3, 0.3, 0.36))
 	row.add_child(label)
 	var prev := Button.new()
-	prev.text = "◀"
+	prev.text = tr("◀")
 	prev.custom_minimum_size = Vector2(38, 32)
 	row.add_child(prev)
 	var value := Label.new()
@@ -329,7 +329,7 @@ func _cycle_row(parent: VBoxContainer, label_text: String) -> Label:
 	value.add_theme_color_override("font_color", Color(0.1, 0.1, 0.14))
 	row.add_child(value)
 	var next := Button.new()
-	next.text = "▶"
+	next.text = tr("▶")
 	next.custom_minimum_size = Vector2(38, 32)
 	row.add_child(next)
 	parent.add_child(row)
@@ -378,27 +378,27 @@ func _on_threat_pressed(idx: int) -> void:
 	if not GameState.can_threat(idx):
 		GameState.system_memory["refusals"] = int(GameState.system_memory.get("refusals", 0)) + 1
 		GameState.stats_changed.emit()
-		GameState.notify("«Não. O teu nível não justifica esse risco — recusa %d registada.»" % int(GameState.system_memory["refusals"]))
+		GameState.notify(tr("«Não. O teu nível não justifica esse risco — recusa %d registada.»") % int(GameState.system_memory["refusals"]))
 		return
 	GameState.threat_level = idx
 	_refresh_setup()
 
 func _refresh_setup() -> void:
-	_env_value.text = _env_name()
+	_env_value.text = tr(_env_name())
 	for i in range(_threat_buttons.size()):
 		var btn := _threat_buttons[i]
 		var req: int = int(GameState.THREAT_LEVELS[i]["level_req"])
 		var tname := String(GameState.THREAT_LEVELS[i]["name"])
 		if GameState.can_threat(i):
-			btn.text = "%s%s\nNv %d+" % [tname, "" if i != GameState.threat_level else " ✓", req]
+			btn.text = tr("%s%s\nNv %d+") % [tname, "" if i != GameState.threat_level else " ✓", req]
 			btn.disabled = false
 		else:
-			btn.text = "🔒 %s\nNv %d" % [tname, req]
+			btn.text = tr("🔒 %s\nNv %d") % [tname, req]
 			btn.disabled = true
-	_count_value.text = str(GameState.arena_enemy_count)
-	_time_value.text = TIME_LABELS[_time_idx]
-	_potions_value.text = "Sim" if GameState.arena_potions else "Não"
-	_reward_label.text = "Recompensa: ×%.2f XP  ·  Vida dos inimigos: ×%.2f" % [GameState.threat_reward_mult(), GameState.threat_hp_mult()]
+	_count_value.text = tr(str(GameState.arena_enemy_count))
+	_time_value.text = tr(TIME_LABELS[_time_idx])
+	_potions_value.text = tr("Sim" if GameState.arena_potions else "Não")
+	_reward_label.text = tr("Recompensa: ×%.2f XP  ·  Vida dos inimigos: ×%.2f") % [GameState.threat_reward_mult(), GameState.threat_hp_mult()]
 
 func open_setup() -> void:
 	if _player == null:
@@ -436,7 +436,7 @@ func _on_execute() -> void:
 	if not GameState.can_threat(GameState.threat_level):
 		GameState.system_memory["refusals"] = int(GameState.system_memory.get("refusals", 0)) + 1
 		GameState.stats_changed.emit()
-		GameState.notify("«O Sistema recusa. Recusa %d registada.»" % int(GameState.system_memory["refusals"]))
+		GameState.notify(tr("«O Sistema recusa. Recusa %d registada.»") % int(GameState.system_memory["refusals"]))
 		return
 	_start_simulation()
 
@@ -481,7 +481,7 @@ func _start_simulation() -> void:
 	_sim_start_msec = Time.get_ticks_msec()
 	_sim_running = true
 	Audio.play_music("combat")
-	GameState.notify("Simulação iniciada — %s · Ameaça %s" % [_env_name(), GameState.threat_name()])
+	GameState.notify(tr("Simulação iniciada — %s · Ameaça %s") % [_env_name(), GameState.threat_name()])
 	Audio.play("rupture", -6.0)
 
 func _spawn_potion(pos: Vector3) -> void:
@@ -569,7 +569,7 @@ func _build_evaluation_ui() -> void:
 	vbox.add_theme_constant_override("separation", 8)
 	_eval_panel.add_child(vbox)
 	_eval_number = Label.new()
-	_eval_number.text = "AVALIAÇÃO DO SISTEMA"
+	_eval_number.text = tr("AVALIAÇÃO DO SISTEMA")
 	_eval_number.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_eval_number.add_theme_font_size_override("font_size", 21)
 	_eval_number.add_theme_color_override("font_color", Color(0.16, 0.16, 0.22))
@@ -590,17 +590,17 @@ func _build_evaluation_ui() -> void:
 	_eval_history.add_theme_color_override("font_color", Color(0.42, 0.42, 0.48))
 	vbox.add_child(_eval_history)
 	var continue_btn := Button.new()
-	continue_btn.text = "Voltar a treinar"
+	continue_btn.text = tr("Voltar a treinar")
 	continue_btn.custom_minimum_size = Vector2(0, 34)
 	continue_btn.pressed.connect(_close_evaluation)
 	vbox.add_child(continue_btn)
 	var sim_btn := Button.new()
-	sim_btn.text = "Nova simulação…"
+	sim_btn.text = tr("Nova simulação…")
 	sim_btn.custom_minimum_size = Vector2(0, 34)
 	sim_btn.pressed.connect(_open_setup_from_eval)
 	vbox.add_child(sim_btn)
 	var leave_btn := Button.new()
-	leave_btn.text = "Regressar ao Vale"
+	leave_btn.text = tr("Regressar ao Vale")
 	leave_btn.custom_minimum_size = Vector2(0, 34)
 	leave_btn.pressed.connect(_return_to_vale)
 	vbox.add_child(leave_btn)
@@ -612,19 +612,19 @@ func _open_setup_from_eval() -> void:
 func _style_label(light_hits: int, heavy_hits: int, parries: int) -> String:
 	var total := light_hits + heavy_hits
 	if parries >= 4:
-		return "Artista do Parry"
+		return tr("Artista do Parry")
 	if total >= 6 and float(heavy_hits) / float(total) >= 0.55:
-		return "Colosso de Guerra"
+		return tr("Colosso de Guerra")
 	if total >= 6 and float(light_hits) / float(total) >= 0.7:
-		return "Dança de Lâminas"
-	return "Gladiador do Vazio"
+		return tr("Dança de Lâminas")
+	return tr("Gladiador do Vazio")
 
 func _verdict_line(accuracy: float, errors: int) -> String:
 	if accuracy >= 0.75 and errors <= 1:
-		return "Desempenho... aceitável para uma anomalia sem magia."
+		return tr("Desempenho... aceitável para uma anomalia sem magia.")
 	elif accuracy >= 0.5:
-		return "Mediano. Os Núcleos não aplaudem — mas eu não sou os Núcleos."
-	return "Notas: melhorar. Tudo. E depressa."
+		return tr("Mediano. Os Núcleos não aplaudem — mas eu não sou os Núcleos.")
+	return tr("Notas: melhorar. Tudo. E depressa.")
 
 func _finish_simulation() -> void:
 	_sim_running = false
@@ -652,13 +652,13 @@ func _finish_simulation() -> void:
 	# Bónus de avaliação (regra v0.1 mantida)
 	var bonus_text := ""
 	if GameState.evaluations_used >= 5:
-		bonus_text = "Bónus do Sistema esgotado (5/5).\nQue bom… ou que medíocre, dependendo da perspetiva."
+		bonus_text = tr("Bónus do Sistema esgotado (5/5).\nQue bom… ou que medíocre, dependendo da perspetiva.")
 	elif hits >= 10 and accuracy >= 0.5:
 		GameState.attribute_points += 1
 		GameState.evaluations_used += 1
-		bonus_text = "BÓNUS: +1 ponto de atributo. [%d/5]" % GameState.evaluations_used
+		bonus_text = tr("BÓNUS: +1 ponto de atributo. [%d/5]") % GameState.evaluations_used
 	else:
-		bonus_text = "Bónus: precisas de ≥10 acertos e ≥50%% precisão."
+		bonus_text = tr("Bónus: precisas de ≥10 acertos e ≥50%% precisão.")
 	# Memória do Sistema
 	var mem: Dictionary = GameState.system_memory
 	var prev_best := String(mem.get("best_style", ""))
@@ -678,21 +678,21 @@ func _finish_simulation() -> void:
 	GameState.evaluation_history = history
 	GameState.stats_changed.emit()
 	# Preencher painel
-	_eval_number.text = "AVALIAÇÃO Nº %d" % int(mem["evaluations"])
-	_eval_stats.text = "Ambiente: %s · Ameaça: %s\nTempo de simulação: %02d:%02d\nGolpes: %d · Acertos: %d · Precisão: %d%%\nParries perfeitos: %d\nPrimeiro impacto: %s\nErros repetidos (atingido a atacar): %d\nDano sofrido: %d\nEstilo dominante: %s\nRecompensa: +%d XP" % [
+	_eval_number.text = tr("AVALIAÇÃO Nº %d") % int(mem["evaluations"])
+	_eval_stats.text = tr("Ambiente: %s · Ameaça: %s\nTempo de simulação: %02d:%02d\nGolpes: %d · Acertos: %d · Precisão: %d%%\nParries perfeitos: %d\nPrimeiro impacto: %s\nErros repetidos (atingido a atacar): %d\nDano sofrido: %d\nEstilo dominante: %s\nRecompensa: +%d XP") % [
 		_env_name(), GameState.threat_name(), minutes, seconds, swings, hits,
 		int(accuracy * 100.0), parries, reaction, errors, int(damage), style, reward,
 	]
-	var memory_text := "«%s»" % _verdict_line(accuracy, errors)
+	var memory_text := tr("«%s»") % _verdict_line(accuracy, errors)
 	if int(mem.get("refusals", 0)) > 0:
-		memory_text += "\nRecusas anteriores: %d. A prudência é um músculo — o teu ainda é fraco." % int(mem["refusals"])
+		memory_text += tr("\nRecusas anteriores: %d. A prudência é um músculo — o teu ainda é fraco.") % int(mem["refusals"])
 	if prev_best != "" and prev_best != style:
-		memory_text += "\nAntes: %s. Agora: %s. O Sistema regista." % [prev_best, style]
-	_eval_bonus.text = memory_text + "\n" + bonus_text
+		memory_text += tr("\nAntes: %s. Agora: %s. O Sistema regista.") % [prev_best, style]
+	_eval_bonus.text = tr(memory_text) + "\n" + tr(bonus_text)
 	var hist_lines: Array[String] = []
 	for h in history:
-		hist_lines.append("· %s · %s · %d%% precisão · %s" % [String(h.get("threat", "?")), String(h.get("env", "?")), int(h.get("accuracy", 0)), String(h.get("style", "?"))])
-	_eval_history.text = "Histórico:\n" + "\n".join(hist_lines)
+		hist_lines.append(tr("· %s · %s · %d%% precisão · %s") % [String(h.get("threat", "?")), String(h.get("env", "?")), int(h.get("accuracy", 0)), String(h.get("style", "?"))])
+	_eval_history.text = tr("Histórico:\n") + "\n".join(hist_lines)
 	Audio.play_music("system")
 	_eval_panel.visible = true
 	UI.external_block = true

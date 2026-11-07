@@ -142,7 +142,7 @@ func _make_circle(diameter: float, bg: Color, border: Color) -> Panel:
 
 func _make_button(action: String, label: String, margin_right: float, top: float, size: float, _hold: bool, font_size: int) -> void:
 	var btn := Button.new()
-	btn.text = label
+	btn.text = tr(label)
 	btn.focus_mode = Control.FOCUS_NONE
 	btn.anchor_left = 1.0
 	btn.anchor_right = 1.0
@@ -181,7 +181,7 @@ func _make_button(action: String, label: String, margin_right: float, top: float
 ## Botões 1–4 das habilidades dos companheiros, topo-esquerda.
 func _make_ability_button(action: String, label: String, left: float, top: float, size: float) -> void:
 	var btn := Button.new()
-	btn.text = label
+	btn.text = tr(label)
 	btn.focus_mode = Control.FOCUS_NONE
 	btn.anchor_left = 0.0
 	btn.anchor_right = 0.0

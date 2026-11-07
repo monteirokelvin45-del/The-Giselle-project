@@ -42,7 +42,7 @@ func _ready() -> void:
 		_build_storm()
 	UI.set_in_game(true)
 	Audio.play_music("exploration")
-	var text := "%s — %s" % [String(_cfg["name"]).to_upper(), String(_cfg["desc"])]
+	var text := tr("%s — %s") % [String(_cfg["name"]).to_upper(), tr(String(_cfg["desc"]))]
 	if _storm:
 		text += "  ·  TEMPESTADE À MEDIDA"
 	_show_banner(text, 4.5)
@@ -192,7 +192,7 @@ func _build_banner() -> void:
 	_banner_layer.add_child(_banner)
 
 func _show_banner(text: String, duration: float) -> void:
-	_banner.text = text
+	_banner.text = tr(text)
 	_banner.visible = true
 	_banner.modulate.a = 1.0
 	_banner_timer = duration
@@ -258,7 +258,7 @@ func _region_complete() -> void:
 	GameState.add_marcos(marcos)
 	GameState.add_reputation("ordem", 4)
 	GameState.stats_changed.emit()
-	_show_banner("REGIÃO CONCLUÍDA — %s  ·  +%d XP  ·  +%d marcos" % [String(_cfg["name"]), xp, marcos], 5.0)
+	_show_banner(tr("REGIÃO CONCLUÍDA — %s  ·  +%d XP  ·  +%d marcos") % [String(_cfg["name"]), xp, marcos], 5.0)
 	Audio.play("levelup")
 
 func portal_exit() -> void:
