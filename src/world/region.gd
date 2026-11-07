@@ -19,6 +19,9 @@ var _player: Node3D = null
 var _env_mf := preload("res://src/visuals/model_factory.gd")
 var _storm: bool = false
 var _music_timer: float = 0.0
+var _rain_follow: Node3D = null
+var _lightning_timer: float = 6.0
+var _flash_time: float = 0.0
 
 func _ready() -> void:
 	var region_id := GameState.current_region
@@ -35,6 +38,8 @@ func _ready() -> void:
 	player.position = respawn_position()
 	add_child(player)
 	_player = player
+	if _storm:
+		_build_storm()
 	UI.set_in_game(true)
 	Audio.play_music("exploration")
 	var text := "%s — %s" % [String(_cfg["name"]).to_upper(), String(_cfg["desc"])]
@@ -72,6 +77,38 @@ func _build_environment() -> void:
 	_sun.directional_shadow_max_distance = 80.0
 	_sun.directional_shadow_max_distance = 90.0
 	add_child(_sun)
+
+## Tempestade (v0.5): chuva visível que acompanha o jogador + relâmpagos com
+## trovoada. A tempestade é sorteada à chegada (30% das visitas).
+func _build_storm() -> void:
+	_rain_follow = Node3D.new()
+	add_child(_rain_follow)
+	var rain := GPUParticles3D.new()
+	rain.amount = 900
+	rain.lifetime = 1.1
+	rain.local_coords = false
+	rain.visibility_aabb = AABB(Vector3(-24.0, -6.0, -24.0), Vector3(48.0, 26.0, 48.0))
+	var mat := ParticleProcessMaterial.new()
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	mat.emission_box_extents = Vector3(18.0, 1.0, 18.0)
+	mat.direction = Vector3(0.12, -1.0, 0.03)
+	mat.spread = 3.0
+	mat.gravity = Vector3(0.0, -28.0, 0.0)
+	mat.initial_velocity_min = 15.0
+	mat.initial_velocity_max = 22.0
+	rain.process_material = mat
+	var drop := BoxMesh.new()
+	drop.size = Vector3(0.045, 0.9, 0.045)
+	var drop_mat := StandardMaterial3D.new()
+	drop_mat.albedo_color = Color(0.72, 0.8, 0.95, 0.55)
+	drop_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	drop_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	drop_mat.disable_receive_shadows = true
+	drop.material = drop_mat
+	rain.draw_pass_1 = drop
+	_rain_follow.add_child(rain)
+	_rain_follow.global_position = respawn_position() + Vector3(0.0, 15.0, 0.0)
+	_lightning_timer = randf_range(3.0, 8.0)
 
 func _build_ground_and_props() -> void:
 	var ground := StandardMaterial3D.new()
@@ -171,6 +208,15 @@ func _process(delta: float) -> void:
 					threat = true
 					break
 		Audio.play_music("combat" if threat else "exploration")
+	if _rain_follow != null and _player != null:
+		_rain_follow.global_position = _player.global_position + Vector3(0.0, 15.0, 0.0)
+	if _storm:
+		_lightning_timer -= delta
+		if _lightning_timer <= 0.0:
+			_lightning_timer = randf_range(5.0, 14.0)
+			_flash_time = 0.35
+			Audio.play("thunder", -6.0, randf_range(0.85, 1.15))
+		# (o flash é aplicado abaixo, onde a luz é escrita)
 	# Ciclo dia/noite (compressão: ~4 minutos por ciclo completo)
 	_day_t += delta / 240.0
 	if _day_t > 1.0:
@@ -178,8 +224,14 @@ func _process(delta: float) -> void:
 	var day_angle: float = lerp(-20.0, -160.0, _day_t)
 	_sun.rotation_degrees.x = day_angle
 	var daylight := clampf(sin(_day_t * PI), 0.0, 1.0)
-	_sun.light_energy = (0.3 + 0.85 * daylight) * (0.65 if _storm else 1.0)
-	_env.ambient_light_energy = 0.3 + 0.5 * daylight
+	var storm_flash := 1.0
+	if _flash_time > 0.0:
+		_flash_time -= delta
+		var fade := clampf(_flash_time / 0.35, 0.0, 1.0)
+		var flicker: float = 0.5 + 0.5 * sin(_flash_time * 47.0)
+		storm_flash = 1.0 + 2.1 * flicker * fade
+	_sun.light_energy = (0.3 + 0.85 * daylight) * (0.65 if _storm else 1.0) * storm_flash
+	_env.ambient_light_energy = (0.3 + 0.5 * daylight) * storm_flash
 	_env.fog_density = float(_cfg["fog_density"]) * (1.55 if _storm else 1.0) * (1.0 + 0.5 * (1.0 - daylight))
 	var horizon_day: Color = _cfg["sky_horizon"]
 	var horizon_night := Color(0.02, 0.02, 0.06)

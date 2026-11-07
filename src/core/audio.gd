@@ -5,7 +5,7 @@ var _streams: Dictionary = {}
 
 const NAMES := [
 	"swing", "hit", "heavy_hit", "parry", "posture_break", "potion",
-	"rupture", "quest_done", "levelup", "click", "herb", "death",
+	"rupture", "quest_done", "levelup", "click", "herb", "death", "thunder",
 ]
 
 func _ready() -> void:

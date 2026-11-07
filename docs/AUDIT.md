@@ -321,3 +321,46 @@ repouso + Bálsamo); romances com memória de ações; streaming/chuva/NPC
 pathfinding (v0.5); EN/ES runtime, narração incremental por botão,
 performance medida (v1.0); teste com humanos e F5 com display continuam
 geradores de valor reais que este ambiente não pode produzir.
+
+---
+
+# 11. Addendum — Auditoria completa e retoma de trabalho em voo (2026-11-07)
+
+Pedido do dono: «faça uma auditoria para ver o que falta e continua fazendo
+e retificando sem parar». A auditoria começou com a **working tree suja**:
+uma implementação em voo (v0.5 tempestade + v1.0 narração/perf + v0.6
+curandeiro) não verificada — nada dela foi escrito nesta sessão; tudo foi
+revisto, verificado e integrado antes de commitar.
+
+**O que a auditoria encontrou e fez:**
+1. **Tempestade visível (v0.5)**: chuva GPUParticles3D (900 gotas) que
+   acompanha o jogador + relâmpagos (flash de sol/ambiente, flicker) +
+   trovoada sintetizada (`thunder.wav`, pré-carrega via `Audio` com
+   fallback silencioso). O gatilho **já existia** (`_storm = randf() < 0.3`
+   por visita) — o diff enganava; não "corrigi" o que não estava quebrado.
+2. **NPC — desvio de obstáculos (sec. 9)**: leque de raios a ±40°/±80°/±120°
+   a partir de 1.5 m à frente (máscara 1, exclui o próprio corpo). **Não é
+   A\*/navmesh** — um NPC preso entre dois obstáculos pode ficar sem dir
+   (sem regressão: antes atravessava props às cegas).
+3. **Narração incremental por botão (v1.0)**: `GameState.tts_say` partilhado;
+   foco/hover lê o botão (menus, pausa, diálogos, viagem rápida). Gate por
+   `menu_narration` — silenciosa se desligado ou sem vozes no sistema.
+4. **Remendo do curandeiro (sec. 8, v0.6)**: −1 nível de lesão por 45 marcos
+   na loja do Garr (`try_spend_marcos`/`heal_injury` em GameState — guarda
+   testada). Cura total continua a ser o Bálsamo.
+5. **Sonda de performance** (`tools/perf_probe.tscn`): CPU-side headless —
+   ms de frame/física, memória estática, objetos/nós/órfãos (este commit:
+   0.34 ms proc / 0.50 ms fis / 118.6 MB / 4250 obj / 1122 nós / **0
+   órfãos**). **Números headless não predizem GPU/Android** — exigem F5 em
+   hardware real.
+6. **smoke_test alargado**: 22/22 PASS (guarda de marcos ×2, remendo).
+7. **Gate reforçado** (v0.6): `headless_check.sh` falha em SCRIPT ERROR —
+   adotado depois de o parse error de ui.gd ter matado o autoload UI sem
+   falhar o build.
+8. **Docs alinhados**: BUILD (13→22, bug #9), ROADMAP (chuva/trovoada,
+   curandeiro, narração por botão, sonda), LOCALIZATION 405/408→**411**.
+
+**Não feito (explícito):** streaming por grid cells (v0.5 — a peça maior);
+meta-quests globais Ferida/Custódia; romances com memória de ações; EN/ES
+runtime; escolha de voz TTS; teste com humanos; F5/GPU/Android; perfil
+real de performance.

@@ -83,17 +83,24 @@ res://tools/smoke_flows.tscn  # 5 asserções de fluxo; exit 0 = tudo verde
 | 5 | `tts_is_speaking_available()` não existe | removido; `tts_get_voices()` vazio ⇒ silêncio |
 | 6 | Inferência `:=` a partir de valores Variant (warnings tratados como erros) | anotações explícitas em ~15 locais |
 | 8 | (harness) smoke_flows ficava **eternamente sem output**: a Sala Branca pausa a árvore na avaliação e o runner processava em modo INHERIT | runner em `PROCESS_MODE_ALWAYS` + despausar ao trocar de cena |
+| 9 | **Ui.gd não compilava** (`var x := ["A","B"][i]` — GDScript não infere tipo de literal indexado) — o autoload UI morreu e a Sala Branca rebentou em cadeia | tipo explícito (`var x: String = ...`); `headless_check.sh` passou a falhar em SCRIPT ERROR/autoload morto |
 | 7 | **Checksum do save impossível de validar**: o JSON do Godot devolve sempre floats (`1`→`1.0`) — saves **nunca** carregavam | serialização canónica (`_canonical_save`) partilhada entre save e load; **todos os saves anteriores são inválidos** (mas já o eram — o load devolvia sempre «adulterada») |
 
 ## Estado de validação após a correção
 
 - 5 cenas (`title`, `main`, `academia`, `region`, `sala_branca`) carregam e
   correm 120–240 frames headless **sem SCRIPT ERROR**.
-- `tools/smoke_test.tscn`: **13/13** — boot do mundo, subir de nível por XP,
+- `tools/smoke_test.tscn`: **22/22** — boot do mundo, subir de nível por XP,
   desbloqueio de técnicas (Passo Vazio/Queda do Colosso), curva de XP e
   cura da poção via `balance.json`, **save/load roundtrip**, dano real a um
   inimigo instanciado em runtime, **salto + ataques aéreos + slam de queda**
-  (dano de área real).
+  (dano de área real), lesões graduadas 0–2, fadiga de treino (bloqueio no
+  MÁX), guarda de marcos e remendo do curandeiro.
+- `tools/perf_probe.tscn`: sonda de performance CPU-side (headless) —
+  fps de processo, ms de frame/física, memória estática, contagem de
+  objetos/nós/órfãos. Não substitui profiling em hardware real (F5).
+- `tools/headless_check.sh`: o gate falha se qualquer cena emite
+  SCRIPT ERROR/Parse Error/autoload falhado (desde v0.6).
 - `tools/smoke_flows.tscn`: **5/5** — fluxos completos: Sala Branca (simulação
   até à avaliação; a árvore pausa como deve → o runner processa em ALWAYS),
   Academia (Prova de Duelo vencida → `exams_done["duelo"]`, lealdade de Bram

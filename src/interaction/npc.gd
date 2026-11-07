@@ -10,6 +10,7 @@ const ROOTED_IDS := ["elen", "garr", "dario", "voss", "liora", "liora_academia",
 
 var _t: float = 0.0
 var visual: Node3D
+var _self_rids: Array[RID] = []
 var _anchor: Vector3 = Vector3.ZERO
 var _waypoints: Array[Vector3] = []
 var _wp_index: int = 0
@@ -129,6 +130,7 @@ func _build_collision() -> void:
 	col.position.y = 0.88
 	body.add_child(col)
 	add_child(body)
+	_self_rids = [body.get_rid()]
 
 ## Rotina simples em anel: vagueia entre 3 pontos à volta do posto,
 ## para junto de cada um, e fica quieto quando o jogador está perto.
@@ -148,10 +150,31 @@ func _update_routine(delta: float) -> void:
 		_wp_index = (_wp_index + 1) % _waypoints.size()
 		_wait_timer = randf_range(2.0, 6.0)
 		return
-	var step := to_t.normalized() * 0.55 * delta
+	var want := to_t.normalized()
+	var dir := _walkable_dir(want)
+	if dir.length_squared() < 0.001:
+		return
+	var step := dir * 0.55 * delta
 	global_position = global_position + step
 	if visual:
 		visual.rotation.y = lerp_angle(visual.rotation.y, atan2(step.x, step.z), 5.0 * delta)
+
+## Desvio de obstáculos (sec. 9): raio à frente; se houver bloqueio, tenta
+## desviar a ±40°/±80°/±120°. Não é pathfinding A* (exigiria navmesh baked);
+## é o suficiente para não atravessarem props e muros.
+func _walkable_dir(want: Vector3) -> Vector3:
+	var space := get_world_3d().direct_space_state
+	if space == null:
+		return want
+	var from := global_position + Vector3(0.0, 0.9, 0.0)
+	var angles: Array[float] = [0.0, 0.7, -0.7, 1.4, -1.4, 2.1, -2.1]
+	for a in angles:
+		var dir := want.rotated(Vector3.UP, a)
+		var params := PhysicsRayQueryParameters3D.create(from, from + dir * 1.5, 1)
+		params.exclude = _self_rids
+		if space.intersect_ray(params).is_empty():
+			return dir
+	return Vector3.ZERO
 
 func _mat(color: Color) -> StandardMaterial3D:
 	var m := StandardMaterial3D.new()

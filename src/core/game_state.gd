@@ -382,6 +382,36 @@ func lock_range() -> float:
 func rupture_gain_mult() -> float:
 	return 1.0 + float(int(attributes["ada"]) - 1) * 0.08
 
+## Falla um texto em voz alta (TTS do sistema). Respeita o interruptor de
+## narração de menus; silencioso se não houver vozes no sistema.
+func tts_say(text: String) -> void:
+	if not menu_narration:
+		return
+	var voices := DisplayServer.tts_get_voices()
+	if voices.is_empty():
+		return
+	var voice_id := String(voices[0].get("id", ""))
+	if voice_id.is_empty():
+		return
+	DisplayServer.tts_speak(text, voice_id)
+
+## Gasta marcos com guarda (lojas/forja); false e aviso se não chegar.
+func try_spend_marcos(amount: int) -> bool:
+	var cost: int = maxi(0, amount)
+	if marcos < cost:
+		notify("Sem marcos suficientes (%d)." % cost)
+		return false
+	marcos -= cost
+	return true
+
+## Remendo do curandeiro (sec. 8): cura `levels` níveis de lesão; devolve curados.
+func heal_injury(levels: int) -> int:
+	var healed: int = mini(injury, maxi(0, levels))
+	if healed > 0:
+		injury -= healed
+		stats_changed.emit()
+	return healed
+
 func add_rupture(amount: float) -> void:
 	if rupture_time_left > 0.0:
 		return

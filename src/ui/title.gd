@@ -100,6 +100,8 @@ func _build() -> void:
 func _menu_button(text: String, size: int) -> Button:
 	var btn := Button.new()
 	btn.text = text
+	btn.focus_entered.connect(func(): GameState.tts_say(btn.text))
+	btn.mouse_entered.connect(func(): GameState.tts_say(btn.text))
 	btn.custom_minimum_size = Vector2(300, 52 if size > 16 else 44)
 	btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn.add_theme_font_size_override("font_size", size)

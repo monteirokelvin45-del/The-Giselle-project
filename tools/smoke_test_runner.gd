@@ -76,6 +76,14 @@ func _process(_delta: float) -> void:
 		GameState.fatigue = 0
 		GameState.load_game()
 		_check(GameState.injury == 2 and GameState.fatigue == 3, "save/load devolve lesão e fadiga")
+		GameState.marcos = 10
+		var pobre: bool = GameState.try_spend_marcos(45)
+		_check(not pobre and GameState.marcos == 10, "guarda de marcos recusa compra sem fundos")
+		GameState.injury = 2
+		var curados: int = GameState.heal_injury(1)
+		_check(curados == 1 and GameState.injury == 1, "remendo do curandeiro cura 1 nível de lesão")
+		GameState.marcos = 100
+		_check(GameState.try_spend_marcos(45), "guarda de marcos aceita compra com fundos")
 		GameState.marcos = 500
 		GameState.rest()
 		var trained: bool = GameState.try_train_attribute()

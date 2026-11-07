@@ -138,6 +138,13 @@ func _on_dialogue_action(action: String) -> void:
 				GameState.injury = 0
 				GameState.notify("Lesões tratadas. Vida e fôlego restaurados.")
 				GameState.stats_changed.emit()
+		"shop_remendo":
+			if GameState.injury <= 0:
+				GameState.notify("Estás inteiro — não tens lesões.")
+			elif GameState.try_spend_marcos(45):
+				var healed := GameState.heal_injury(1)
+				GameState.notify("Remendo do curandeiro: %d nível(is) de lesão tratada(s)." % healed)
+				GameState.stats_changed.emit()
 		"shop_elixir":
 			if _buy(120, "Elixir do Sistema"):
 				GameState.add_rupture(50.0)

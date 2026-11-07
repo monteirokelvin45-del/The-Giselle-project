@@ -66,10 +66,12 @@ Missão principal completa + 2 secundárias, combate com parry/postura/Ruptura,
 Vale de Noro (polido) → Floresta de Ruun → Deserto de Sahr → Montanhas de Khar
 → Arquipélago de Lume → Ilhas de Aer → Abismo de Orun.
 Streaming de mundo (grid cells) [ ] por fazer; clima dinâmico [x] (tempestade
-por região — névoa/luz/ambente; ainda sem chuva visível); ciclo dia/noite
-[x]; NPCs com rotinas [x] (vagueio simples em anel de 3 pontos; sem
-pathfinding — podem roçar props; quest-givers enraizados); viagem rápida [x]
-por faróis.
+sorteada à chegada — 30% — com **chuva visível** (GPUParticles3D de 900 gotas
+que acompanham o jogador), **relâmpagos com trovoada** (flash de sol/ambiente
++ wav sintetizado) e névoa reforçada); ciclo dia/noite [x]; NPCs com rotinas
+[x] (vagueio em anel de 3 pontos; **desvio de obstáculos por leque de raios**
+±40°/±80°/±120° — não é A*/navmesh, mas não atravessam props/muros;
+quest-givers enraizados); viagem rápida [x] por faróis.
 
 ## v0.6 — Sistemas de RPG profundos (sec. 17, 18, 26–29)
 - Facções com reputação, missões e traições (Conselho Imperial, Irmandade do
@@ -84,7 +86,9 @@ por faróis.
 - [x] **Treino com mestres** (sec. 8, 2026-11-06): Mestre Dario — 120 marcos → +1
       ponto de atributo e +1 fadiga (máx 3); fadiga bloqueia o treino até descansar
       (travão anti-grind do GDD). Verificado headless (19/19).
-- [ ] Medicamentos e curandeiros dedicados (recuperação detalhada do GDD sec. 8).
+- [x] **Medicamentos/curandeiro** (sec. 8, 2026-11-06): Remendo do curandeiro —
+      45 marcos, −1 nível de lesão (loja do Garr; guarda de marcos
+      `try_spend_marcos`). Cura total continua a ser o Bálsamo de Salvação.
 - [ ] Romances com memória de ações (mentir/proteger/quebrar promessas).
 
 ## v0.7 — Política e finais (sec. 23–25) ✅
@@ -119,21 +123,26 @@ por reputação, decisões e estado do mundo.
       Sistema) + interruptor no menu de pausa; save corruption-proofing
       já existia (sha256 + .tmp atómico + .bak).
 - [x] **Localização — andaime**: `tools/l10n_extract.py` +
-      `docs/l10n/strings_pt.csv` (408 strings) + `docs/LOCALIZATION.md`.
+      `docs/l10n/strings_pt.csv` (411 strings) + `docs/LOCALIZATION.md`.
 - [x] **Engine executada neste ambiente**: Godot 4.7.2 compilado do
       código-fonte (headless linuxbsd); 5 cenas em smoke boot limpas; 11
-      asserções de jogabilidade verdes (save/load, XP, técnicas, combate
+      22 asserções de jogabilidade verdes (save/load, XP, técnicas, combate
       real, salto/ataques aéreos/slam de queda) + fluxos completos (Sala
       Branca → avaliação; Prova de Duelo → Bram). Ver `docs/BUILD.md` e
       `docs/AUDIT.md` §9.
 - [x] Assistência de mira suave nos ataques corpo a corpo (o corpo vira
       para o alvo mais próximo ao alcance — desligável na pausa).
-- [~] Narração de menus: as notificações são lidas por TTS do sistema
-      (desligável na pausa); ainda não há narração incremental por botão
-      nem escolha de voz.
+- [x] **Narração por botão** (2026-11-06): foco/hover de botões nos menus,
+      diálogos e viagem rápida lê o texto por TTS (partilhado por
+      `GameState.tts_say`).
+- [~] Escolha de voz para a narração (TTS usa sempre a primeira voz do
+      sistema) e narração incremental por botão em ecrãs ainda sem wiring.
 - [ ] Testes com jogadores reais (algo que este repositório ainda não pode
       fazer).
 - [ ] Traduções EN/ES (o runtime ainda não troca de idioma — ver
       docs/LOCALIZATION.md).
-- [ ] Performance medida (LOD, draw calls, profiling em hardware real).
+- [~] **Sonda de performance** criada (`tools/perf_probe.tscn`, headless,
+      CPU-side: ms de frame/física, memória estática, objetos/nós/órfãos).
+      Medição em hardware real (GPU/LOD/draw calls) continua em aberto —
+      exige F5 numa máquina com os drivers do alvo (Android).
 - [ ] Meta-quests globais completas (ver v0.7).

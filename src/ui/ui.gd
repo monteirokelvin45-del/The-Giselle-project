@@ -124,12 +124,7 @@ func _cycle_narration() -> void:
 	notify("Narração de menus %s." % ("ativada" if GameState.menu_narration else "desligada"))
 
 func _tts_say(text: String) -> void:
-	var voices := DisplayServer.tts_get_voices()
-	if voices.is_empty():
-		return   # sistema sem vozes TTS — silencioso por omissão
-	var voice_id := String(voices[0].get("id", ""))
-	if not voice_id.is_empty():
-		DisplayServer.tts_speak(text, voice_id)
+	GameState.tts_say(text)
 
 func _difficulty_text() -> String:
 	return "Dificuldade: %s  ⟳" % GameState.difficulty_label()
@@ -798,6 +793,9 @@ func _make_button(text: String, callback: Callable) -> Button:
 	pressed.bg_color = Color(0.3, 0.27, 0.22, 1.0)
 	btn.add_theme_stylebox_override("normal", normal)
 	btn.add_theme_stylebox_override("hover", hover)
+	# Narração por botão (v1.0): lê o texto ao focar/passar o rato, se ativada.
+	btn.focus_entered.connect(func(): GameState.tts_say(btn.text))
+	btn.mouse_entered.connect(func(): GameState.tts_say(btn.text))
 	btn.add_theme_stylebox_override("pressed", pressed)
 	btn.pressed.connect(func(): Audio.play("click"); callback.call())
 	return btn
@@ -906,6 +904,8 @@ func _make_travel_button(text: String) -> Button:
 	btn.add_theme_stylebox_override("disabled", disabled_style)
 	btn.add_theme_color_override("font_color", Color(0.95, 0.87, 0.6))
 	btn.add_theme_color_override("font_disabled_color", Color(0.55, 0.55, 0.57))
+	btn.focus_entered.connect(func(): GameState.tts_say(btn.text))
+	btn.mouse_entered.connect(func(): GameState.tts_say(btn.text))
 	return btn
 
 func _build_map() -> void:

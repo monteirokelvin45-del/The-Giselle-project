@@ -260,6 +260,7 @@ const TREES := {
 			{"text": "Poção — 30 marcos", "action": "shop_potion"},
 			{"text": "Prego de Ruptura — 45 marcos (+25 Ruptura)", "action": "shop_prego"},
 			{"text": "Bálsamo de Salvação — 60 marcos (vida completa + trata lesões)", "action": "shop_balsamo"},
+			{"text": "Remendo do curandeiro — 45 marcos (−1 nível de lesão)", "action": "shop_remendo"},
 			{"text": "Elixir do Sistema — 120 marcos (+50 Ruptura)", "action": "shop_elixir"},
 			{"text": "Forjar poção — 2 Fibras de Ruína + 10 marcos", "action": "craft_potion"},
 			{"text": "Forjar Bálsamo — 3 Fibras de Ruína + 20 marcos", "action": "craft_balsamo"},
@@ -386,6 +387,7 @@ func _show_node(node_id: String) -> void:
 		var next_id := String(choice.get("next", ""))
 		var action := String(choice.get("action", ""))
 		btn.pressed.connect(func(): _on_choice(next_id, action))
+		btn.mouse_entered.connect(func(): GameState.tts_say(btn.text))
 		btn.focus_mode = Control.FOCUS_NONE
 		_choices_box.add_child(btn)
 	_hint_label.visible = choices.is_empty()
