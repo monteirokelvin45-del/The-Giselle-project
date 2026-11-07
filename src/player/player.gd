@@ -509,12 +509,12 @@ func _do_attack(heavy: bool) -> void:
 	attack_performed.emit()
 	var combo_idx := _combo % 3
 	var base: float = [12.0, 14.0, 17.0][combo_idx] if not heavy else 34.0
+	var sprint_strike := _sprinting and not heavy
 	var reach := 2.4 if not heavy else 2.8
 	if sprint_strike:
 		reach += 0.4
 	var posture_dmg := (12.0 if not heavy else 30.0) * GameState.posture_mult()
 	var mult := GameState.damage_mult() * (1.5 if GameState.rupture_time_left > 0.0 else 1.0)
-	var sprint_strike := _sprinting and not heavy
 	if sprint_strike:
 		mult *= 1.25
 	if _next_attack_bonus:

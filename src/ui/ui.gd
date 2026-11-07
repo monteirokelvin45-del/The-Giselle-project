@@ -767,12 +767,16 @@ func _process(delta: float) -> void:
 		_rupture_ready.visible = GameState.rupture >= 100.0
 		if _rupture_ready.visible:
 			_rupture_ready.modulate.a = 0.6 + 0.4 * sin(_time * 6.0)
-		# Ligações de sinais do jogador (uma vez)
-		if not _hit_marker_hooked and p.has_signal("attack_landed"):
-			p.attack_landed.connect(_on_hit_landed)
+		# Ligações de sinais do jogador (uma vez) — Object + lookup por
+		# string: o compilador não conhece os sinais em Node3D tipado
+		var p_obj: Object = p
+		if not _hit_marker_hooked and p_obj.has_signal("attack_landed"):
+			var sig_hit: Signal = p_obj.get("attack_landed")
+			sig_hit.connect(_on_hit_landed)
 			_hit_marker_hooked = true
-		if not _damage_hooked and p.has_signal("damaged"):
-			p.damaged.connect(_on_player_damaged)
+		if not _damage_hooked and p_obj.has_signal("damaged"):
+			var sig_dmg: Signal = p_obj.get("damaged")
+			sig_dmg.connect(_on_player_damaged)
 			_damage_hooked = true
 		# Barras de vida/postura do alvo fixado
 		var locked: Node3D = p.get("locked_enemy")
