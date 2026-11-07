@@ -418,3 +418,33 @@ lentas) alargado para frame≥120 e re-verificado 3× consecutivas verdes.
 testes com humanos, profiling em hardware real, meta-quests globais
 (Ferida/Custódia), romances com memória de ações (exige conteúdo de
 escolha novo — sem isso seria maquilhagem).
+
+---
+
+# 14. Addendum — CI no GitHub Actions (2026-11-07)
+
+**O que foi pesquisado no GitHub e usado:** (1) releases oficiais de
+`godotengine/godot` — confirmado o asset `Godot_v4.7.2-stable_linux.x86_64.zip`
+(o sandbox não o alcança; os runners GitHub alcançam); (2) PR #1 — sem checks
+(nenhuma CI existia); (3) `gdtoolkit` no PyPI (fornece `gdparse`, usado por
+`validate.py` — ausente nos runners).
+
+**Entregue:** `.github/workflows/headless-smoke.yml` (checkout → libs
+`libfontconfig1/libx11-6/libgl1/...` → binário oficial 4.7.2-stable →
+`requirements-dev.txt` → `validate.py` → `headless_check.sh` → smoke_test →
+smoke_flows; `ubuntu-latest`, timeout 20 min, `concurrency` cancela runs
+obsoletos). Badge no README; `requirements-dev.txt` novo.
+
+**Falhou 1× e foi corrigido de forma visível:** o primeiro run morreu no
+`validate.py` (`gdparse` não existe nos runners — o binário vive em
+`/usr/local`, que NÃO persiste entre sessões neste sandbox). Correção:
+`gdtoolkit` instalado no CI + erro claro em `validate.py` se faltar +
+`checkout@v5`. Segundo run: **verde em 58 s** — e o PR #1 passou a mostrar
+`Import + smoke (headless) — pass — 1m3s`.
+
+**O que o CI prova:** compilação/parse de scripts (gdparse + engine),
+import de recursos, boot das 5 cenas sem erros, 24 asserções de jogabilidade,
+5 fluxos completos — fora do meu sandbox, por commit. **O que não prova**
+(o limite natural): correção visual, GPU/GL Compatibility, Android,
+testes com humanos, performance real. Continuam a exigir F5 na máquina do
+dono do projeto.

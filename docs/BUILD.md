@@ -48,6 +48,20 @@ automaticamente. Instalado e verificado: `scons` 4.11.1, `cmake` 4.4.4, `shellch
 
 Os scripts shell do repositório passam `shellcheck -S style` limpos.
 
+## CI (GitHub Actions)
+
+`.github/workflows/headless-smoke.yml` corre em cada push para esta branch e
+no PR para `main`: descarrega o binário oficial `Godot_v4.7.2-stable_linux.x86_64.zip`
+da release do Godot no GitHub (api.github.com/objects.githubusercontent.com —
+inacessíveis no sandbox de desenvolvimento, mas disponíveis nos runners),
+instala `requirements-dev.txt` (gdtoolkit) e corre: `validate.py` →
+`tools/headless_check.sh` → `smoke_test.tscn` → `smoke_flows.tscn`. O gate
+do headless_check **falha em qualquer SCRIPT ERROR**.
+
+Resultado na branch: **verde** (58 s) — validate OK · 5 cenas limpas · 24/24 ·
+5/5. CI não prova correção visual, GPU, testes com humanos nem Android
+(primeiro F5 continua na máquina do dono).
+
 ## Como foi feito
 
 ```bash

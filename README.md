@@ -1,5 +1,7 @@
 # A Academia do Zero
 
+[![CI — Godot headless smoke](https://github.com/monteirokelvin45-del/The-Giselle-project/actions/workflows/headless-smoke.yml/badge.svg)](https://github.com/monteirokelvin45-del/The-Giselle-project/actions/workflows/headless-smoke.yml)
+
 <img src="assets/art/key_art.jpg" alt="Kael Noro acima da vila de Noro, com a Academia Real ao fundo" width="560">
 
 **RPG de ação em terceira pessoa, de mundo aberto, sobre um rapaz sem magia num mundo que adora magia.**
@@ -194,25 +196,32 @@ src/
 assets/models/           # modelos CC0: characters/ env/ (KayKit), creatures/ (Quaternius), nature/ (gobkit) — ver docs/ASSETS.md
 assets/art/              # key art (título) + referência de personagem (kael_reference.jpg)
 assets/audio/            # SFX sintetizados (tools/synth_audio.py)
-tools/                   # validate.py (checagens) e synth_audio.py
+tools/                   # validate.py, headless_check.sh, smoke_*.tscn, perf_probe.tscn
 docs/                    # GDD.md, ROADMAP.md, ASSETS.md, licenses/
 ```
 
 ## Ferramentas de qualidade
 
 ```bash
-# validar estrutura do projeto (sem a engine):
-python3 tools/validate.py
+# dependências de dev (gdparse/gdtoolkit — o resto é só a engine):
+pip3 install -r requirements-dev.txt
+python3 tools/validate.py                        # estrutura: gdparse, caminhos res://, .tscn
 
 # regenerar SFX (WAV 16-bit, 22050 Hz):
 python3 tools/synth_audio.py
 
-# validar dentro da engine (requer binário Godot 4.7.2 — ver docs/BUILD.md):
-tools/headless_check.sh /caminho/para/godot     # import + boot das 5 cenas
-tools/headless_check.sh                          # (ou `godot` no PATH)
-godot --headless --path . res://tools/smoke_test.tscn   # 13 asserções de jogabilidade
+# validar dentro da engine (Godot 4.7.2 — ver docs/BUILD.md; ferramentas de
+# ambiente persistente em tools/setup_env.sh + tools/godot.sh):
+tools/headless_check.sh /caminho/para/godot      # import + boot das 5 cenas (falha em SCRIPT ERROR)
+godot --headless --path . res://tools/smoke_test.tscn   # 24 asserções de jogabilidade
 godot --headless --path . res://tools/smoke_flows.tscn  # 5 asserções de fluxo (Sala Branca → Academia)
+godot --headless --path . res://tools/perf_probe.tscn   # sonda de performance CPU-side
 ```
+
+**CI**: cada push/PR corre o [workflow headless smoke](.github/workflows/headless-smoke.yml) no
+GitHub Actions — validate.py, import de recursos, boot das 5 cenas (o gate
+**falha em erros de script**), 24 asserções de jogabilidade e os 5 fluxos
+Sala Branca/Academia, com o binário oficial do Godot 4.7.2-stable.
 
 ## Licença e autoria
 
