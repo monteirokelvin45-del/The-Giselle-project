@@ -31,6 +31,10 @@ var _lunge: Vector3 = Vector3.ZERO
 var _knockback: Vector3 = Vector3.ZERO
 var _facing: float = 0.0
 var _breath_t: float = 0.0
+var _was_on_floor: bool = true
+var _coyote_timer: float = 0.0
+var _jump_buffer_timer: float = 0.0
+var _sprinting: bool = false
 
 var _anim_player: AnimationPlayer = null
 var _anim_lock: float = 0.0
@@ -118,12 +122,14 @@ func _use_technique(id: String) -> void:
 			global_position = global_position + forward * 8.0
 			_invuln_timer = maxf(_invuln_timer, 0.6)
 			technique_cooldowns[id] = 14.0
-			mf.spawn_hit_burst(get_tree(), start, Color(0.65, 0.45, 1.0))
-			mf.spawn_hit_burst(get_tree(), global_position, Color(0.65, 0.45, 1.0))
+			mf.spawn_hit_burst(get_tree(), start, Color(0.65, 0.45, 1.0), 0.8)
+			mf.spawn_afterimage(get_tree(), start, Color(0.65, 0.45, 1.0))
+			mf.spawn_afterimage(get_tree(), global_position, Color(0.65, 0.45, 1.0))
 			GameState.notify("PASSO VAZIO — o mundo não te viu passar.")
 			Audio.play("dodge", 1.5, 0.65)
 		"corrida_predador":
 			_lunge = forward * 11.0
+			mf.spawn_afterimage(get_tree(), global_position, Color(0.85, 0.6, 0.25))
 			_pred_buff = 4.0
 			_next_attack_bonus = true
 			technique_cooldowns[id] = 16.0
@@ -142,7 +148,7 @@ func _use_technique(id: String) -> void:
 				to_e.y = 0.0
 				if to_e.length() <= 4.5 and enemy.has_method("take_damage"):
 					enemy.take_damage(55.0, 80.0, self)
-			mf.spawn_hit_burst(get_tree(), global_position, Color(0.9, 0.7, 1.0))
+			mf.spawn_hit_burst(get_tree(), global_position, Color(0.9, 0.7, 1.0), 1.6)
 			add_shake(1.1)
 			_hit_stop(0.18)
 			GameState.notify("QUEDA DO COLOSSO.")
@@ -441,6 +447,8 @@ func _try_chain() -> void:
 	if nearest.has_method("take_damage"):
 		nearest.take_damage(10.0 * GameState.damage_mult(), 25.0 * GameState.posture_mult(), self)
 	GameState.add_rupture(8.0)
+	var mf := preload("res://src/visuals/model_factory.gd")
+	mf.spawn_hit_burst(get_tree(), nearest.global_position, Color(1.0, 0.9, 0.6), 0.8)
 	Audio.play("heavy_hit", -2.0, 1.3)
 	GameState.notify("Corrente de Âncora!")
 
@@ -630,13 +638,27 @@ func _physics_process(delta: float) -> void:
 
 	var rupture_active: bool = GameState.rupture_time_left > 0.0
 
-	# Gravidade + Salto (X / D-pad cima)
+	# Gravidade + Salto com coyote time e jump buffer (correr → saltar sem
+	# perder o salto no último passo)
+	var jump_cfg: Dictionary = Balance.jump_cfg()
 	if not is_on_floor():
 		velocity.y -= GRAVITY * delta
 	else:
 		velocity.y = maxf(velocity.y, -0.5)
-	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = float(Balance.jump_cfg().get("velocity", 8.2))
+	if _was_on_floor and not is_on_floor():
+		_coyote_timer = float(jump_cfg.get("coyote", 0.12))
+	elif _coyote_timer > 0.0:
+		_coyote_timer = maxf(0.0, _coyote_timer - delta)
+	if _jump_buffer_timer > 0.0:
+		_jump_buffer_timer = maxf(0.0, _jump_buffer_timer - delta)
+	var jump_blocked := Dialogue.active or UI.is_blocking()
+	if Input.is_action_just_pressed("jump") and not jump_blocked:
+		_jump_buffer_timer = float(jump_cfg.get("jump_buffer", 0.12))
+	if _jump_buffer_timer > 0.0 and (_coyote_timer > 0.0 or is_on_floor()) and not jump_blocked:
+		velocity.y = float(jump_cfg.get("velocity", 8.2))
+		_jump_buffer_timer = 0.0
+		_coyote_timer = 0.0
+		_was_on_floor = false
 
 	# Bloqueio (segurar Q)
 	_blocking = Input.is_action_pressed("block") and stamina > 0.0
@@ -645,6 +667,7 @@ func _physics_process(delta: float) -> void:
 
 	var input_dir := _input_vector()
 	var sprinting := Input.is_action_pressed("sprint") and input_dir.length() > 0.1 and stamina > 1.0 and not _blocking
+	_sprinting = sprinting
 	var speed := GameState.move_speed()
 	if sprinting:
 		speed *= 1.45
@@ -707,14 +730,25 @@ func _physics_process(delta: float) -> void:
 	# Interagíveis
 	current_interactable = _find_interactable()
 
+	var was_airborne := not is_on_floor()
+	var impact_vy := velocity.y
+
 	_update_animation(delta, input_dir)
 
 	move_and_slide()
+
+	# Aterragens pesadas: pequeno impacto cinematográfico + pó
+	if was_airborne and is_on_floor() and impact_vy < -13.0:
+		add_shake(0.18)
+		var mfd := preload("res://src/visuals/model_factory.gd")
+		mfd.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, -1.05, 0.0), Color(0.62, 0.55, 0.45), 0.8)
 
 	# Slam de queda: pesado usado no ar explode ao aterrar
 	if _air_slam_pending and is_on_floor():
 		_air_slam_pending = false
 		_land_slam()
+
+	_was_on_floor = is_on_floor()
 
 	# Limites do mundo
 	global_position.x = clampf(global_position.x, -62.0, 62.0)
@@ -738,6 +772,14 @@ func _land_slam() -> void:
 
 func _update_camera(delta: float) -> void:
 	var chest := global_position + Vector3(0.0, CAM_HEIGHT, 0.0)
+	var target_fov := 62.0
+	if _sprinting:
+		target_fov = 66.0
+	if _pred_buff > 0.0:
+		target_fov = 69.0
+	if GameState.rupture_time_left > 0.0:
+		target_fov += 2.0
+	camera.fov = lerpf(camera.fov, target_fov, 6.0 * delta)
 	var offset := Vector3(sin(_yaw) * cos(_pitch), sin(_pitch), cos(_yaw) * cos(_pitch)) * _cam_dist
 	# Evitar que a câmara atravesse paredes
 	cam_ray.global_position = chest
@@ -792,6 +834,7 @@ func take_damage(amount: float, from_node: Node3D = null) -> void:
 				if from_node.has_method("stagger_brief"):
 					from_node.stagger_brief(1.1)
 			GameState.notify("Parry perfeito!")
+			_hit_stop(0.06)
 			return
 		final = amount * 0.28
 		stamina -= 9.0

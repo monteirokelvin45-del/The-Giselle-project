@@ -696,3 +696,25 @@ asserção passou no push seguinte com o mesmo código).
 **Pendente:** a geração das 6 folhas em falta (Bram, Sena, Iven, Voss,
 Cadena, Vladimir) — limite de imagem da ferramenta (10 por turno, atingido
 duas vezes nesta sessão).
+
+---
+
+# 21. Addendum — Movimento e poderes (v1.3, 2026-11-07)
+
+**Pedido explícito:** «Movimento dos personagens, poderes, tudo bem feito
+passo por passo» (âmbito escolhido pelo dono: tudo — Kael, inimigos,
+companheiros/técnicas, feedback visual e equilíbrio).
+
+**Entregue:** coyote time + jump buffer (data-driven, com fallbacks),
+Aterragem pesada com impacto cinematográfico, FOV dinâmica da câmara
+(corrida/Predador/Ruptura), micro hit-stop no parry, afterimages nas técnicas
+de Kael, burst escalável em `spawn_hit_burst`, arremesso telegrafado e
+readable do Lobo de Cinza, glows de canalização/disparo do Mago de Cinza,
+fúria do Guardião a 50% de vida (rugido + sacode + tintura rubra).
+
+**Verificado:** gdparse nos alterados · validate.py ✓ · i18n 461/461
+(`O Guardião RUGE…` adicionado ao CSV) · smoke/boot via CI do push (ver
+execução do workflow na branch). **Limitações honestas:** o *game feel*
+final exige F5/GPU do dono; o foguete `_hit_stop` continua a usar a
+técnica `Engine.time_scale` (pré-existente); a Corrida do Predador usa FOV
+e não partículas (decisão: legível sem poluir o ecrã em GLES3).

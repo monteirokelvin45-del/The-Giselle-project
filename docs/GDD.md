@@ -857,3 +857,44 @@ Dario). Seis pendentes (Bram, Sena, Iven, Voss, Cadena, Vladimir) por limite
 da ferramenta de imagem na sessão; o jogo funciona sem elas (fallback
 invisível) e o código resolve-as assim que existirem. Ver
 `docs/CHARACTER.md` («Elenco — retratos»).
+
+## 44. Movimento e poderes — game feel (v1.3, 2026-11-07)
+
+**O quê.** Tratar o movimento e as habilidades como sistemas de qualidade,
+não como "funciona/salta": o corpo de Kael responde ao input como se fosse
+saído de um action de estúdio, e cada poder tem leitura, custo e
+recompensa legíveis.
+
+**Kael (player.gd)**
+- **Coyote time 0,12s + jump buffer 0,12s** (`balance.json → jump.coyote /
+  jump.jump_buffer`): saltar no último passo tem leitura e janela — nunca se
+  «perde» um salto por um frame.
+- **Aterragem pesada** (queda > 13 m/s): micro-shake (0,18) + nuvem de pó.
+- **Câmara FOV dinâmica**: 66 em corrida, 69 no buff da Corrida do Predador,
+  +2 durante a Ruptura — velocidade legível sem HUD.
+- **Parry perfeito**: micro hit-stop de 60 ms além do abalo existente.
+- **Passo Vazio**: afterimage violeta de origem/destino (fantasma 0,6s);
+  **Corrida do Predador**: afterimage âmbar na arrancada; **Queda do
+  Colosso**: burst alargado (×1,6); **Corrente de Âncora**: clarão dourado no
+  alvo.
+
+**Inimigos (enemy.gd)**
+- **Lobo de Cinza — arremesso telegrafado**: abaixa-se 0,38s (corpo inclinado,
+  som grave) → lança-se a 9 m/s; dano 12 na ligação; anulável por stun
+  (Corrente/E co de Forja), esquivável por timing. É a «assinatura» do lobo.
+- **Mago de Cinza**: clarão turquesa no início da canalização e no disparo —
+  o jogador sabe _quando_ a magia «fecha».
+- **Guardião da Prova — fúria a 50% de vida**: rugido, sacode o ecrã
+  (0,8), +18% velocidade, +15% dano, emissão rubra permanente na carne de
+  pedra — a segunda metade do combate muda de tom.
+
+**Modelo** — `model_factory.gd` ganha `spawn_afterimage` (cápsula não
+shaded translúcida, fade 0,55s) e `spawn_hit_burst` com `burst_scale`
+(default 1,0 — retrocompatível) — nenhum shader novo (GLES3).
+
+**Equilíbrio** — números de salto data-driven em `balance.json` (com
+fallbacks seguros em `balance.gd`); l10n 461/461; validate.py ✓.
+
+**Estado honesto.** Verificado estruturalmente (gdparse/validate/i18n + boot
++ smoke no CI). O *feeling* em si (quão justo sabe o arremesso, se o FOV
+nervoso durante o buff) só fecha com os olhos do dono — F5.

@@ -52,6 +52,12 @@ var _dead: bool = false
 var _anim_player: AnimationPlayer = null
 var _anim_lock: float = 0.0
 var _cast_windup: float = 0.0
+var _pounce_cooldown: float = 2.0
+var _pounce_windup: float = 0.0
+var _pouncing: float = 0.0
+var _pounce_hit: bool = false
+var _pounce_dir: Vector3 = Vector3.FORWARD
+var _enraged: bool = false
 
 var visual: Node3D
 
@@ -205,6 +211,9 @@ func _build_guardiao() -> void:
 		_box(visual, Vector3(0.5, 1.15, 0.5), Vector3(sx * 0.42, 0.55, 0), stone_dark)
 	_sphere(visual, 0.22, Vector3(0, 1.78, 0.36), core)
 
+func _set_surface_emission(mni: MeshInstance3D, surface: int, dup: StandardMaterial3D) -> void:
+	mni.set_surface_override_material(surface, dup)
+
 # ------------------------------------------------------------------- IA -----
 func _physics_process(delta: float) -> void:
 	if _dead:
@@ -256,6 +265,48 @@ func _physics_process(delta: float) -> void:
 		if visual:
 			visual.rotation.y = lerp_angle(visual.rotation.y, target_yaw, 8.0 * delta)
 
+	# Lobo de Cinza: arremesso telegrafado — a sua «habilidade»
+	# (abaixa-se 0,4s → lança-se a 9 m/s; anulável por stun, esquivável por timing)
+	if enemy_type == "wolf":
+		if _pounce_cooldown > 0.0:
+			_pounce_cooldown -= delta
+		if _pouncing > 0.0:
+			_pouncing -= delta
+			velocity.x = _pounce_dir.x * 9.0
+			velocity.z = _pounce_dir.z * 9.0
+			if not _pounce_hit and dist < 1.5:
+				_pounce_hit = true
+				if _player.has_method("take_damage"):
+					_player.take_damage(12.0, self)
+				_attack_cooldown = 1.2
+			_update_enemy_anim(delta)
+			move_and_slide()
+			return
+		if _pounce_windup > 0.0:
+			_pounce_windup -= delta
+			velocity.x = 0.0
+			velocity.z = 0.0
+			if visual:
+				visual.rotation.x = 0.3 * (1.0 - _pounce_windup / 0.38)
+			move_and_slide()
+			if _pounce_windup <= 0.0:
+				if visual:
+					visual.rotation.x = 0.0
+				_pounce_dir = to_player.normalized()
+				_pouncing = 0.42
+				_pounce_hit = false
+				_anim_lock = 0.42
+				if _anim_player != null:
+					var mfw := preload("res://src/visuals/model_factory.gd")
+					mfw.play_anim(_anim_player, "Gallop", 0.08, 0.42)
+				Audio.play("swing", -6.0, 0.6)
+			return
+		if _attack_cooldown <= 0.0 and _pounce_cooldown <= 0.0 and dist >= 3.0 and dist <= 8.0:
+			_pounce_windup = 0.38
+			_pounce_cooldown = 4.5
+			Audio.play("swing", -14.0, 0.45)
+			return
+
 	# Chefe: golpe de área telegrafado
 	if enemy_type == "guardiao" and _slam_telegraph != null:
 		_slam_timer -= delta
@@ -299,6 +350,8 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move.z * float(stats["speed"])
 		if _cast_timer <= 0.0 and dist < 19.0:
 			_cast_windup = 0.75
+			var mf_cast := preload("res://src/visuals/model_factory.gd")
+			mf_cast.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.6, 0.0), Color(0.35, 0.95, 0.88), 0.6)
 			if _anim_player != null:
 				var mf := preload("res://src/visuals/model_factory.gd")
 				mf.play_anim(_anim_player, "Spellcast_Raise", 0.1, 0.75)
@@ -319,15 +372,17 @@ func _physics_process(delta: float) -> void:
 				visual.rotation.x = 0.0
 			if dist < float(stats["range"]) + 0.7:
 				if _player.has_method("take_damage"):
-					_player.take_damage(float(stats["dmg"]), self)
+					var enrage_mult := 1.15 if _enraged else 1.0
+					_player.take_damage(float(stats["dmg"]) * enrage_mult, self)
 			Audio.play("swing", -6.0, 0.8)
 			_attack_cooldown = 1.6
 		return
 
+	var speed_now := float(stats["speed"]) * (1.18 if _enraged else 1.0)
 	if dist > float(stats["range"]) * 0.85:
 		var dir := _coordinated_direction(to_player)
-		velocity.x = dir.x * float(stats["speed"])
-		velocity.z = dir.z * float(stats["speed"])
+		velocity.x = dir.x * speed_now
+		velocity.z = dir.z * speed_now
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, 20.0 * delta)
 		velocity.z = move_toward(velocity.z, 0.0, 20.0 * delta)
@@ -406,6 +461,8 @@ func _update_enemy_anim(delta: float) -> void:
 		mf.play_anim(_anim_player, target, 0.2)
 
 func _fire_projectile(dir: Vector3) -> void:
+	var mf_fire := preload("res://src/visuals/model_factory.gd")
+	mf_fire.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.6, 0.0), Color(0.4, 0.8, 0.95), 0.9)
 	if _anim_player != null:
 		var mf := preload("res://src/visuals/model_factory.gd")
 		mf.play_anim(_anim_player, "Spellcast_Shoot", 0.08, 0.4)
@@ -457,7 +514,7 @@ func _resolve_slam() -> void:
 	if _player != null and is_instance_valid(_player):
 		if _player.global_position.distance_to(center) <= 3.4:
 			if _player.has_method("take_damage"):
-				_player.take_damage(30.0, self)
+				_player.take_damage(30.0 * (1.15 if _enraged else 1.0), self)
 
 # ------------------------------------------------------------------ dano ----
 func take_damage(amount: float, posture_dmg: float, _from: Node3D = null) -> void:
@@ -466,6 +523,25 @@ func take_damage(amount: float, posture_dmg: float, _from: Node3D = null) -> voi
 	hp -= amount
 	posture -= posture_dmg
 	_combat = true
+	if enemy_type == "guardiao" and not _enraged and hp <= max_hp * 0.5 and hp > 0.0:
+		_enraged = true
+		GameState.notify("O Guardião RUGE — a Prova enfurece!")
+		Audio.play("rupture", -2.0, 0.7)
+		if _player != null and is_instance_valid(_player) and _player.has_method("add_shake"):
+			_player.add_shake(0.8)
+		if visual and is_instance_valid(visual):
+			for node in visual.find_children("*", "MeshInstance3D", true, false):
+				var mni := node as MeshInstance3D
+				if mni == null or mni.mesh == null:
+					continue
+				for i in range(mni.mesh.get_surface_count()):
+					var mat := mni.mesh.surface_get_material(i)
+					if mat is StandardMaterial3D:
+						var dup := (mat as StandardMaterial3D).duplicate() as StandardMaterial3D
+						dup.emission_enabled = true
+						dup.emission = Color(0.65, 0.12, 0.05)
+						dup.emission_energy_multiplier = 0.55
+						_set_surface_emission(mni, i, dup)
 	if visual and is_instance_valid(visual):
 		var mf := preload("res://src/visuals/model_factory.gd")
 		mf.flash_model(visual, 0.1)

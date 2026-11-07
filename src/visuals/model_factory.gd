@@ -170,27 +170,55 @@ static func flash_model(root: Node3D, duration: float = 0.12) -> void:
 		tree.create_timer(duration).timeout.connect(restore)
 
 # -------------------------------------------------------------- efeitos -----
-static func spawn_hit_burst(tree: SceneTree, pos: Vector3, color: Color = Color(1.0, 0.75, 0.3)) -> void:
+static func spawn_afterimage(tree: SceneTree, pos: Vector3, color: Color = Color(0.65, 0.45, 1.0)) -> void:
+	## Fantasma translúcido curto (0,6 s) — usado pelas técnicas de Kael.
+	var scene := tree.current_scene
+	if scene == null:
+		return
+	var ghost := MeshInstance3D.new()
+	var cap := CapsuleMesh.new()
+	cap.radius = 0.38
+	cap.height = 1.75
+	ghost.mesh = cap
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(color.r, color.g, color.b, 0.55)
+	m.emission_enabled = true
+	m.emission = color
+	m.emission_energy_multiplier = 1.8
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	ghost.material_override = m
+	scene.add_child(ghost)
+	ghost.global_position = pos + Vector3(0.0, 0.95, 0.0)
+	var tween := tree.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(ghost, "global_position:y", ghost.global_position.y + 0.4, 0.55)
+	tween.tween_property(m, "albedo_color:a", 0.0, 0.55)
+	tween.tween_property(m, "emission_energy_multiplier", 0.0, 0.55)
+	tween.chain().tween_callback(ghost.queue_free)
+
+static func spawn_hit_burst(tree: SceneTree, pos: Vector3, color: Color = Color(1.0, 0.75, 0.3), burst_scale: float = 1.0) -> void:
 	var scene := tree.current_scene
 	if scene == null:
 		return
 	var particles := GPUParticles3D.new()
-	particles.amount = 16
+	particles.amount = maxi(4, int(16.0 * burst_scale))
 	particles.one_shot = true
 	particles.explosiveness = 0.9
 	particles.lifetime = 0.55
 	var process := ParticleProcessMaterial.new()
 	process.direction = Vector3(0.0, 1.0, 0.0)
 	process.spread = 180.0
-	process.initial_velocity_min = 3.0
-	process.initial_velocity_max = 6.5
+	process.initial_velocity_min = 3.0 * burst_scale
+	process.initial_velocity_max = 6.5 * burst_scale
 	process.gravity = Vector3(0.0, -12.0, 0.0)
 	process.scale_min = 0.5
 	process.scale_max = 1.4
 	process.color = color
 	particles.process_material = process
 	var quad := QuadMesh.new()
-	quad.size = Vector2(0.14, 0.14)
+	quad.size = Vector2(0.14, 0.14) * burst_scale
 	var pmat := StandardMaterial3D.new()
 	pmat.albedo_color = color
 	pmat.emission_enabled = true

@@ -45,6 +45,8 @@ const FALLBACK_JUMP := {
 	"slam_radius": 3.1,
 	"slam_damage": 24.0,
 	"slam_posture": 42.0,
+	"coyote": 0.12,
+	"jump_buffer": 0.12,
 }
 
 func jump_cfg() -> Dictionary:
