@@ -10,7 +10,7 @@ const MODEL_FACING_OFFSET := 0.0
 const LOCOMOTION_CLIPS := ["Idle", "Walking_A", "Running_A", "Blocking", "Walk", "Gallop"]
 
 # ------------------------------------------------------------ instanciar ----
-static func spawn_env(parent: Node3D, path: String, pos: Vector3, rot_y: float, scale_factor: float) -> Node3D:
+static func spawn_env(parent: Node3D, path: String, pos: Vector3, rot_y: float, scale_factor: float, far_cull: float = 0.0) -> Node3D:
 	var scene: PackedScene = load(path)
 	if scene == null:
 		push_warning("Modelo em falta: %s" % path)
@@ -23,8 +23,25 @@ static func spawn_env(parent: Node3D, path: String, pos: Vector3, rot_y: float, 
 	inst.rotation.y = rot_y
 	inst.scale = Vector3.ONE * scale_factor
 	_set_shadows(inst)
+	if far_cull > 0.0:
+		_apply_far_cull(inst, far_cull)
 	parent.add_child(inst)
 	return inst
+
+## Extensão de visibilidade por distância para decoração (v0.5): o motor
+## deixa de desenhar o que está além de `cull` metros (física e lógica
+## intactas — é só render). Robusto headless: propriedade nativa.
+static func _apply_far_cull(root_node: Node3D, cull: float) -> void:
+	if root_node is GeometryInstance3D:
+		var gi := root_node as GeometryInstance3D
+		gi.visibility_range_end = cull
+		gi.visibility_range_end_margin = 4.0
+		gi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
+	for child in root_node.find_children("*", "GeometryInstance3D", true, false):
+		var gi := child as GeometryInstance3D
+		gi.visibility_range_end = cull
+		gi.visibility_range_end_margin = 4.0
+		gi.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_DISABLED
 
 static func spawn_character(parent: Node3D, path: String, pos: Vector3, tint: Color, scale_factor: float) -> Dictionary:
 	var result := {"visual": null, "anim_player": null}

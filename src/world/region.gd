@@ -144,7 +144,7 @@ func _build_ground_and_props() -> void:
 	# Relva salpicada
 	for i in range(16):
 		var pos := Vector3(randf_range(-55.0, 55.0), 0.0, randf_range(-55.0, 55.0))
-		_env_mf.spawn_env(self, GOBKIT + "Grass001.glb", pos, randf() * TAU, randf_range(0.8, 1.4))
+		_env_mf.spawn_env(self, GOBKIT + "Grass001.glb", pos, randf() * TAU, randf_range(0.8, 1.4), 55.0)
 
 func _spawn_enemies() -> void:
 	var enemy_scene := preload("res://scenes/enemy.tscn")

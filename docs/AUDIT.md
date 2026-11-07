@@ -364,3 +364,33 @@ revisto, verificado e integrado antes de commitar.
 meta-quests globais Ferida/Custódia; romances com memória de ações; EN/ES
 runtime; escolha de voz TTS; teste com humanos; F5/GPU/Android; perfil
 real de performance.
+
+
+---
+
+# 12. Addendum — v0.5 Streaming: decisão medida, não fé (2026-11-07)
+
+O ROADMAP pedia «streaming de mundo (grid cells)». Antes de escrever
+células, medi: o mundo principal tem ~91 instâncias de decoração
+(26+42+14 relvas, 6 arbustos, 3 escarpas) + ~30 edifícios/árvores. Um
+sistema de streaming (grid + ResourceLoader assíncrono + gestão de
+ciclo de vida) seria complexidade e risco **sem ganho mensurável** para
+este mundo — o frustum culler nativo já descarta o que não está à vista;
+a física nunca foi afetada por distância de render.
+
+**Implementado:** `spawn_env(..., far_cull)` — `visibility_range_end` de
+55 m (+4 m de margem, fade desactivado) em toda a geometria de
+decoração (relvas no mundo principal e nas regiões). Edifícios,
+estácuas e npcs mantêm alcance total (landmarks). Física e lógica
+intactas — é culling de render, não descarregamento de nós.
+
+**O que isto NÃO é:** grid cells de verdade (descarregar colliders e
+nodos lógica/física à distância). Adiado honestamente — reabrir quando o
+mundo crescer ≥5× ou quando profiling em hardware mostrar pressão real de
+draw calls. Benefício medido aqui: nenhum (headless não desenha; o
+culling nativo poupa GPU, não CPU — 0.367 ms proc vs 0.337 ms antes,
+ruído). Também removida uma linha duplicada em world_builder.gd
+(`directional_shadow_max_distance` repetida).
+
+**Verificado:** 5 cenas headless sem erros de script · smoke 22/22 ·
+flows 5/5 · validate.py OK.

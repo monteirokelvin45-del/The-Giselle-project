@@ -159,7 +159,6 @@ func _build_environment() -> void:
 	sun.light_color = Color(1.0, 0.94, 0.82)
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 90.0
-	sun.directional_shadow_max_distance = 90.0
 	root.add_child(sun)
 	# Ambiente + céu procedural + nevoeiro
 	var world_env := WorldEnvironment.new()
@@ -197,7 +196,7 @@ func _build_ground_and_road() -> void:
 	_road_segment(Vector3(-1.6, 0, -27), Vector3(0, 0, -55), 4.6)
 
 func _flora(file: String, pos: Vector3, rot_y: float, scale_factor: float) -> Node3D:
-	return _env_mf.spawn_env(root, GOBKIT + file, pos, rot_y, scale_factor)
+	return _env_mf.spawn_env(root, GOBKIT + file, pos, rot_y, scale_factor, 55.0)
 
 ## Vegetação baixa gobkit (CC0): relva ao longo da estrada e da floresta,
 ## arbustos nos remates das construções e escarpas a enquadrar o fundo.

@@ -65,7 +65,11 @@ Missão principal completa + 2 secundárias, combate com parry/postura/Ruptura,
 ## v0.5 — Mundo aberto: as 6 regiões restantes (sec. 14–16)
 Vale de Noro (polido) → Floresta de Ruun → Deserto de Sahr → Montanhas de Khar
 → Arquipélago de Lume → Ilhas de Aer → Abismo de Orun.
-Streaming de mundo (grid cells) [ ] por fazer; clima dinâmico [x] (tempestade
+Streaming [~] — medição: ~91 instâncias de decoração no mundo principal;
+culling por distância **nativo** (`visibility_range_end = 55 m`) na flora —
+não desenha o que está longe, física intacta; **grid cells completos
+adiados** (custo≫benefício a este tamanho; reabrir se o mundo crescer
+≥5×); clima dinâmico [x] (tempestade
 sorteada à chegada — 30% — com **chuva visível** (GPUParticles3D de 900 gotas
 que acompanham o jogador), **relâmpagos com trovoada** (flash de sol/ambiente
 + wav sintetizado) e névoa reforçada); ciclo dia/noite [x]; NPCs com rotinas
