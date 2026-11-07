@@ -20,6 +20,7 @@ var _music_btn: Button
 var _colorblind_btn: Button
 var _subtitle_btn: Button
 var _aim_btn: Button
+var _cel_btn: Button
 var _narration_btn: Button
 var _voice_btn: Button
 var _rebinding: String = ""
@@ -110,6 +111,14 @@ func _cycle_subtitle() -> void:
 
 func _aim_text() -> String:
 	return tr("Assistência de mira: %s") % (tr("Ligada") if GameState.aim_assist else tr("Desligada"))
+
+func _cel_text() -> String:
+	return tr("Cel-shading: %s") % (tr("Ligada") if GameState.cel_toon else tr("Desligada"))
+
+func _cycle_cel() -> void:
+	GameState.cel_toon = not GameState.cel_toon
+	_cel_btn.text = tr(_cel_text())
+	notify(tr("Cel-shading %s — requer recarregar a cena.") % (tr("ativada") if GameState.cel_toon else tr("desativada")))
 
 func _cycle_aim_assist() -> void:
 	GameState.aim_assist = not GameState.aim_assist
@@ -732,6 +741,8 @@ func _build_pause() -> void:
 	vbox.add_child(_subtitle_btn)
 	_aim_btn = _make_button(_aim_text(), _cycle_aim_assist)
 	vbox.add_child(_aim_btn)
+	_cel_btn = _make_button(_cel_text(), _cycle_cel)
+	vbox.add_child(_cel_btn)
 	_narration_btn = _make_button(_narration_text(), _cycle_narration)
 	vbox.add_child(_narration_btn)
 	_voice_btn = _make_button(_voice_text(), _cycle_voice)

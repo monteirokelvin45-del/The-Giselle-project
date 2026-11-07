@@ -153,6 +153,7 @@ var subtitle_scale: float = 1.0
 var weapon_tempered: bool = false   # lâmina temperada na forja de Garr (+12% dano, permanente)
 var aim_assist: bool = true            # preferência: mira suave nos ataques corpo a corpo
 var menu_narration: bool = false       # preferência: TTS nas notificações de menu
+var cel_toon: bool = true              # preferência visual: cel/toon shading (docs/VISUALS.md)
 var tts_voice: String = ""           # preferência: id da voz TTS; "" = automática
 var locale: String = "pt"           # preferência: idioma da UI ("pt" | "en" | "es")
 const LOCALES := ["pt", "en", "es"]
@@ -586,6 +587,7 @@ func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 		"colorblind_mode": colorblind_mode, "subtitle_scale": subtitle_scale,
 		"custom_bindings": custom_bindings, "music_enabled": music_enabled,
 		"weapon_tempered": weapon_tempered, "aim_assist": aim_assist, "menu_narration": menu_narration, "tts_voice": tts_voice,
+		"cel_toon": cel_toon,
 		"locale": locale,
 		"rupture_activations": rupture_activations, "techniques_seen": techniques_seen,
 		"px": pos.x, "py": pos.y, "pz": pos.z, "hp": hp, "stamina": stamina,

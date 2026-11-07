@@ -320,6 +320,8 @@ Modo de daltonismo: %s,Modo de daltonismo: %s,Colorblind mode: %s,Modo daltonism
 Legenda: %d%%,Legenda: %d%%,Subtitles: %d%%,Subtítulos: %d%%
 Tamanho da legenda: %d%%,Tamanho da legenda: %d%%,Subtitle size: %d%%,Tamaño de subtítulos: %d%%
 Assistência de mira: %s,Assistência de mira: %s,Aim assist: %s,Asistencia de apuntado: %s
+Cel-shading: %s,Cel-shading: %s,Cel shading: %s,Cel-shading: %s
+Cel-shading %s — requer recarregar a cena.,Cel-shading %s — requer recarregar a cena.,Cel shading %s — requires reloading the scene.,Cel-shading %s — requiere recargar la escena.
 Assistência de mira %s.,Assistência de mira %s.,Aim assist %s.,Asistencia de apuntado %s.
 Narração de menus: %s,Narração de menus: %s,Menu narration: %s,Narración del menú: %s
 Narração de menus %s.,Narração de menus %s.,Menu narration %s.,Narración del menú %s.

@@ -63,6 +63,7 @@ static func spawn_character(parent: Node3D, path: String, pos: Vector3, tint: Co
 	model.rotation.y = MODEL_FACING_OFFSET
 	visual.add_child(model)
 	_set_shadows(model)
+	apply_cel_look(model)
 	if tint != Color.WHITE:
 		tint_model(model, tint)
 	var anim_player := model.find_child("AnimationPlayer", true, false) as AnimationPlayer
@@ -76,6 +77,27 @@ static func spawn_character(parent: Node3D, path: String, pos: Vector3, tint: Co
 	result["visual"] = visual
 	result["anim_player"] = anim_player
 	return result
+
+static func apply_cel_look(root: Node) -> void:
+	## Cel/toon nativo (Godot 4 BaseMaterial3D): DIFFUSE_TOON + SPECULAR_TOON +
+	## rim light. Sem ILM/SDF (KayKit não tem mapas) — ver docs/VISUALS.md.
+	if not GameState.cel_toon:
+		return
+	for node in root.find_children("*", "MeshInstance3D", true, false):
+		var mesh_node := node as MeshInstance3D
+		var mesh := mesh_node.mesh
+		if mesh == null:
+			continue
+		for i in range(mesh.get_surface_count()):
+			var mat := mesh.surface_get_material(i)
+			if mat is StandardMaterial3D:
+				var dup := (mat as StandardMaterial3D).duplicate() as StandardMaterial3D
+				dup.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+				dup.specular_mode = BaseMaterial3D.SPECULAR_TOON
+				dup.rim_enabled = true
+				dup.rim = 0.45
+				dup.rim_tint = 0.5
+				mesh_node.set_surface_override_material(i, dup)
 
 static func _set_shadows(root: Node3D) -> void:
 	for node in root.find_children("*", "MeshInstance3D", true, false):
