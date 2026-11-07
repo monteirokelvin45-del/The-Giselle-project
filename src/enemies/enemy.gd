@@ -274,6 +274,9 @@ func _physics_process(delta: float) -> void:
 	to_player.y = 0.0
 	var dist := to_player.length()
 	var stats: Dictionary = TYPES[enemy_type]
+	# v1.7: acima de X m do jogador, saltar os caminhos caros (consultas de
+	# grupo, skinning/anim). Movimento e cooldowns continuam a 60 Hz.
+	var far_mode := dist > float(Balance.combat_cfg()["remote_ai_distance_m"])
 
 	# Atordoado / postura quebrada
 	if _stunned > 0.0:
@@ -416,7 +419,7 @@ func _physics_process(delta: float) -> void:
 
 	var speed_now := float(stats["speed"]) * (1.18 if _enraged else 1.0)
 	if dist > float(stats["range"]) * 0.85:
-		var dir := _coordinated_direction(to_player)
+		var dir: Vector3 = to_player.normalized() if far_mode else _coordinated_direction(to_player)
 		velocity.x = dir.x * speed_now
 		velocity.z = dir.z * speed_now
 	else:
@@ -431,16 +434,18 @@ func _physics_process(delta: float) -> void:
 				_anim_lock = 0.45
 			Audio.play("swing", -10.0, 0.6)
 
-	# Separação suave entre inimigos
-	for other in get_tree().get_nodes_in_group("enemy"):
-		if other == self or not is_instance_valid(other):
-			continue
-		var push: Vector3 = global_position - other.global_position
-		push.y = 0.0
-		if push.length() < 1.3 and push.length() > 0.01:
-			velocity += push.normalized() * 3.0
+	# Separação suave entre inimigos (só quando perto — longe custa O(n²) à toa)
+	if not far_mode:
+		for other in get_tree().get_nodes_in_group("enemy"):
+			if other == self or not is_instance_valid(other):
+				continue
+			var push: Vector3 = global_position - other.global_position
+			push.y = 0.0
+			if push.length() < 1.3 and push.length() > 0.01:
+				velocity += push.normalized() * 3.0
 
-	_update_enemy_anim(delta)
+	if not far_mode:
+		_update_enemy_anim(delta)
 	move_and_slide()
 
 func _nearest_ally_of_type(type: String, max_dist: float) -> Node3D:
@@ -496,34 +501,15 @@ func _update_enemy_anim(delta: float) -> void:
 		var mf := preload("res://src/visuals/model_factory.gd")
 		mf.play_anim(_anim_player, target, 0.2)
 
+const ProjectilePool := preload("res://src/enemies/projectile_pool.gd")
+
 func _fire_projectile(dir: Vector3) -> void:
 	var mf_fire := preload("res://src/visuals/model_factory.gd")
 	mf_fire.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.6, 0.0), (Color(1.0, 0.62, 0.3) if enemy_type == "brasa" else Color(0.4, 0.8, 0.95)), 0.9)
 	if _anim_player != null:
 		var mf := preload("res://src/visuals/model_factory.gd")
 		mf.play_anim(_anim_player, "Spellcast_Shoot", 0.08, 0.4)
-	var p := Area3D.new()
-	p.set_script(load("res://src/enemies/projectile.gd"))
-	p.collision_layer = 8
-	p.collision_mask = 3
-	var mesh := MeshInstance3D.new()
-	var sm := SphereMesh.new()
-	sm.radius = 0.22
-	sm.height = 0.44
-	mesh.mesh = sm
-	var proj_color := Color(0.6, 0.3, 0.95)
-	var proj_energy := Color(0.6, 0.25, 0.95)
-	if enemy_type == "brasa":
-		proj_color = Color(0.98, 0.5, 0.12)
-		proj_energy = Color(0.98, 0.42, 0.08)
-	mesh.material_override = _mat(proj_color, 0.0, 0.3, proj_energy, 2.5)
-	p.add_child(mesh)
-	var shape := CollisionShape3D.new()
-	var sp := SphereShape3D.new()
-	sp.radius = 0.28
-	shape.shape = sp
-	p.add_child(shape)
-	get_tree().current_scene.add_child(p)
+	var p := ProjectilePool.acquire(get_tree(), enemy_type == "brasa")
 	p.global_position = global_position + Vector3(0.0, 1.6, 0.0) + dir * 0.6
 	if p.has_method("setup"):
 		p.setup(dir)

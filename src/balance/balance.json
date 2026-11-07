@@ -45,5 +45,10 @@
     "slam_posture": 42.0,
     "coyote": 0.12,
     "jump_buffer": 0.12
+  },
+  "combat": {
+    "parry_window_base": 0.2,
+    "dash_iframes": 0.36,
+    "remote_ai_distance_m": 34.0
   }
 }

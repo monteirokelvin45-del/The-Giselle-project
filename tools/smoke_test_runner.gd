@@ -51,6 +51,9 @@ func _process(_delta: float) -> void:
 		GameState.attributes["for"] = 1
 		GameState.load_game()
 		_check(GameState.marcos == 1234, "save/load devolve marcos")
+		_check(is_equal_approx(GameState.saved_hp, 100.0), "save/load devolve hp")
+		_check(is_equal_approx(GameState.saved_stamina, 100.0), "save/load devolve fôlego")
+		_check(GameState.saved_position.is_equal_approx(Vector3(0.0, 1.3, 34.0)), "save/load devolve posição")
 		GameState.tts_voice = "voz-teste-123"
 		GameState.save_game(Vector3(0.0, 1.3, 34.0), 100.0, 100.0)
 		GameState.tts_voice = ""

@@ -35,6 +35,23 @@ func attr(key: String, fallback: float) -> float:
 		return float((a as Dictionary)[key])
 	return fallback
 
+const FALLBACK_COMBAT := {
+	"parry_window_base": 0.2,
+	"dash_iframes": 0.36,
+	"remote_ai_distance_m": 34.0,
+	"remote_ai_overhead_skip": true,
+}
+
+## Janelas de combate e limites de IA (v1.7): afináveis sem recompilar.
+func combat_cfg() -> Dictionary:
+	var t = _data.get("combat", {})
+	if t is Dictionary and not (t as Dictionary).is_empty():
+		var out: Dictionary = FALLBACK_COMBAT.duplicate(true)
+		for k in (t as Dictionary):
+			out[k] = (t as Dictionary)[k]
+		return out
+	return FALLBACK_COMBAT.duplicate(true)
+
 func potion_heal() -> float:
 	return float(_data.get("potion_heal", 45.0))
 

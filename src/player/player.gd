@@ -465,7 +465,7 @@ func _try_dodge() -> void:
 	_dodge_dir = input_dir.normalized()
 	_dodge_timer = 0.34
 	_dodge_cooldown = 0.55
-	_invuln_timer = 0.36
+	_invuln_timer = float(Balance.combat_cfg()["dash_iframes"])
 	stamina -= 18.0
 	Audio.play("swing", -4.0, 0.75)
 	if _anim_player != null:

@@ -390,7 +390,9 @@ func posture_mult() -> float:
 	return 1.0 + float(int(attributes["tec"]) - 1) * 0.10
 
 func parry_window() -> float:
-	return 0.2 + float(int(attributes["ref"]) - 1) * 0.025
+	var base := float(Balance.combat_cfg()["parry_window_base"])
+	var per_ref := Balance.attr("parry_window_per_ref", 0.025)
+	return base + float(int(attributes["ref"]) - 1) * per_ref
 
 func chain_cooldown() -> float:
 	return maxf(2.0, 6.0 - float(int(attributes["ada"]) - 1) * 0.6)

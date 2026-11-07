@@ -64,5 +64,8 @@ jobs:
       - name: smoke_test.tscn (asserções de jogabilidade)
         run: "${GODOT_BIN} --headless --path . res://tools/smoke_test.tscn"
 
+      - name: stress_test.tscn (10 inimigos, pool de projéteis)
+        run: "${GODOT_BIN} --headless --path . res://tools/stress_test.tscn"
+
       - name: smoke_flows.tscn (fluxos Sala Branca + Academia)
         run: "${GODOT_BIN} --headless --path . res://tools/smoke_flows.tscn"

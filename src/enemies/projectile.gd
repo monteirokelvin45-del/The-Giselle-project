@@ -1,5 +1,9 @@
+## Projétil arcano disparado pelos Magos de Cinza e pela Brasa de Ruína.
+## Reutilizável (v1.7): timeout ou impacto devolvem-no á ProjectilePool em vez
+## de o destruir — ver src/enemies/projectile_pool.gd.
 extends Area3D
-## Projétil arcano disparado pelos Magos de Cinza.
+
+const ProjectilePool := preload("res://src/enemies/projectile_pool.gd")
 
 var direction: Vector3 = Vector3.FORWARD
 var speed: float = 17.0
@@ -19,9 +23,9 @@ func _physics_process(delta: float) -> void:
 	rotate_y(6.0 * delta)
 	life -= delta
 	if life <= 0.0:
-		queue_free()
+		ProjectilePool.release(self)
 
 func _on_body_entered(body: Node3D) -> void:
 	if body.has_method("take_damage"):
 		body.take_damage(damage, self)
-	queue_free()
+	ProjectilePool.release(self)
