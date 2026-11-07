@@ -88,6 +88,12 @@ Lobos procedural mantém o comportamento v0.1 (sem animação esquelética).
 - `assets/art/kael_reference.jpg` — folha de personagem do Kael, **fornecida pelo
   dono do projeto** (uso exclusivo deste repositório; não redistribuir).
   Ver `docs/CHARACTER.md` para a leitura visual e o plano de fidelidade total.
+- `assets/art/portraits/*.jpg` + `*_face.jpg` — folhas de personagem e recortes
+  «bust» do elenco, **gerados por IA** (v1.2) a partir da mesma referência e
+  dos mesmos prompts próprios (estilo: dark fantasy character sheet, line art
+  sobre cel-shading, paleta carvão/umber). Mesmos termos do Kael reference —
+  uso exclusivo deste repositório; não redistribuir. Registo e estado:
+  `docs/CHARACTER.md` («Elenco — retratos»).
 
 ## Créditos
 

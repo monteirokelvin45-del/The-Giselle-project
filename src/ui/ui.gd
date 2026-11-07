@@ -1224,6 +1224,7 @@ func _toggle_controls(open_it: bool) -> void:
 
 # ------------------------------------------------------------- decisão ------
 var _ending_title: Label
+var _ending_portrait: TextureRect
 var _ending_text: Label
 var _credits_label: Label
 
@@ -1237,10 +1238,24 @@ func _build_decision() -> void:
 	var title := _make_label("A DECISÃO", 30, Color(0.97, 0.82, 0.3))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
+	var story_row := HBoxContainer.new()
+	story_row.add_theme_constant_override("separation", 14)
+	vbox.add_child(story_row)
+	var kael_art := TextureRect.new()
+	kael_art.custom_minimum_size = Vector2(146, 196)
+	kael_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	kael_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	var portraits_script = preload("res://src/ui/portraits.gd")
+	var kael_tex: Texture2D = portraits_script.texture_for("kael", "battle")
+	kael_art.texture = kael_tex
+	story_row.add_child(kael_art)
+	var story_col := VBoxContainer.new()
+	story_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	story_row.add_child(story_col)
 	var story := _make_label("O Guardião da Prova jaz aos teus pés. Os portões de Veyra estão abertos — e todas as portas do mundo também.\nA tua reputação entre as fações abre caminhos que o menu não mostra. O que fazes agora com a força que construíste?", 13, Color(0.85, 0.84, 0.8))
 	story.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	story.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(story)
+	story_col.add_child(story)
 	for key in ["academia", "vagabundo", "revolta", "estandarte", "arquivo", "vacuo"]:
 		var ending: Dictionary = ENDINGS[key]
 		var btn := _make_button(String(ending["choice"]) + "\n" + String(ending["desc"]), _choose_ending.bind(key))
@@ -1285,6 +1300,11 @@ func _choose_ending(key: String) -> void:
 		if ROMANCE_EPILOGUES_WARM.has(rid) and GameState.companion_loyalty(rid) >= 60:
 			epilogue = String(ROMANCE_EPILOGUES_WARM[rid])
 		ending_text += "\n\n— «Incluindo, claro», pensa Kael.\n" + epilogue
+	var portraits_script2 = preload("res://src/ui/portraits.gd")
+	var art_tex: Texture2D = portraits_script2.texture_for(String(rid)) if rid != "" else null
+	if art_tex == null:
+		art_tex = portraits_script2.texture_for("kael", "determined")
+	_ending_portrait.texture = art_tex
 	_ending_title.text = tr(String(ending["title"]))
 	_ending_text.text = tr(ending_text)
 	_credits_label.text = tr(_build_credits_text())
@@ -1297,6 +1317,12 @@ func _build_ending() -> void:
 	var vbox := VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 10)
 	panel.add_child(vbox)
+	_ending_portrait = TextureRect.new()
+	_ending_portrait.custom_minimum_size = Vector2(140, 124)
+	_ending_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_ending_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_ending_portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	vbox.add_child(_ending_portrait)
 	_ending_title = _make_label("", 26, Color(0.97, 0.82, 0.3))
 	_ending_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(_ending_title)

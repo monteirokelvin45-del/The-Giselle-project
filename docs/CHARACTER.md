@@ -51,3 +51,34 @@ pessoa-semana+ em Blender e está fora do escopo atual; ver ROADMAP.
 
 - Direção de arte para key art futura (o fundo/vale já aponta para a mesma faixa escura).
 - Base para o retrato de perfil no ecrã de decisão final e na página itch.io da demo.
+
+## Elenco — retratos (v1.2, 2026-11-07)
+
+Retratos gerados por IA a partir da folha de referência do Kael (ver acima) —
+mesmo estilo (dark fantasy character sheet, line art sobre cel-shading, paleta
+carvão/umber), trocando género, roupa, penteado e formato de rosto por
+personagem. As folhas completas ficam em `assets/art/portraits/<id>.jpg`; os
+recortes «bust» usados no jogo estão em `assets/art/portraits/<id>_face.jpg`.
+Fallback em runtime: se o ficheiro não existir, o UI segue sem retrato —
+nunca um rosto errado no lugar (`src/ui/portraits.gd`, com verificação de
+existência para todos os retratos).
+
+| Personagem (como fala no jogo) | Ficheiro (`_face.jpg`) | Estado |
+|---|---|---|
+| Kael — neutro / determinado / ferido / suave / combate | `kael_{neutral,determined,pained,soft,battle}_face.jpg` | ✓ gerado |
+| Elen Noro | `elen_face.jpg` | ✓ gerado |
+| Tomás, o Aldeão | `tomas_face.jpg` | ✓ gerado |
+| Garr, o Ferreiro | `garr_face.jpg` | ✓ gerado |
+| Liora Venn | `liora_face.jpg` | ✓ gerado |
+| Mestre Dario Vale | `dario_face.jpg` | ✓ gerado |
+| Bram Ferro | `bram_face.jpg` | por gerar (limite de imagem da sessão) |
+| Sena Raiz | `sena_face.jpg` | por gerar (idem) |
+| Iven Lago | `iven_face.jpg` | por gerar (idem) |
+| Arquivista Voss | `voss_face.jpg` | por gerar (idem) |
+| Marechal Cadena | `cadena_face.jpg` | por gerar (idem) |
+| Vladimir, Guardião da Prova | `vladimir_face.jpg` | por gerar (idem) |
+
+Integração: o diálogo de fala mostra o retrato no painel (`src/ui/dialogue.gd`,
+128 px de largura, `KEEP_ASPECT_COVERED`); A DECISÃO mostra `kael_battle` junto
+ao texto; o ecrã de fim mostra o retrato do romanceado (`GameState.romance_id`)
+ou `kael_determined` como fallback.

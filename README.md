@@ -32,7 +32,8 @@ O caminho até à v1.0 está em [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 Não é preciso instalar dependências — os modelos 3D (CC0, KayKit) estão incluídos
 no repositório em `assets/models/`, e os efeitos sonoros são sintetizados em
-`assets/audio/`. A key art do título foi gerada por IA (`assets/art/key_art.jpg`).
+`assets/audio/`. A key art do título foi gerada por IA (`assets/art/key_art.jpg`) e os retratos
+do elenco também (`assets/art/portraits/`).
 Detalhes e licenças: [`docs/ASSETS.md`](docs/ASSETS.md).
 
 ## Jogar no Android (novo)

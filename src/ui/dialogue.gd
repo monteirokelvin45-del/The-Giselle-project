@@ -315,6 +315,7 @@ var _panel: PanelContainer
 var _subtitle_scale: float = 1.0
 var _name_label: Label
 var _text_label: Label
+var _portrait: TextureRect
 var _choices_box: VBoxContainer
 var _hint_label: Label
 var _current_node := {}
@@ -336,7 +337,7 @@ func _build_ui() -> void:
 	_panel.anchor_right = 0.93
 	_panel.anchor_top = 1.0
 	_panel.anchor_bottom = 1.0
-	_panel.offset_top = -215.0
+	_panel.offset_top = -232.0
 	_panel.offset_bottom = -22.0
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.07, 0.06, 0.09, 0.94)
@@ -361,16 +362,30 @@ func _build_ui() -> void:
 	vbox.add_theme_constant_override("separation", 8)
 	_panel.add_child(vbox)
 
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	vbox.add_child(row)
+	_portrait = TextureRect.new()
+	_portrait.custom_minimum_size = Vector2(118, 148)
+	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_portrait.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_portrait.visible = false
+	row.add_child(_portrait)
+	var text_col := VBoxContainer.new()
+	text_col.add_theme_constant_override("separation", 6)
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(text_col)
 	_name_label = Label.new()
 	_name_label.add_theme_color_override("font_color", Color(0.87, 0.7, 0.3))
 	_name_label.add_theme_font_size_override("font_size", 17)
-	vbox.add_child(_name_label)
+	text_col.add_child(_name_label)
 
 	_text_label = Label.new()
 	_text_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_text_label.custom_minimum_size = Vector2(0, 58)
 	_text_label.add_theme_font_size_override("font_size", 16)
-	vbox.add_child(_text_label)
+	text_col.add_child(_text_label)
 
 	_choices_box = VBoxContainer.new()
 	_choices_box.add_theme_constant_override("separation", 4)
@@ -409,7 +424,12 @@ func _show_node(node_id: String) -> void:
 		_finish()
 		return
 	_current_node = node
-	_name_label.text = tr(String(node.get("name", "???")))
+	var speaker := String(node.get("name", "???"))
+	_name_label.text = tr(speaker)
+	var portraits_script = preload("res://src/ui/portraits.gd")
+	var tex: Texture2D = portraits_script.texture_for(speaker)
+	_portrait.visible = tex != null
+	_portrait.texture = tex
 	_text_label.text = tr(String(node.get("text", "")))
 	_text_label.visible_characters = 0
 	_char_count = 0.0

@@ -840,3 +840,20 @@ quentes no céu do Vale, saturação no chão natural, siluetas legíveis, um
 ponto de cor a brilhar em cada composição (a chama da forja, o farol de
 Lume, o núcleo do Abismo). Tudo com CC0 — a alma está na composição,
 não no assets.
+
+## 43. O Elenco — retratos (v1.2, 2026-11-07)
+
+**O quê.** Dar rosto a todo o elenco falado, no mesmo estilo visual da folha
+do Kael — identidade individual dentro de uma família estética única (paleta
+carvão/umber, line art sobre cel-shading).
+
+**Como.** Folhas geradas por IA com `kael_reference.jpg` como referência de
+identidade e estilo; recortes bust para o jogo; integração no diálogo de fala
+(painel), na decisão final (Kael em combate) e no ecrã de fim (romanceado ou
+Kael decidido).
+
+**Estado honesto.** 10/16 folhas geradas (Kael ×5, Elen, Tomás, Garr, Liora,
+Dario). Seis pendentes (Bram, Sena, Iven, Voss, Cadena, Vladimir) por limite
+da ferramenta de imagem na sessão; o jogo funciona sem elas (fallback
+invisível) e o código resolve-as assim que existirem. Ver
+`docs/CHARACTER.md` («Elenco — retratos»).

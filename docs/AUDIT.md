@@ -666,3 +666,29 @@ partículas em GLES3 (o rain já prova o caminho; quantidades são modestas),
 aditivo das lâminas, e o lago a 90% opaco (se o driver não gostar, descer
 para 0.82). Atenção ao Android: o vento é CPU — barato; as partículas são
 GPU-bound — cortar quantidades se necessário.
+
+---
+
+# 20. Addendum — Retratos do elenco (v1.2, 2026-11-07)
+
+**Pedido explícito:** «Agora vamos aos personagens vamos detalhar de uma forma
+absurda e com alta qualidade, o personagem principal é esse (na foto), e os
+secundários vc pode criar usando a mesma referência trocando gênero roupa
+formato de rosto».
+
+**Entregue:** 10 folhas de personagem geradas por IA a partir de
+`assets/art/kael_reference.jpg` (Kael neutral/determined/pained/soft/battle,
+Elen, Tomás, Garr, Liora, Dario), recortes «bust» por recorte via PIL para o
+jogo, integração no diálogo (retrato no painel), na decisão final (Kael em
+combate) e no ecrã de fim (romanceado ou Kael decidido).
+
+**Bloqueado honestamente:** 6 folhas (Bram, Sena, Iven, Voss, Cadena,
+Vladimir) não geradas — o assistente atingiu o limite de geração de imagens
+da sessão (10 por turno). `src/ui/portraits.gd` já as resolve por nome assim
+que os ficheiros existirem (fallback invisível até lá; nunca um rosto errado).
+
+**Verificado:** gdparse nos alterados · retratos gerados confirmados
+visualmente (Kael 5/5 e secundários 5/5 fiéis ao estilo da referência).
+**Pendente:** CI do próprio push (a correr no momento em que este addendum foi
+escrito) — só é considerado concluído com a evidência de `gh`; e a geração
+das 6 folhas em falta.
