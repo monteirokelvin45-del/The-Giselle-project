@@ -44,7 +44,7 @@ func _ready() -> void:
 	Audio.play_music("exploration")
 	var text := tr("%s — %s") % [String(_cfg["name"]).to_upper(), tr(String(_cfg["desc"]))]
 	if _storm:
-		text += "  ·  TEMPESTADE À MEDIDA"
+		text += tr("  ·  TEMPESTADE À MEDIDA")
 	_show_banner(text, 4.5)
 
 func respawn_position() -> Vector3:

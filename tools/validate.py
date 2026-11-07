@@ -5,6 +5,7 @@
 2. Todos os caminhos res:// referenciados existem
 3. project.godot: autoloads e cena principal existem
 4. .tscn: ficheiros referenciados em ext_resource existem; estrutura mínima
+5. i18n: todas as chaves de l10n/game.csv têm EN+ES preenchidos
 """
 import os
 import re
@@ -33,7 +34,7 @@ for dirpath, _dirs, files in os.walk(ROOT):
         if f.endswith(".gd"):
             gd_files.append(os.path.join(dirpath, f))
 
-print(f"[1/4] gdparse em {len(gd_files)} scripts GDScript...")
+print(f"[1/5] gdparse em {len(gd_files)} scripts GDScript...")
 for gd in sorted(gd_files):
     try:
         result = subprocess.run(["gdparse", gd], capture_output=True, text=True)
@@ -45,7 +46,7 @@ for gd in sorted(gd_files):
         fail(f"GDScript inválido: {os.path.relpath(gd, ROOT)}\n{msg}")
 
 # ------------------------------------------------- res:// references -------
-print("[2/4] Verificando caminhos res:// referenciados...")
+print("[2/5] Verificando caminhos res:// referenciados...")
 res_pattern = re.compile(r'res://[A-Za-z0-9_\-./]+')
 checked_ext = {".gd", ".tscn", ".godot", ".cfg", ".tres"}
 for dirpath, _dirs, files in os.walk(ROOT):
@@ -66,7 +67,7 @@ for dirpath, _dirs, files in os.walk(ROOT):
                 fail(f"res:// inexistente: '{match}' referenciado em {os.path.relpath(path, ROOT)}")
 
 # ------------------------------------------------------ project.godot ------
-print("[3/4] Verificando project.godot...")
+print("[3/5] Verificando project.godot...")
 pgodot = open(os.path.join(ROOT, "project.godot"), encoding="utf-8").read()
 m = re.search(r'run/main_scene\s*=\s*"([^"]+)"', pgodot)
 if not m:
@@ -78,7 +79,7 @@ for m in re.finditer(r'"\*res://([^"]+)"', pgodot):
         fail(f"project.godot: autoload inexistente: res://{m.group(1)}")
 
 # ---------------------------------------------------------------- .tscn ----
-print("[4/4] Verificando cenas .tscn...")
+print("[4/5] Verificando cenas .tscn...")
 for dirpath, _dirs, files in os.walk(ROOT):
     if any(part.startswith(".") for part in dirpath[len(ROOT):].split(os.sep) if part):
         continue
@@ -100,6 +101,13 @@ for dirpath, _dirs, files in os.walk(ROOT):
             ext_ids = re.findall(r'ext_resource[^\]]*id="([^"]+)"', content)
             if ref not in ext_ids:
                 fail(f"{f}: ExtResource desconhecido: {ref}")
+
+# -------------------------------------------------------- i18n (game.csv) ----
+print("[5/5] Verificando localização (l10n/game.csv)...")
+locale_check = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "l10n_build.py"), "--check"],
+                              capture_output=True, text=True)
+if locale_check.returncode != 0:
+    fail("i18n: " + (locale_check.stdout or locale_check.stderr).strip())
 
 print()
 for w in warnings:

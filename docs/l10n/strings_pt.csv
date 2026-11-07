@@ -41,57 +41,57 @@ PT-0039,src/core/game_state.gd,95,O lugar de onde nenhum Núcleo voltou a subir.
 PT-0040,src/core/game_state.gd,102,Arena Branca
 PT-0041,src/core/game_state.gd,106,Vulcão de Orun
 PT-0042,src/core/game_state.gd,108,Cidade Cinza
-PT-0043,src/core/game_state.gd,191,Dificuldade: %s
-PT-0044,src/core/game_state.gd,215,Conselho Imperial
-PT-0045,src/core/game_state.gd,216,Irmandade do Vácuo
-PT-0046,src/core/game_state.gd,217,Ordem da Cinza
-PT-0047,src/core/game_state.gd,218,Arquivistas do Proibido
-PT-0048,src/core/game_state.gd,219,Academia Real de Veyra
-PT-0049,src/core/game_state.gd,227,Reputação %s %s (%d)
-PT-0050,src/core/game_state.gd,261,"LESÃO — -10% dano, -15% velocidade, -15% recuperação de fôlego. Repouso, Bálsamo de Salvação ou forja tratam-na."
-PT-0051,src/core/game_state.gd,263,"LESÃO GRAVE — -22% dano, -32% velocidade, -30% recuperação de fôlego. Repouso, Bálsamo de Salvação ou a forja de Garr."
-PT-0052,src/core/game_state.gd,270,Sem marcos suficientes (%d).
-PT-0053,src/core/game_state.gd,273,Fadiga no limite (%d/%d) — não consegues treinar. Descansa (leitos e dormitórios).
-PT-0054,src/core/game_state.gd,279,+1 ponto de atributo (Esc → Atributos). Fadiga %d/%d. O Mestre aprova.
-PT-0055,src/core/game_state.gd,321,+%d XP
-PT-0056,src/core/game_state.gd,326,NÍVEL %d! +2 pontos de atributo (Esc → Atributos)
-PT-0057,src/core/game_state.gd,407,sem vozes no sistema
-PT-0058,src/core/game_state.gd,411,automática (%s)
-PT-0059,src/core/game_state.gd,453,ESTADO DE RUPTURA — 8 segundos de fúria!
-PT-0060,src/core/game_state.gd,456,Ruptura não está cheia (%d%%)
-PT-0061,src/core/game_state.gd,465,Esgotado... o corpo cobra o preço.
-PT-0062,src/core/game_state.gd,478,Sem poções!
-PT-0063,src/core/game_state.gd,491,"Fala com a tua mãe, Elen, na casa junto ao poço."
-PT-0064,src/core/game_state.gd,492,"Visita Garr, o ferreiro, junto à forja no lado poente."
-PT-0065,src/core/game_state.gd,493,Atravessa a Floresta Baixa pela Estrada Imperial.
-PT-0066,src/core/game_state.gd,494,Chega ao Portão da Academia e fala com Liora Venn.
-PT-0067,src/core/game_state.gd,495,Vai à arena e fala com o Mestre Dario Vale.
-PT-0068,src/core/game_state.gd,496,Derrota o Guardião da Prova na arena.
-PT-0069,src/core/game_state.gd,497,Abre o menu (Esc) e toma A DECISÃO.
-PT-0070,src/core/game_state.gd,498,Fim da linha — por agora. O mundo continua sem ti... ou não.
-PT-0071,src/core/game_state.gd,503,Lobos de Cinza na estrada: %d/3
-PT-0072,src/core/game_state.gd,505,Lobos de Cinza: concluído ✓
-PT-0073,src/core/game_state.gd,507,Fibras de Ruína: %d/5
-PT-0074,src/core/game_state.gd,509,Luz para as Lâmpadas: concluído ✓
-PT-0075,src/core/game_state.gd,516,Novo objetivo — %s
-PT-0076,src/core/game_state.gd,522,Lobo de Cinza derrotado (%d/3)
-PT-0077,src/core/game_state.gd,527,Missão concluída: Lobos da Estrada! +60 marcos
-PT-0078,src/core/game_state.gd,535,Fibra de Ruína recolhida (%d/5)
-PT-0079,src/core/game_state.gd,541,"Missão concluída: Luz para as Lâmpadas! +40 marcos, +1 poção"
-PT-0080,src/core/game_state.gd,576,Não foi possível guardar o jogo.
-PT-0081,src/core/game_state.gd,588,Jogo guardado.
-PT-0082,src/core/game_state.gd,685,Não existe jogo guardado.
-PT-0083,src/core/game_state.gd,694,Ficheiro de gravação corrompido.
-PT-0084,src/core/game_state.gd,696,Gravação principal corrompida — restaurado o backup.
-PT-0085,src/core/game_state.gd,702,Gravação adulterada ou corrompida (checksum inválido).
-PT-0086,src/core/game_state.gd,709,Jogo carregado.
-PT-0087,src/core/game_state.gd,760,Passo Vazio
-PT-0088,src/core/game_state.gd,761,Corrida do Predador
-PT-0089,src/core/game_state.gd,762,Queda do Colosso
-PT-0090,src/core/game_state.gd,778,ativa a Ruptura uma vez (tens %d ativações)
-PT-0091,src/core/game_state.gd,780,alcança Nv 8 (estás no Nv %d)
-PT-0092,src/core/game_state.gd,782,ativa a Ruptura 3 vezes (tens %d ativações)
-PT-0093,src/core/game_state.gd,793,TÉCNICA DESBLOQUEADA: %s (%s)
+PT-0043,src/core/game_state.gd,194,Dificuldade: %s
+PT-0044,src/core/game_state.gd,218,Conselho Imperial
+PT-0045,src/core/game_state.gd,219,Irmandade do Vácuo
+PT-0046,src/core/game_state.gd,220,Ordem da Cinza
+PT-0047,src/core/game_state.gd,221,Arquivistas do Proibido
+PT-0048,src/core/game_state.gd,222,Academia Real de Veyra
+PT-0049,src/core/game_state.gd,230,Reputação %s %s (%d)
+PT-0050,src/core/game_state.gd,264,"LESÃO — -10% dano, -15% velocidade, -15% recuperação de fôlego. Repouso, Bálsamo de Salvação ou forja tratam-na."
+PT-0051,src/core/game_state.gd,266,"LESÃO GRAVE — -22% dano, -32% velocidade, -30% recuperação de fôlego. Repouso, Bálsamo de Salvação ou a forja de Garr."
+PT-0052,src/core/game_state.gd,273,Sem marcos suficientes (%d).
+PT-0053,src/core/game_state.gd,276,Fadiga no limite (%d/%d) — não consegues treinar. Descansa (leitos e dormitórios).
+PT-0054,src/core/game_state.gd,282,+1 ponto de atributo (Esc → Atributos). Fadiga %d/%d. O Mestre aprova.
+PT-0055,src/core/game_state.gd,324,+%d XP
+PT-0056,src/core/game_state.gd,329,NÍVEL %d! +2 pontos de atributo (Esc → Atributos)
+PT-0057,src/core/game_state.gd,410,sem vozes no sistema
+PT-0058,src/core/game_state.gd,414,automática (%s)
+PT-0059,src/core/game_state.gd,456,ESTADO DE RUPTURA — 8 segundos de fúria!
+PT-0060,src/core/game_state.gd,459,Ruptura não está cheia (%d%%)
+PT-0061,src/core/game_state.gd,468,Esgotado... o corpo cobra o preço.
+PT-0062,src/core/game_state.gd,481,Sem poções!
+PT-0063,src/core/game_state.gd,494,"Fala com a tua mãe, Elen, na casa junto ao poço."
+PT-0064,src/core/game_state.gd,495,"Visita Garr, o ferreiro, junto à forja no lado poente."
+PT-0065,src/core/game_state.gd,496,Atravessa a Floresta Baixa pela Estrada Imperial.
+PT-0066,src/core/game_state.gd,497,Chega ao Portão da Academia e fala com Liora Venn.
+PT-0067,src/core/game_state.gd,498,Vai à arena e fala com o Mestre Dario Vale.
+PT-0068,src/core/game_state.gd,499,Derrota o Guardião da Prova na arena.
+PT-0069,src/core/game_state.gd,500,Abre o menu (Esc) e toma A DECISÃO.
+PT-0070,src/core/game_state.gd,501,Fim da linha — por agora. O mundo continua sem ti... ou não.
+PT-0071,src/core/game_state.gd,506,Lobos de Cinza na estrada: %d/3
+PT-0072,src/core/game_state.gd,508,Lobos de Cinza: concluído ✓
+PT-0073,src/core/game_state.gd,510,Fibras de Ruína: %d/5
+PT-0074,src/core/game_state.gd,512,Luz para as Lâmpadas: concluído ✓
+PT-0075,src/core/game_state.gd,519,Novo objetivo — %s
+PT-0076,src/core/game_state.gd,525,Lobo de Cinza derrotado (%d/3)
+PT-0077,src/core/game_state.gd,530,Missão concluída: Lobos da Estrada! +60 marcos
+PT-0078,src/core/game_state.gd,538,Fibra de Ruína recolhida (%d/5)
+PT-0079,src/core/game_state.gd,544,"Missão concluída: Luz para as Lâmpadas! +40 marcos, +1 poção"
+PT-0080,src/core/game_state.gd,594,Não foi possível guardar o jogo.
+PT-0081,src/core/game_state.gd,606,Jogo guardado.
+PT-0082,src/core/game_state.gd,707,Não existe jogo guardado.
+PT-0083,src/core/game_state.gd,716,Ficheiro de gravação corrompido.
+PT-0084,src/core/game_state.gd,718,Gravação principal corrompida — restaurado o backup.
+PT-0085,src/core/game_state.gd,724,Gravação adulterada ou corrompida (checksum inválido).
+PT-0086,src/core/game_state.gd,731,Jogo carregado.
+PT-0087,src/core/game_state.gd,782,Passo Vazio
+PT-0088,src/core/game_state.gd,783,Corrida do Predador
+PT-0089,src/core/game_state.gd,784,Queda do Colosso
+PT-0090,src/core/game_state.gd,800,ativa a Ruptura uma vez (tens %d ativações)
+PT-0091,src/core/game_state.gd,802,alcança Nv 8 (estás no Nv %d)
+PT-0092,src/core/game_state.gd,804,ativa a Ruptura 3 vezes (tens %d ativações)
+PT-0093,src/core/game_state.gd,815,TÉCNICA DESBLOQUEADA: %s (%s)
 PT-0094,src/core/input_setup.gd,33,Interagir / Corrente
 PT-0095,src/core/input_setup.gd,34,Estado de Ruptura
 PT-0096,src/core/input_setup.gd,34,Fixar alvo
@@ -308,7 +308,7 @@ PT-0306,src/ui/title.gd,48,UM MUNDO COM MAGIA. UM RAPAZ SEM ELA.
 PT-0307,src/ui/title.gd,56,A ACADEMIA\nDO ZERO
 PT-0308,src/ui/title.gd,64,"Kael Noro, o rapaz sem Núcleo, e o mundo que esqueceu os sem-magia."
 PT-0309,src/ui/title.gd,80,NOVO JOGO
-PT-0310,src/ui/title.gd,90,"Vertical Slice v0.1 · Arkanor, o Vale de Noro · Feito em Godot 4"
+PT-0310,src/ui/title.gd,106,"Vertical Slice v0.1 · Arkanor, o Vale de Noro · Feito em Godot 4"
 PT-0311,src/ui/ui.gd,30,Música: %s
 PT-0312,src/ui/ui.gd,35,Música %s.
 PT-0313,src/ui/ui.gd,48,Controlo atualizado: %s
