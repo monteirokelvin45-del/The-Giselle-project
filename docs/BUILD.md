@@ -90,12 +90,12 @@ res://tools/smoke_flows.tscn  # 5 asserções de fluxo; exit 0 = tudo verde
 
 - 5 cenas (`title`, `main`, `academia`, `region`, `sala_branca`) carregam e
   correm 120–240 frames headless **sem SCRIPT ERROR**.
-- `tools/smoke_test.tscn`: **22/22** — boot do mundo, subir de nível por XP,
+- `tools/smoke_test.tscn`: **24/24** — boot do mundo, subir de nível por XP,
   desbloqueio de técnicas (Passo Vazio/Queda do Colosso), curva de XP e
   cura da poção via `balance.json`, **save/load roundtrip**, dano real a um
   inimigo instanciado em runtime, **salto + ataques aéreos + slam de queda**
   (dano de área real), lesões graduadas 0–2, fadiga de treino (bloqueio no
-  MÁX), guarda de marcos e remendo do curandeiro.
+  MÁX), guarda de marcos, remendo do curandeiro, persistência da voz TTS e ciclo sem vozes no sistema.
 - `tools/perf_probe.tscn`: sonda de performance CPU-side (headless) —
   fps de processo, ms de frame/física, memória estática, contagem de
   objetos/nós/órfãos. Não substitui profiling em hardware real (F5).

@@ -127,20 +127,20 @@ por reputação, decisões e estado do mundo.
       Sistema) + interruptor no menu de pausa; save corruption-proofing
       já existia (sha256 + .tmp atómico + .bak).
 - [x] **Localização — andaime**: `tools/l10n_extract.py` +
-      `docs/l10n/strings_pt.csv` (411 strings) + `docs/LOCALIZATION.md`.
+      `docs/l10n/strings_pt.csv` (415 strings) + `docs/LOCALIZATION.md`.
 - [x] **Engine executada neste ambiente**: Godot 4.7.2 compilado do
       código-fonte (headless linuxbsd); 5 cenas em smoke boot limpas; 11
-      22 asserções de jogabilidade verdes (save/load, XP, técnicas, combate
+      24 asserções de jogabilidade verdes (save/load, XP, técnicas, combate
       real, salto/ataques aéreos/slam de queda) + fluxos completos (Sala
       Branca → avaliação; Prova de Duelo → Bram). Ver `docs/BUILD.md` e
       `docs/AUDIT.md` §9.
 - [x] Assistência de mira suave nos ataques corpo a corpo (o corpo vira
       para o alvo mais próximo ao alcance — desligável na pausa).
-- [x] **Narração por botão** (2026-11-06): foco/hover de botões nos menus,
-      diálogos e viagem rápida lê o texto por TTS (partilhado por
-      `GameState.tts_say`).
-- [~] Escolha de voz para a narração (TTS usa sempre a primeira voz do
-      sistema) e narração incremental por botão em ecrãs ainda sem wiring.
+- [x] **Narração de menus** (2026-11-06): TTS do sistema ligável na pausa,
+      **por botão** (foco/hover em menus, diálogos e viagem rápida, partilhado
+      por `GameState.tts_say`) e **com escolha de voz** — botão
+      «Narração — voz (⟳)» na pausa percorre Auto → vozes do sistema
+      (`cycle_tts_voice`), escolhida via `tts_voice` no save.
 - [ ] Testes com jogadores reais (algo que este repositório ainda não pode
       fazer).
 - [ ] Traduções EN/ES (o runtime ainda não troca de idioma — ver

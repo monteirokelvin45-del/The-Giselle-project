@@ -150,6 +150,7 @@ var subtitle_scale: float = 1.0
 var weapon_tempered: bool = false   # lâmina temperada na forja de Garr (+12% dano, permanente)
 var aim_assist: bool = true            # preferência: mira suave nos ataques corpo a corpo
 var menu_narration: bool = false       # preferência: TTS nas notificações de menu
+var tts_voice: String = ""           # preferência: id da voz TTS; "" = automática
 var rupture_activations: int = 0      # quantas vezes a Ruptura foi despertada
 var techniques_seen: Dictionary = {}   # técnicas já anunciadas como desbloqueadas
 var custom_bindings: Dictionary = {}
@@ -389,11 +390,38 @@ func tts_say(text: String) -> void:
 		return
 	var voices := DisplayServer.tts_get_voices()
 	if voices.is_empty():
-		return
-	var voice_id := String(voices[0].get("id", ""))
+		return   # sistema sem vozes TTS — silencioso por omissão
+	var voice_id := tts_voice
+	if voice_id.is_empty():
+		voice_id = String(voices[0].get("id", ""))
 	if voice_id.is_empty():
 		return
 	DisplayServer.tts_speak(text, voice_id)
+
+func tts_voices() -> Array:
+	return DisplayServer.tts_get_voices()
+
+func tts_voice_label() -> String:
+	var voices := tts_voices()
+	if voices.is_empty():
+		return "sem vozes no sistema"
+	for v in voices:
+		if String(v.get("id", "")) == tts_voice:
+			return String(v.get("name", v.get("id", "?")))
+	return "automática (%s)" % String(voices[0].get("name", voices[0].get("id", "?")))
+
+func cycle_tts_voice() -> void:
+	var voices := tts_voices()
+	if voices.is_empty():
+		tts_voice = ""
+		stats_changed.emit()
+		return
+	var ids: Array[String] = [""]
+	for v in voices:
+		ids.append(String(v.get("id", "")))
+	var idx := ids.find(tts_voice)
+	tts_voice = ids[(idx + 1) % ids.size()]
+	stats_changed.emit()
 
 ## Gasta marcos com guarda (lojas/forja); false e aviso se não chegar.
 func try_spend_marcos(amount: int) -> bool:
@@ -536,7 +564,7 @@ func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 		"injury": injury, "fatigue": fatigue,
 		"colorblind_mode": colorblind_mode, "subtitle_scale": subtitle_scale,
 		"custom_bindings": custom_bindings, "music_enabled": music_enabled,
-		"weapon_tempered": weapon_tempered, "aim_assist": aim_assist, "menu_narration": menu_narration,
+		"weapon_tempered": weapon_tempered, "aim_assist": aim_assist, "menu_narration": menu_narration, "tts_voice": tts_voice,
 		"rupture_activations": rupture_activations, "techniques_seen": techniques_seen,
 		"px": pos.x, "py": pos.y, "pz": pos.z, "hp": hp, "stamina": stamina,
 	}
@@ -622,6 +650,7 @@ func _apply_save_dict(parsed: Dictionary) -> void:
 	weapon_tempered = bool(parsed.get("weapon_tempered", false))
 	aim_assist = bool(parsed.get("aim_assist", true))
 	menu_narration = bool(parsed.get("menu_narration", false))
+	tts_voice = String(parsed.get("tts_voice", ""))
 	rupture_activations = int(parsed.get("rupture_activations", 0))
 	techniques_seen = parsed.get("techniques_seen", {}) if typeof(parsed.get("techniques_seen", {})) == TYPE_DICTIONARY else {}
 	saved_position = Vector3(float(parsed.get("px", 0.0)), float(parsed.get("py", 1.0)), float(parsed.get("pz", 34.0)))
@@ -720,6 +749,7 @@ func reset_for_new_game() -> void:
 	current_region = "noro"
 	injury = 0
 	fatigue = 0
+	tts_voice = ""
 	if Keymap != null and Keymap.has_method("apply_custom_bindings"):
 		Keymap.apply_custom_bindings(custom_bindings)
 	stats_changed.emit()

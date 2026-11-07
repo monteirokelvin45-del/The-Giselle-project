@@ -21,6 +21,7 @@ var _colorblind_btn: Button
 var _subtitle_btn: Button
 var _aim_btn: Button
 var _narration_btn: Button
+var _voice_btn: Button
 var _rebinding: String = ""
 var _rebind_rows: Dictionary = {}
 var _rebind_hint: Label
@@ -122,6 +123,14 @@ func _cycle_narration() -> void:
 	GameState.menu_narration = not GameState.menu_narration
 	_narration_btn.text = _narration_text()
 	notify("Narração de menus %s." % ("ativada" if GameState.menu_narration else "desligada"))
+
+func _voice_text() -> String:
+	return "Narração — voz: %s  ⟳" % GameState.tts_voice_label()
+
+func _cycle_voice() -> void:
+	GameState.cycle_tts_voice()
+	_voice_btn.text = _voice_text()
+	notify("Voz da narração: %s" % GameState.tts_voice_label())
 
 func _tts_say(text: String) -> void:
 	GameState.tts_say(text)
@@ -724,6 +733,8 @@ func _build_pause() -> void:
 	vbox.add_child(_aim_btn)
 	_narration_btn = _make_button(_narration_text(), _cycle_narration)
 	vbox.add_child(_narration_btn)
+	_voice_btn = _make_button(_voice_text(), _cycle_voice)
+	vbox.add_child(_voice_btn)
 	vbox.add_child(_make_button("Controlos", func(): _toggle_controls(true)))
 	vbox.add_child(_make_button("Sair para o Título", _quit_to_title))
 

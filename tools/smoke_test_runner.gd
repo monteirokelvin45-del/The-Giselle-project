@@ -51,6 +51,15 @@ func _process(_delta: float) -> void:
 		GameState.attributes["for"] = 1
 		GameState.load_game()
 		_check(GameState.marcos == 1234, "save/load devolve marcos")
+		GameState.tts_voice = "voz-teste-123"
+		GameState.save_game(Vector3(0.0, 1.3, 34.0), 100.0, 100.0)
+		GameState.tts_voice = ""
+		GameState.load_game()
+		_check(GameState.tts_voice == "voz-teste-123", "save/load devolve a voz de narração")
+		GameState.tts_voice = ""
+		GameState.cycle_tts_voice()
+		_check(GameState.tts_voice == "", "ciclo de voz sem vozes mantém automática")
+		GameState.save_game(Vector3(0.0, 1.3, 34.0), 100.0, 100.0)
 		_check(int(GameState.attributes["for"]) == 4, "save/load devolve atributos")
 		# v0.6 — lesões graduadas e treino com mestres
 		var attr_v06: int = GameState.attribute_points
@@ -117,7 +126,7 @@ func _process(_delta: float) -> void:
 			player.call("_do_attack", true)
 			_check(bool(player.get("_air_slam_pending")), "ataque pesado no ar prepara slam de queda")
 			_air_phase = 2
-		elif _frame >= 75:
+		elif _frame >= 120:
 			_check(false, "salto tira o jogador do chão")
 			_air_phase = 3
 			_finish_air()

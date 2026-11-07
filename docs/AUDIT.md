@@ -394,3 +394,27 @@ ruído). Também removida uma linha duplicada em world_builder.gd
 
 **Verificado:** 5 cenas headless sem erros de script · smoke 22/22 ·
 flows 5/5 · validate.py OK.
+
+---
+
+# 13. Addendum — Escolha de voz TTS (v1.0, 2026-11-07)
+
+Fecha a última lacuna da narração: `tts_voice` (id da voz; `""` = automática,
+1.ª voz do sistema). `cycle_tts_voice()` percorre Auto → todas as vozes do
+sistema; botão «Narração — voz (⟳)» no menu de pausa; persistida no save
+(com roundtrip testado). `tts_say` usa a voz escolhida (silencioso e sem
+rebentar se não houver vozes — o headless não tem nenhuma).
+
+**Verificado:** smoke **24/24** (2 asserções novas: save/load da voz, ciclo
+sem vozes) · flows 5/5 · headless limpo · l10n 415 strings.
+
+**Honestidade:** o headless não tem vozes TTS — a escolha de voz é validada
+em persistência e resiliência, **não** em qualidade vocal humana (F5 na
+máquina do dono). Flake no teste de salto (frame≥75 disparava em corridas
+lentas) alargado para frame≥120 e re-verificado 3× consecutivas verdes.
+
+**Ainda em aberto (v1.0):** EN/ES runtime (a peça maior — exige varrer
+`tr()` por todo o código; decisão deliberada de não entregar i18n a meio),
+testes com humanos, profiling em hardware real, meta-quests globais
+(Ferida/Custódia), romances com memória de ações (exige conteúdo de
+escolha novo — sem isso seria maquilhagem).
