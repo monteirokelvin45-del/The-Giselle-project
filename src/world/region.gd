@@ -201,6 +201,33 @@ func _compose_biome(region_id: String) -> void:
 			mk.flora_scatter(40, 18, 9.0, 66.0, AVOID, 8.0, 42)
 
 
+	# Ambiente por bioma: partículas + bando + POIs-chave
+	var amb = preload("res://src/world/ambience.gd").new()
+	amb.name = "Ambience"
+	add_child(amb)
+	match region_id:
+		"ruun":
+			mk.light_shaft(Vector3(5.0, 8.0, -13.5), 14.0, 2.4)
+			mk.light_shaft(Vector3(-6.0, 9.5, -19.0), 16.0, 2.8)
+			amb.add_emitter("fireflies", Vector3(0.0, 1.6, -12.0), Vector3(13.0, 2.2, 13.0), 30)
+			amb.add_emitter("leaves", Vector3(0.0, 8.0, -17.0), Vector3(15.0, 3.0, 15.0), 30)
+			amb.add_flock(Vector3(4.0, 19.0, -8.0), 13.0, 0.5)
+		"sahr":
+			mk.half_buried_orb(Vector3(-26.0, 0.0, 8.0), 1.7)
+			amb.add_emitter("dust", Vector3(0.0, 1.5, 0.0), Vector3(28.0, 1.6, 28.0), 18)
+		"khar":
+			mk.crystal_cluster(Vector3(19.5, 0.0, -13.0))
+			amb.add_emitter("snow", Vector3(0.0, 11.0, 0.0), Vector3(26.0, 4.0, 26.0), 42)
+		"lume":
+			amb.add_emitter("dust", Vector3(0.0, 1.7, 4.0), Vector3(18.0, 1.8, 18.0), 12)
+		"aer":
+			amb.add_emitter("clouds", Vector3(0.0, 6.0, 0.0), Vector3(24.0, 3.0, 24.0), 24)
+			amb.add_flock(Vector3(0.0, 21.0, -6.0), 15.0, 0.55)
+		"orun":
+			amb.add_emitter("motes", Vector3(0.0, 2.2, -14.0), Vector3(16.0, 4.2, 16.0), 32)
+		_:
+			amb.add_flock(Vector3(0.0, 18.0, 0.0), 12.0, 0.45)
+
 func _spawn_enemies() -> void:
 	var enemy_scene := preload("res://scenes/enemy.tscn")
 	var types: Array = _cfg["types"]

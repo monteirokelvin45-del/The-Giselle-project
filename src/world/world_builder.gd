@@ -24,6 +24,7 @@ static func build(root: Node3D) -> void:
 	wb._spawn_npcs()
 	wb._spawn_pickups()
 	wb._spawn_enemies()
+	wb._build_ambience()
 
 var root: Node3D
 var _mk  # MapKit (RefCounted) — composición v1.0
@@ -323,6 +324,30 @@ func _build_village() -> void:
 		var rot := 0.15 * (1 if i % 2 == 0 else -1)
 		_env("buildings/neutral/fence_wood_straight.gltf", Vector3(x, 0, z), rot + PI * 0.5, 0.85)
 
+
+	# Corda de roupa entre as casas da praça (norte)
+	var line_from := Vector3(-5.5, 3.0, 39.4)
+	var line_to := Vector3(5.0, 2.95, 39.0)
+	var ldir := line_to - line_from
+	var line := _visual_box(Vector3(0.05, 0.05, ldir.length()), (line_from + line_to) * 0.5, _mat(Color(0.15, 0.12, 0.1), 0.0, 0.9))
+	line.rotation.y = atan2(ldir.x, ldir.z)
+	var cloth_cols := [Color(0.92, 0.9, 0.86), Color(0.72, 0.3, 0.26), Color(0.85, 0.68, 0.32), Color(0.36, 0.48, 0.66)]
+	for i in range(4):
+		var t := (float(i) + 0.75) / 4.75
+		var p := line_from.lerp(line_to, t) + Vector3(0.0, -0.34 - 0.12 * sin(t * PI), 0.0)
+		var cloth := _visual_box(Vector3(0.44, 0.66, 0.05), p, _mat(cloth_cols[i], 0.0, 0.85))
+		cloth.rotation.y = atan2(ldir.x, ldir.z)
+	# Placa da taverna (âmbar, visível da praça)
+	_visual_cyl(0.07, 0.09, 2.6, Vector3(9.0, 1.3, 34.0), timber)
+	_visual_box(Vector3(0.8, 0.6, 0.1), Vector3(9.0, 2.32, 34.0), _mat(Color(0.5, 0.3, 0.16), 0.0, 0.8))
+	_visual_box(Vector3(0.03, 0.3, 0.5), Vector3(8.93, 2.34, 34.0), _mat(Color(0.9, 0.6, 0.2), 0.0, 0.6, Color(1.0, 0.65, 0.22), 1.5))
+	# Festões da festa do mercado entre os postes da praça (sul)
+	_mk.pennant_string(Vector3(-4.5, 3.2, 27.5), Vector3(4.5, 3.2, 27.5), [Color(0.85, 0.28, 0.24), Color(0.9, 0.72, 0.3), Color(0.36, 0.5, 0.68), Color(0.92, 0.9, 0.86)])
+	# Alvos de treino junto ao portão norte e à forja
+	_env("decoration/props/target.gltf", Vector3(-6.3, 0, -50.0), 0.5, 1.0)
+	_env("decoration/props/target.gltf", Vector3(6.3, 0, -50.0), -0.4, 1.0)
+	_env("decoration/props/target.gltf", Vector3(7.8, 0, -45.5), -0.9, 1.0)
+
 # -------------------------------------------------------------- floresta ----
 func _build_forest() -> void:
 	rng.seed = SEED + 7
@@ -447,6 +472,50 @@ func _build_landmarks() -> void:
 	_mk.engineer_ruins(Vector3(15.5, 0.0, -24.0))
 	# Posto de observação colapsado, meio da mata norte
 	_mk.post(Vector3(6.2, 0.0, -38.0), 1.5)
+
+
+# -------------------------------------------------------- ambiente v1.1 ----
+func _build_ambience() -> void:
+	var amb = preload("res://src/world/ambience.gd").new()
+	amb.name = "Ambience"
+	root.add_child(amb)
+	amb.add_emitter("leaves", Vector3(0.0, 8.5, -17.0), Vector3(15.0, 3.0, 15.0), 30)
+	amb.add_emitter("embers", Vector3(-11.1, 1.8, 25.8), Vector3(1.2, 1.0, 1.2), 16)
+	amb.add_emitter("embers", Vector3(12.5, 3.4, 37.0), Vector3(0.9, 0.8, 0.9), 10)
+	amb.add_flock(Vector3(2.0, 20.5, 31.0), 12.0, 0.45)
+	_mk.light_shaft(Vector3(3.0, 9.0, -12.0), 13.0, 2.2)
+	_mk.light_shaft(Vector3(-5.0, 10.0, -21.0), 15.0, 2.6)
+	# Lagoa dos patos: água baixa + caniço + nenúfares + doca
+	var water := StandardMaterial3D.new()
+	water.albedo_color = Color(0.09, 0.24, 0.31, 0.9)
+	water.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	water.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	water.emission_enabled = true
+	water.emission = Color(0.05, 0.13, 0.17)
+	water.emission_energy_multiplier = 0.8
+	var pond_mesh := CylinderMesh.new()
+	pond_mesh.top_radius = 3.4
+	pond_mesh.bottom_radius = 3.4
+	pond_mesh.height = 0.07
+	var pond := MeshInstance3D.new()
+	pond.mesh = pond_mesh
+	pond.material_override = water
+	pond.position = Vector3(17.0, 0.055, 17.0)
+	root.add_child(pond)
+	for i in range(7):
+		var ang := TAU * float(i) / 7.0 + 0.4
+		_flora("Grass002.glb", Vector3(cos(ang) * 3.8 + 17.0, 0.0, sin(ang) * 3.8 + 17.0), randf() * TAU, 1.5)
+	for i in range(3):
+		var lily_mesh := CylinderMesh.new()
+		lily_mesh.top_radius = 0.3 - float(i) * 0.07
+		lily_mesh.bottom_radius = 0.3 - float(i) * 0.07
+		lily_mesh.height = 0.025
+		var lily := MeshInstance3D.new()
+		lily.mesh = lily_mesh
+		lily.material_override = _mat(Color(0.23, 0.46, 0.2), 0.0, 0.8)
+		lily.position = Vector3(15.9 + float(i) * 1.25, 0.11, 16.4 + float(i % 2) * 1.15)
+		root.add_child(lily)
+	_mk.dock(Vector3(17.0, 0.0, 13.4))
 
 # ------------------------------------------------------------- spawns -------
 func _spawn_npcs() -> void:

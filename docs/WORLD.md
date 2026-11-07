@@ -44,3 +44,40 @@ exige F5 no PC/Android do dono (`docs/PLAYTEST.md` §D).
   conhecido; perfilar com sonda + registar (PLAYTEST §D).
 - Look cel v1.0 aplica-se automaticamente a tudo isto (`apply_cel_look`).
 - Assets novos: **zero**; tudo KayKit/gobkit CC0 (ver docs/ASSETS.md).
+
+## Ambiente vivo v1.1 (2026-11-07)
+Pedido do dono: «coloca cada detalhe mesmo o balançar das árvores, tudo
+mesmo». **Tudo com nodes/materiais nativos — zero shaders custom** (GLES3 às
+cegas seria irresponsável).
+
+**Vento automático** (`model_factory.spawn_env → _tag_ambience`): relva
+balança 3,2°, arbustos 2,2°, árvores/saplings 1,0°; rotação base guardada em
+meta e aplicada por frame — nunca acumula. Cada instância tem fase/velocidade
+próprias (hash da posição, determinístico).
+
+**`src/world/ambience.gd`** (novo): grupos `sway/bob/spin` processados num
+único `_process` (~400+ nós — barato); **bandos de pássaros** em V (3 silhuetas,
+órbita + bob vertical); **partículas nativas** por bioma: folhas (Vale/Ruun),
+brasa (forja/taverna), vaga-lumes (Ruun), pó (Sahr/Lume), neve (Khar),
+nuvens/motes (Aer), motes-violeta (Orun), pétalas (Veyra).
+
+**Detalhes por mapa:**
+- Vale: lagoa (água baixa + caniço + nenúfares + doca), corda de roupa com
+  4 lençóis, placa da taverna em âmbar, festões da festa do mercado (cones
+  coloridos), 2 alvos norte + 1 forja, fachos de luz na mata, bando circular.
+- Veyra: 2 mastro de bandeira no castelo, 5 leitos de ervas de Sena
+  (nascente), círculo dos novatos (3 alvos), pétalas no pátio e nos jardins,
+  bando.
+- Ruun: 2 fachos de luz do dossel (aditivos), vaga-lumes, folhas.
+- Sahr: **orbe meio-soterrado dos Engenheiros** (metálico, olho turquesa).
+- Khar: **cristais energizados** (5 estilhaços emisivos + luz azul) junto à
+  haste para-raios + **neve**.
+- Lume: **feixe do farol a varrer o horizonte** (lâmina aditiva rotativa).
+- Aer: ilhas flutuantes **levitam** (bob 0,7 m, 0,38 rad/s) + nuvem de
+  micropartículas.
+- Orun: motes-violeta ascendentes; altar estático (o silêncio pesa).
+
+**Verificado:** gdparse 7/7 · validate.py · i18n 460/460 · CI no push
+(boot + smoke + flows). **Por medir (F5 do dono):** custo real do vento com
+400+ nós animados, partículas em GLES3, e opacidade das lâminas aditivas
+(impostura se o blend estiver desligado no driver).

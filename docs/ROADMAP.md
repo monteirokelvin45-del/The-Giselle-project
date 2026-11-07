@@ -171,7 +171,8 @@ por reputação, decisões e estado do mundo.
       exige F5 numa máquina com os drivers do alvo (Android).
 - [x] **Composição de mapas v1.0** (2026-11-07): todos os mapas (Vale, Veyra
       e as 6 expedições) com dupla densidade visual e POIs originais via
-      `src/world/map_kit.gd` (docs/WORLD.md; GDD cap. 41). Sem assets novos;
+      `src/world/map_kit.gd` (docs/WORLD.md; GDD cap. 41–42) + ambiente vivo v1.1 (vento, pássaros, lugares
+      e partículas). Sem assets novos;
       F5/GPU/Android por medir (PLAYTEST §D).
 - [x] Meta-quests globais (ver v0.7; implementadas 2026-11-07 — Estado de
       mundo persistido, consequência global: bloqueio de fim + reputação +

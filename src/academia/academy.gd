@@ -261,6 +261,32 @@ func _build_gardens_extra() -> void:
 		for sx in [-1.0, 1.0]:
 			mk.visual_box(Vector3(6.2, 0.85, 0.7), Vector3(sx * 8.0, 0.43, hz), hedge)
 			mk.collider_box(Vector3(6.2, 0.85, 0.7), Vector3(sx * 8.0, 0.43, hz))
+	# Mastros junto à porta do castelo
+	var darkwood := mk.mat(Color(0.3, 0.26, 0.18), 0.4, 0.5)
+	for sx in [-1.0, 1.0]:
+		var p := Vector3(sx * 5.6, 0.0, -26.5)
+		mk.visual_cyl(0.08, 0.1, 3.6, p + Vector3(0.0, 1.8, 0.0), darkwood)
+		mk.env("decoration/props/flag_yellow.gltf", p + Vector3(0.0, 3.6, 0.0), 0.0, 1.0)
+	# Leitos de ervas da Sena (jardim a nascente)
+	var bed := mk.mat(Color(0.3, 0.22, 0.14), 0.0, 0.95)
+	var herb_pos := [Vector3(33.0, 0.0, 18.0), Vector3(36.5, 0.0, 17.5), Vector3(40.0, 0.0, 21.0), Vector3(38.0, 0.0, 25.0), Vector3(42.5, 0.0, 17.0)]
+	for p in herb_pos:
+		mk.visual_box(Vector3(2.3, 0.4, 1.2), p + Vector3(0.0, 0.2, 0.0), bed)
+		mk.flora("Grass002.glb", p + Vector3(-0.6, 0.42, 0.1), 0.3, 1.3)
+		mk.flora("Grass001.glb", p + Vector3(0.5, 0.42, -0.15), 2.1, 1.2)
+		mk.collider_box(Vector3(2.3, 0.4, 1.2), p + Vector3(0.0, 0.2, 0.0))
+	# Círculo dos novatos: 3 alvos + armação
+	for i in range(3):
+		var ang := TAU * float(i) / 3.0 + 0.5
+		mk.env("decoration/props/target.gltf", Vector3(28.0 + cos(ang) * 3.6, 0.0, -6.0 + sin(ang) * 3.6), ang + PI, 1.0)
+	mk.env("decoration/props/weaponrack.gltf", Vector3(28.0, 0.0, -11.5), 0.0, 1.0)
+	# Ambiente: pétalas no pátio e nos jardins + bando a circular o castelo
+	var amb = preload("res://src/world/ambience.gd").new()
+	amb.name = "Ambience"
+	add_child(amb)
+	amb.add_emitter("petals", Vector3(0.0, 3.0, 0.0), Vector3(12.0, 2.4, 12.0), 22)
+	amb.add_emitter("petals", Vector3(36.5, 2.6, 21.5), Vector3(6.0, 2.2, 6.0), 18)
+	amb.add_flock(Vector3(0.0, 17.0, -4.0), 15.0, 0.4)
 
 # ---------------------------------------------------------------- exames ----
 func _on_dialogue_action(action: String) -> void:

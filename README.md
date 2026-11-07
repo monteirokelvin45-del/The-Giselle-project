@@ -103,6 +103,9 @@ Para testar o esquema no PC, põe `const FORCE_TOUCH := true` em `src/mobile/tou
   para a floresta de Ruun) e POIs originais — acampamento abandonado, templos,
   torre, obeliscos, farol, doca, ilhas flutuantes, altar do Abismo.
   Ver `docs/WORLD.md` e cap. 41 do GDD.
+- **Ambiente vivo** (v1.1): vento automático em toda a vegetação, bandos de
+  pássaros, partículas por bioma (folhas/brasas/vaga-lumes/neve/motes),
+  feixe rotativo no farol de Lume e ilhas flutuantes leves — cap. 42 GDD.
 - **QA humano**: checklist obrigatória em `docs/PLAYTEST.md` (F5, GPU, Android,
   QA nativo) — nada disso pode ser substituído por CI.
 

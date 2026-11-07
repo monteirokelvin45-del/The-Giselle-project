@@ -637,3 +637,32 @@ ressentir, cortar 30–40% dos `*_scatter` por bioma — um parâmetro cada
 
 **Fora do escopo de caso pensado (registado):** HeightMap/relevo real, água
 real, fluxo de jogo novo nos POIs.
+
+---
+
+# 19. Addendum — Ambiente vivo: vento, vida e detalhes (2026-11-07)
+
+**Pedido explícito:** «Capricha nos mapas, terrenos, vilas, castelos,
+academias etc, coloca cada detalhe mesmo o balançar das árvores, tudo mesmo».
+
+**Entregue (nodes/materiais nativos — nenhum shader novo):**
+`src/world/ambience.gd`: grupos `sway/bob/spin` (uma única travessia por
+frame, sem acumulação de rotação), bandos de pássaros em V, partículas
+nativas por bioma (folhas/brasas/vaga-lumes/pó/neve/nuvens/motes/pétalas).
+Vento automático via `spawn_env` (relva > arbusto > árvore em amplitude).
+Detalhes: lagoa do Vale + doca + nenúfares, corda de roupa, placa da taverna,
+festões, fachos de luz do dossel (Ruun+Vale), orbe meio-soterrado (Sahr),
+cristais de Khar, feixe rotativo do farol (Lume), ilhas flutuantes levitando
+(Aer/Orun), braseiros/leitos/mastro/círculo dos novatos (Veyra), pétalas
+(Veyra), neve (Khar). Ver docs/WORLD.md (secção Ambiente vivo v1.1).
+
+**Correção de fundo:** `spawn_env` tinha perdido a chamada `apply_cel_look`
+no incidente de rollback do `.git` — restaurada; vegetação agora é cel +
+vento. (Aprender duas vezes: verificar sempre com `grep` após edits.)
+
+**Verificado:** gdparse 7/7 · validate.py · i18n 460/460. **Bloqueado
+honestamente (F5/GPU do dono):** custo de 400+ nós em senóides/frame,
+partículas em GLES3 (o rain já prova o caminho; quantidades são modestas),
+aditivo das lâminas, e o lago a 90% opaco (se o driver não gostar, descer
+para 0.82). Atenção ao Android: o vento é CPU — barato; as partículas são
+GPU-bound — cortar quantidades se necessário.

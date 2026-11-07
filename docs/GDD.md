@@ -820,3 +820,23 @@ pode virar âncora de quest no futuro sem retrabalho de arte.
 **O que isto NÃO é:** relevo (HeightMap) nem água real — o chão em jogo
 continua plano; as paredes do bioma é que fazem a montanha. Ver
 `docs/WORLD.md` (tabela completa + limites).
+
+## 42. Ambiente vivo (direção de arte em movimento, v1.1)
+
+Um mundo parado mente; um mundo que respira, persuade. Depois do composição
+dense dos mapas (cap. 41), o v1.1 dá-lhes **pulso**:
+
+- **Vento**: a relva responde ao passar do jogador; a floresta inclina-se em
+  ondas sobrepostas — o jogador ouve/lê movimento antes de o ver.
+- **Há sempre algo a acontecer**: pássaros circling a vila e o castelo,
+  brasas sobem da forja e da taverna, vaga-lumes acendem a Ruun ao anoitecer,
+  pétalas descem nos jardins de Veyra, neve pensa em Khar, motes sobem em
+  Orun como cinza feliz.
+- **Detalhe que conta**: corda de roupa na praça, placa âmbar da taverna,
+  festões de festa — o Vale não é um menu, é uma casa.
+
+**Direção de arte (Genshin como referência de alma, não de cópia):** cores
+quentes no céu do Vale, saturação no chão natural, siluetas legíveis, um
+ponto de cor a brilhar em cada composição (a chama da forja, o farol de
+Lume, o núcleo do Abismo). Tudo com CC0 — a alma está na composição,
+não no assets.

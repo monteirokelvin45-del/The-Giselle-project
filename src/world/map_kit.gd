@@ -233,6 +233,27 @@ func lighthouse(pos: Vector3) -> void:
 	beam.light_energy = 2.6
 	beam.omni_range = 22.0
 	root.add_child(beam)
+	# Feixe visível a varrer o horizonte (lâmina aditiva, rotação lenta)
+	var spinner := Node3D.new()
+	spinner.position = pos + Vector3(0.0, 8.4, 0.0)
+	root.add_child(spinner)
+	var blade := MeshInstance3D.new()
+	var bbm := BoxMesh.new()
+	bbm.size = Vector3(11.0, 0.4, 0.62)
+	blade.mesh = bbm
+	blade.position = Vector3(5.5, 0.0, 0.0)
+	var bmat := StandardMaterial3D.new()
+	bmat.albedo_color = Color(0.72, 0.94, 1.0, 0.32)
+	bmat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	bmat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	bmat.disable_receive_shadows = true
+	bmat.emission_enabled = true
+	bmat.emission = Color(0.6, 0.9, 1.0)
+	bmat.emission_energy_multiplier = 1.7
+	blade.material_override = bmat
+	blade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	spinner.add_child(blade)
+	preload("res://src/world/ambience.gd").spinner(spinner, 0.55)
 	collider_cyl(1.9, 7.2, pos + Vector3(0.0, 3.6, 0.0))
 
 ## Altar do Abismo: anel de colunas negras + núcleo de luz ferida.
@@ -268,6 +289,7 @@ func floating_islands(count: int, y_min: float, y_max: float, seed_offset: int) 
 		var island := env(models[rng.randi_range(0, models.size() - 1)], pos, rng.randf_range(0.0, TAU), rng.randf_range(1.2, 2.6))
 		if island != null:
 			island.rotation.z = PI
+			preload("res://src/world/ambience.gd").bobber(island, 0.7, 0.38)
 
 ## Arco de pedra do céu quebrado (reg. Aer) — duas rochas colossais inclinadas.
 func sky_arch(pos: Vector3) -> void:
@@ -296,6 +318,84 @@ func post(pos: Vector3, height: float = 1.1) -> void:
 	var wood := mat(Color(0.32, 0.23, 0.14), 0.0, 0.9)
 	visual_cyl(0.09, 0.11, height, pos + Vector3(0.0, height * 0.5, 0.0), wood)
 	visual_box(Vector3(0.34, 0.14, 0.34), pos + Vector3(0.0, height + 0.07, 0.0), wood)
+
+
+## Orbe meio-soterrado — engrenagem arcaica avariada (Sahr).
+func half_buried_orb(pos: Vector3, radius: float = 1.7) -> void:
+	var hull := mat(Color(0.4, 0.36, 0.3), 0.85, 0.32)
+	var eye := mat(Color(0.05, 0.06, 0.06), 0.0, 0.9, Color(0.3, 0.95, 0.75), 2.2)
+	var orb := MeshInstance3D.new()
+	var sm := SphereMesh.new()
+	sm.radius = radius
+	sm.height = radius * 2.0
+	orb.mesh = sm
+	orb.material_override = hull
+	orb.position = pos + Vector3(0.0, radius * 0.42, 0.0)
+	root.add_child(orb)
+	visual_cyl(radius * 0.34, radius * 0.38, radius * 0.7, pos + Vector3(radius * 0.6, radius * 0.3, 0.3), hull)
+	visual_box(Vector3(0.5, 0.2, 0.1), pos + Vector3(-radius * 0.5, radius * 0.62, radius * 0.78), eye)
+	collider_cyl(radius * 0.75, radius * 1.2, pos + Vector3(0.0, radius * 0.5, 0.0))
+
+## Aglomerado de cristais energizados (Khar, junto ao para-raios).
+func crystal_cluster(pos: Vector3) -> void:
+	var crystal := mat(Color(0.08, 0.2, 0.28), 0.1, 0.35, Color(0.3, 0.9, 1.0), 1.9)
+	var rng2 := RandomNumberGenerator.new()
+	rng2.seed = 987654
+	for i in range(5):
+		var ang := TAU * float(i) / 5.0 + rng2.randf_range(-0.3, 0.3)
+		var h := rng2.randf_range(0.9, 2.1)
+		var shard := visual_box(Vector3(0.34, h, 0.34), pos + Vector3(cos(ang) * 0.85, h * 0.4, sin(ang) * 0.85), crystal)
+		shard.rotation.z = rng2.randf_range(-0.4, 0.4)
+		shard.rotation.x = rng2.randf_range(-0.3, 0.3)
+	var glow := OmniLight3D.new()
+	glow.position = pos + Vector3(0.0, 1.6, 0.0)
+	glow.light_color = Color(0.4, 0.85, 1.0)
+	glow.light_energy = 1.5
+	glow.omni_range = 9.0
+	root.add_child(glow)
+
+## Feixes de luz do dossel (Ruun) — planos aditivos quentes, sem sombra.
+func light_shaft(pos: Vector3, height: float = 15.0, width: float = 2.4) -> void:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(1.0, 0.94, 0.75, 0.10)
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.disable_receive_shadows = true
+	m.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	for i in range(3):
+		var shaft := MeshInstance3D.new()
+		var pm := PlaneMesh.new()
+		pm.size = Vector2(width * (1.0 + float(i) * 0.35), height)
+		shaft.mesh = pm
+		shaft.material_override = m
+		shaft.position = pos + Vector3(float(i - 1) * width * 0.75, height * 0.42, float(i) * 1.6 - 1.4)
+		shaft.rotation.x = -0.38
+		shaft.rotation.y = 0.35
+		shaft.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(shaft)
+
+## Corda de festões coloridas entre dois posteiros (Vale/Academia).
+func pennant_string(a: Vector3, b: Vector3, colors: Array) -> void:
+	var delta := b - a
+	var length := delta.length()
+	var line := visual_box(Vector3(0.05, 0.05, length), (a + b) * 0.5, mat(Color(0.16, 0.12, 0.09), 0.0, 0.9))
+	line.rotation.y = atan2(delta.x, delta.z)
+	var count := int(length / 2.1)
+	for i in range(1, count + 1):
+		var t := float(i) / float(count + 1)
+		var sag := sin(t * PI) * 0.55
+		var p := a.lerp(b, t) - Vector3(0.0, sag, 0.0)
+		var col: Color = colors[i % colors.size()]
+		var flag_mat := mat(col, 0.0, 0.7)
+		var cm := CylinderMesh.new()
+		cm.top_radius = 0.0
+		cm.bottom_radius = 0.19
+		cm.height = 0.42
+		var cone := MeshInstance3D.new()
+		cone.mesh = cm
+		cone.material_override = flag_mat
+		cone.position = p - Vector3(0.0, 0.24, 0.0)
+		root.add_child(cone)
 
 ## Posts de ribeirão/passagem (Vale): marco de estrada baixo.
 func milestone(pos: Vector3) -> void:

@@ -23,10 +23,27 @@ static func spawn_env(parent: Node3D, path: String, pos: Vector3, rot_y: float, 
 	inst.rotation.y = rot_y
 	inst.scale = Vector3.ONE * scale_factor
 	_set_shadows(inst)
+	apply_cel_look(inst)
 	if far_cull > 0.0:
 		_apply_far_cull(inst, far_cull)
 	parent.add_child(inst)
+	_tag_ambience(inst, path)
 	return inst
+
+## Vegetação ganha "vento" automaticamente: relva balança mais, arbustos
+## menos, árvores mal se sabe. Sem colisores; rotação base guardada em meta.
+static func _tag_ambience(inst: Node3D, path: String) -> void:
+	var file := path.get_file().to_lower()
+	var amp := 0.0
+	var speed := 1.05 + fmod(absf(inst.global_position.x * 12.9898 + inst.global_position.z * 78.233), 1.0) * 0.6
+	if file.contains("grass"):
+		amp = 0.055
+	elif file.contains("bush"):
+		amp = 0.038
+	elif file.contains("tree") or file.contains("trees_"):
+		amp = 0.017
+	if amp > 0.0:
+		preload("res://src/world/ambience.gd").swayable(inst, amp, speed)
 
 ## Extensão de visibilidade por distância para decoração (v0.5): o motor
 ## deixa de desenhar o que está além de `cull` metros (física e lógica
