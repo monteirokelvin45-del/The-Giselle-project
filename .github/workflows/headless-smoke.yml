@@ -55,6 +55,17 @@ jobs:
       - name: headless_check.sh (import + boot das 5 cenas)
         run: ./tools/headless_check.sh "${GODOT_BIN}"
 
+      # TEMP (PR i18n): exportar os .translation gerados pelo import para commit local.
+      # Remover após os binários serem commitados no repositório.
+      - name: Upload .translation (temporário)
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: translations-${{ github.run_id }}
+          path: l10n/*.translation
+          if-no-files-found: error
+          retention-days: 1
+
       - name: smoke_test.tscn (asserções de jogabilidade)
         run: "${GODOT_BIN} --headless --path . res://tools/smoke_test.tscn"
 
