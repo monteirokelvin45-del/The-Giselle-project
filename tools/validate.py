@@ -63,6 +63,10 @@ for dirpath, _dirs, files in os.walk(ROOT):
             continue
         for match in set(res_pattern.findall(content)):
             target = match[len("res://"):]
+            # Artefactos gerados por `godot --import` (a partir de l10n/game.csv):
+            # não existem antes do import nem são commitados (binários derivados).
+            if target.endswith(".translation"):
+                continue
             if not os.path.exists(res_path(target)):
                 fail(f"res:// inexistente: '{match}' referenciado em {os.path.relpath(path, ROOT)}")
 

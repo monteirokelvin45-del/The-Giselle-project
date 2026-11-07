@@ -1,10 +1,12 @@
 # Localização (l10n) — The Giselle Project
 
 **Estado (honesto, 2026-11-07):** o jogo troca de idioma em runtime —
-PT (origem), EN e ES — com 421/421 strings traduzidas nas duas línguas e um
-gate de CI que impede regressões. O que falta verificar é só a importação
-baked dos `.translation` no primeiro import frio num ambiente fresco (engine
-local em falta nesta sessão; o CI histórico corre só o smoke PT).
+PT (origem), EN e ES — com 421/421 strings traduzidas nas duas línguas, um
+gate de CI que impede regressões e um **E2E de runtime que corre no CI
+depois do `--import`** (`tools/i18n_runtime_check.gd`): verifica PT/EN/ES e
+format strings `%s`/`%d` no próprio engine. Os `.translation` (binários
+derivados de `l10n/game.csv`) **não são commitados de propósito** — cada
+ambiente os gera no import.
 
 ## Arquitetura
 
@@ -61,13 +63,24 @@ python3 tools/validate.py            # falha se EN/ES em falta (procura no [5/5]
 2. `python3 tools/l10n_extract.py` para manter o inventário dos docs.
 3. Commit junto: `.gd` + `l10n/game.csv`.
 
-## Verificação em runtime (pendente/imediata)
+## Verificação em runtime (no CI)
 
-O primeiro `godot --headless --import` gera os `.translation` a partir de
-`l10n/game.csv`; estes artefactos são **commitados** para o jogo funcionar
-sem re-import. Eu registo-os em `project.godot`
-(`internationalization/locale/translations`) com fallback PT. Enquanto isso,
-`tr()` funciona como pass-through PT (nada parte).
+Os `.translation` são gerados pelo import (`godot --headless --path . --import`)
+e **não são commitados de propósito** — são binários derivados do
+`l10n/game.csv` (o `.gitignore` já cobre artefactos de import). O
+`project.godot` regista-os em `[internationalization]`
+(`internationalization/locale/translations`) com fallback PT; o
+`tools/validate.py` trata referências a `*.translation` como artefactos de
+import (não exige existência, ao contrário das restantes `res://`).
+
+O passo **i18n runtime check** do workflow `headless-smoke.yml` corre depois
+do `headless_check.sh` (que importa) e valida: EN/ES/PT com `tr()` real,
+format strings posicionais (`%s`/`%d`) e pass-through PT. Localmente:
+
+```bash
+godot --headless --path . --import
+godot --headless --path . --script tools/i18n_runtime_check.gd
+```
 
 ## Limites conhecidos
 

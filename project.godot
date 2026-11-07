@@ -11,6 +11,11 @@ run/main_scene="res://scenes/title.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 config/icon="res://assets/art/key_art.jpg"
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://l10n/game.en.translation", "res://l10n/game.es.translation")
+locale/fallback="pt"
+
 [autoload]
 
 Keymap="*res://src/core/input_setup.gd"

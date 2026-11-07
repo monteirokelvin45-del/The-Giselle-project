@@ -1,8 +1,9 @@
 ## CI — Godot headless smoke tests
 ## Descarrega o binário oficial linux x86_64 do Godot 4.7.2-stable (release
 ## do GitHub do projeto godotengine) e corre: validate.py, import de recursos,
-## boot smoke das 5 cenas (gate de erros de script), smoke_test (asserções de
-## jogabilidade) e smoke_flows (fluxos Sala Branca/Academia).
+## boot smoke das 5 cenas (gate de erros de script), i18n runtime check
+## (PT/EN/ES no próprio engine), smoke_test (asserções de jogabilidade) e
+## smoke_flows (fluxos Sala Branca/Academia).
 ## Nada de display/X11 é necessário — tudo corre com --headless.
 name: CI — Godot headless smoke
 
@@ -55,16 +56,10 @@ jobs:
       - name: headless_check.sh (import + boot das 5 cenas)
         run: ./tools/headless_check.sh "${GODOT_BIN}"
 
-      # TEMP (PR i18n): exportar os .translation gerados pelo import para commit local.
-      # Remover após os binários serem commitados no repositório.
-      - name: Upload .translation (temporário)
-        if: ${{ success() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: translations-${{ github.run_id }}
-          path: l10n/*.translation
-          if-no-files-found: error
-          retention-days: 1
+      # Gate i18n em runtime: exige o import feito acima (headless_check.sh
+      # corre --import). tr() só funciona com as .translation geradas.
+      - name: i18n runtime check (PT/EN/ES)
+        run: "${GODOT_BIN} --headless --path . --script tools/i18n_runtime_check.gd"
 
       - name: smoke_test.tscn (asserções de jogabilidade)
         run: "${GODOT_BIN} --headless --path . res://tools/smoke_test.tscn"

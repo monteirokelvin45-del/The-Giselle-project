@@ -475,6 +475,13 @@ chave faltar, `tr()` devolve a chave: o jogo continua íntegro no original.
 - `tools/l10n_build.py` — re-extrai e atualiza mantendo traduções; `--check`
   falha em falta/TODO/chaves obsoletas. `validate.py` ganhou passo `[5/5]` →
   **o CI passa a falhar se uma string nova entrar sem EN/ES**.
+- `[internationalization]` em `project.godot`: `locale/translations`=
+  `game.en.translation`+`game.es.translation` (geradas por `--import`),
+  `locale/fallback=pt`. Os binários não são commitados (derivados do CSV);
+  `validate.py` trata refs a `*.translation` como artefactos de import.
+- `tools/i18n_runtime_check.gd` + passo **i18n runtime check** no workflow:
+  depois do `--import`, valida PT/EN/ES e format strings no próprio engine
+  (`tr()` real, não mock). PT pass-through continua intacto sem import.
 
 **Falhou 1× e foi corrigido no CI:** `tr()` dentro de `static func`
 (`model_factory.gd:spawn_damage_number`) — `tr()` é método de `Object`, não
@@ -488,10 +495,11 @@ headless_check, smoke 24/24, flows 5/5) e PR #1 com check `pass`.
 1. QA por falante nativo não existe (traduções são do autor; ES neutro).
 2. Revisão visual em F5 não existe — EN corre 1.3× mais largo; caixas de
    texto apertadas podem rebentar.
-3. `.translation` binários serão gerados no primeiro `--import` local e
-   commitados a seguir; até lá `tr()` é pass-through PT em runtimes sem
-   traduções registadas (nada parte, mas EN/ES só em runtime com a
-   importação feita).
+3. `.translation` binários não são commitados de propósito (binários
+   derivados do CSV, gerados por `--import`). O E2E de runtime corre no CI
+   depois do import — `tools/i18n_runtime_check.gd` (PT/EN/ES, formatos
+   posicionais) — e é o gate permanente; ambiente local sem engine pode
+   validar tudo exceto esse passo.
 4. Sem namespaces nas chaves (decisivo para 421 strings); migrar só se a
    tabela explodir.
 5. Granularidade: `±`/`⟳`/`%` embutidos em chaves de formatos — tradutores
