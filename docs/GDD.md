@@ -973,3 +973,87 @@ feel; a auditoria de
 lint cobre sintaxe, não semântica; e a engine local não está instalada
 neste ambiente — o analyzer corre só no CI (foi por isso que a v1.4 teve de
 varresser duas vezes os mesmos erros).
+
+## 47. Arsenal e a noite na floresta (v1.6, 2026-11-07)
+
+**O quê.** O arsenal do jogo deixa de ser «4 arquétipos» para ser um
+bestiário com papéis distintos — e o Vale ganha uma segunda face: a
+floresta muda de dono quando o sol se põe.
+
+**Pedido explícito:** «Vamos ao arsenal dos inimigos, a noite deve ter
+inimigos nas florestas em áreas específicas, vamos criar todos inimigos.»
+
+**1. Arsenal (10 tipos, 6 novos).** Tudo construído sobre modelos já
+existentes no repositório (zero assets novos — regra da casa):
+
+| Tipo | Nome | Modelo | Notas |
+|---|---|---|---|
+| wolf | Lobo de Cinza | wolf.glb | arquétipo (arremesso) |
+| salteador | Salteador | Barbarian.glb | arquétipo |
+| cinza | Mago de Cinza | Mage.glb | arquétipo (projétil violeta) |
+| guardiao | Guardião da Prova | Barbarian.glb ×2.3 | chefe por desenho |
+| **alfa** | **Lobo Alfa de Cinza** | wolf.glb ×1.35 tint frio | elite noturno da floresta; arremesso (dano = 11+4) |
+| **umbra** | **Salteador da Umbra** | Barbarian.glb tint violeta | noturno; mais tanque que o Salteador |
+| **espectro** | **Espectro do Véu** | Rogue_Hooded.glb ×0.95 | noturno; assassino rápido, postura frágil |
+| **guarda_espinho** | **Guarda de Espinho** | Knight.glb ×1.12 tint musgo | noturno; muralha (150 HP, postura 110) |
+| **brasa** | **Brasa de Ruína** | Mage.glb tint ember | universal; conjurador (projétil ember, dano 13) |
+| **veterano** | **Salteador Veterano** | Barbarian.glb ×1.15 ×ferro | universal; veterano de campo (120 HP) |
+
+Regras de comportamento reutilizadas, sem multiplicação de código: família
+lobo (`wolf`,`alfa`) usa clipes `Walk/Attack/Idle_HitReact1/Death` e
+arremesso telegrafado com dano = `dmg do tipo + 4` (lobo 12, alfa 15);
+família conjurador (`cinza`,`brasa`) partilha a rotina de cast — a cor do
+clarão/projétil/flash é resolvida por tipo (violeta cinza · ember brasa);
+os restantes usam o cadência corpo-a-corpo KayKit por defeito.
+
+**2. Ciclo dia/noite no Vale (novo).** O mundo principal **não tinha**
+ciclo — só as regiões de expedição tinham. Agora tem, partilhando o mesmo
+relógio (`GameState.world_day_t`, 0.3 ≈ manhã; ±240s por ciclo completo;
+0.5 = pôr-do-sol; noite quando `sin(t·π) < 0.22`):
+- `src/world/day_night.gd` (novo): varre sol (rotação −20°→−160°, energia
+  0.28→1.25, cor branca-quente → azul-lua), luz ambiente, densidade do
+  nevoeiro (×2.1 de noite) e cores de céu/horizonte — espelhando a
+  matemática das regiões (region.gd agora sincroniza o relógio partilhado).
+- Transições avisadas: ao anoitecer, «A NOITE CAI — espreitam coisas na
+  floresta.»; ao amanhecer, «AURORA — os vultos recuam para as sombras.»
+  (notificação nativa do HUD, trilingue).
+- **Relógio no HUD** (ui.gd): `☀ DIA` / `☾ NOITE`, topo-centro, discreto,
+  muda de cor (âmbar/índigo).
+
+**3. Ecos da noite — a floresta tem dono à noite.** `src/world/night_spawns.gd`
+(novo): enquanto for noite, spawna inimigos noturnos **apenas na zona da
+floresta** do Vale (círculo centro (0, −17), raio 21 m — a mata KayKit
+que sempre existiu, agora com dona):
+- Máx. **4 vivos** · intervalo 4,5s · tipo sorteado por peso
+  (umbra/espectro/alfa predominantes; guarda_espinho e brasa mais raros);
+- Nasce **> 12 m do jogador**, 8 tentativas por ciclo de spawn, e só se o
+  jogador estiver a ≤ 47 m da zona (sem povoar às cegas do outro lado do
+  mapa);
+- **Ao amanhecer, todos os Ecos são desalojados** (queue_free) — a
+  aurora banha a floresta e os vultos recuam. Em combate são inimigos
+  normais (XP, Ruptura, Marcos); quem for desalojado pela aurora
+  simplesmente se dissolve — o jogo não dá prémio por banir. Nunca contam
+  para a conclusão de região (não são chefes).
+- Grupo `night_spawn` separado do grupo `enemy` — limpar na aurora é
+  uma varredura direta.
+
+**4. Expedições** — pools das 6 regiões atualizados para 6 inimigos
+cada (mantendo a contagem): `veterano` e `brasa` substituíram um
+`salteador`/`cinza` por pool, elevando o tecto de ameaça a partir de Khar.
+
+**i18n** — 475/475 (10 chaves novas: 6 nomes + 2 avisos de transição +
+☀ DIA/☾ NOITE, trilingue). validate.py ✓.
+
+**Estado honesto.** Estrutural verificado: **CI duplo verde em `4fb8e34`**
+(push `42412702718` 12/12 + PR `42412707485`; boot das 5 cenas, i18n
+runtime PT/EN/ES, 33 asserções, flows 5/5). **o que exige F5 do dono:** o peso da noite
+(o ciclo de ~4 min é talvez demasiado rápido para apreciar o que foi
+construído; se desejar, subir delta/240), a densidade dos spawns
+(4/4,5s/raio pode ser demasiado generoso — baixar `max_alive`), o
+**equilíbrio dos 6 novos tipos** (stats tabelados de intuição de design,
+não de dados de telemetria), e se desalojar inimigos noturnos a meio do
+combate (dawn banishes) incomoda — é escolh emética deliberada
+(«a aurora banha a floresta»). A sombra do sol não roda de noite (só a
+rotação); a lua é uma cor, não um disco — desenhar um disco de lua seria
+mais um asset fake; fica como está, honestamente: é noite de névoa e
+silhuetas.

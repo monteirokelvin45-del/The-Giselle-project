@@ -303,6 +303,7 @@ func _process(delta: float) -> void:
 	_day_t += delta / 240.0
 	if _day_t > 1.0:
 		_day_t -= 1.0
+	GameState.world_day_t = _day_t
 	var day_angle: float = lerp(-20.0, -160.0, _day_t)
 	_sun.rotation_degrees.x = day_angle
 	var daylight := clampf(sin(_day_t * PI), 0.0, 1.0)

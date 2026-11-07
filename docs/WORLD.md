@@ -81,3 +81,29 @@ nuvens/motes (Aer), motes-violeta (Orun), pétalas (Veyra).
 (boot + smoke + flows). **Por medir (F5 do dono):** custo real do vento com
 400+ nós animados, partículas em GLES3, e opacidade das lâminas aditivas
 (impostura se o blend estiver desligado no driver).
+
+## A noite na floresta do Vale (v1.6, 2026-11-07)
+
+O mundo principal ganhou ciclo dia/noite (`src/world/day_night.gd`,
+relógio partilhado `GameState.world_day_t`, ~4 min por ciclo): sol,
+nevoeiro, céu e horizonte transitam entre âmbar de fim de tarde e o azul
+de névoa da noite; anoitecer e amanhecer avisam o jogador por notificação
+trilingue. O HUD mostra `☀ DIA` / `☾ NOITE` (topo-centro).
+
+**Ecos da Noite** (`src/world/night_spawns.gd`) — durante a noite,
+inimigos pertencentes exclusivamente a esse reino espreitam **apenas na
+área da floresta** (círculo centro (0, −17), raio 21 m — a mata KayKit a
+norte do Vale, incluindo a clareira da emboscada):
+
+- **umbra** (Salteador da Umbra) e **espectro** (Espectro do Véu) e
+  **alfa** (Lobo Alfa de Cinza) predominantes; **guarda_espinho** (Guarda
+  de Espinho, muralha) e **brasa** (Brasa de Ruína, conjurador ember)
+  raros;
+- máx. 4 vivos; 1 a cada 4,5s; nascem ≥ 12 m do jogador e só se ele
+  estiver a ≤ 47 m da zona;
+- **a aurora desaloja todos** (queue_free) — sem fila de abate, sem
+  recompensa: quem for banido pela luz, dissolveu-se.
+
+Os tipos universais novos (**brasa**, **veterano**) também entraram nas
+pools das 6 regiões de expedição (6 inimigos por pool, como antes). O
+bestiário completo tem 10 tipos: ver GDD cap. 47.

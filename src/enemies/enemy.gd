@@ -26,6 +26,36 @@ const TYPES := {
 		"posture": 170.0, "xp": 250, "marcos": 80, "range": 2.7, "aggro": 40.0,
 		"body_r": 0.85, "body_h": 2.8,
 	},
+	"alfa": {
+		"name": "Lobo Alfa de Cinza", "hp": 60.0, "dmg": 11.0, "speed": 4.6,
+		"posture": 40.0, "xp": 45, "marcos": 10, "range": 1.9, "aggro": 15.0,
+		"body_r": 0.42, "body_h": 1.05,
+	},
+	"umbra": {
+		"name": "Salteador da Umbra", "hp": 95.0, "dmg": 16.0, "speed": 3.6,
+		"posture": 70.0, "xp": 70, "marcos": 18, "range": 2.1, "aggro": 15.0,
+		"body_r": 0.45, "body_h": 1.7,
+	},
+	"espectro": {
+		"name": "Espectro do Véu", "hp": 45.0, "dmg": 13.0, "speed": 4.5,
+		"posture": 30.0, "xp": 65, "marcos": 16, "range": 1.8, "aggro": 14.0,
+		"body_r": 0.38, "body_h": 1.65,
+	},
+	"guarda_espinho": {
+		"name": "Guarda de Espinho", "hp": 150.0, "dmg": 18.0, "speed": 2.6,
+		"posture": 110.0, "xp": 80, "marcos": 22, "range": 2.2, "aggro": 12.0,
+		"body_r": 0.5, "body_h": 1.95,
+	},
+	"brasa": {
+		"name": "Brasa de Ruína", "hp": 55.0, "dmg": 13.0, "speed": 3.0,
+		"posture": 40.0, "xp": 60, "marcos": 16, "range": 16.0, "aggro": 17.0,
+		"body_r": 0.4, "body_h": 1.7,
+	},
+	"veterano": {
+		"name": "Salteador Veterano", "hp": 120.0, "dmg": 17.0, "speed": 3.2,
+		"posture": 85.0, "xp": 75, "marcos": 20, "range": 2.2, "aggro": 15.0,
+		"body_r": 0.48, "body_h": 1.75,
+	},
 }
 
 @export var enemy_type: String = "salteador"
@@ -83,6 +113,12 @@ const CHARACTER_MODELS := {
 	"salteador": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(1.0, 0.72, 0.62), "scale": 1.05},
 	"cinza": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(0.72, 0.7, 1.0), "scale": 1.0},
 	"guardiao": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.72, 0.66, 0.6), "scale": 2.3},
+	"alfa": {"path": "res://assets/models/creatures/wolf.glb", "tint": Color(0.8, 0.82, 0.88), "scale": 1.35},
+	"umbra": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.45, 0.4, 0.58), "scale": 1.0},
+	"espectro": {"path": "res://assets/models/characters/Rogue_Hooded.glb", "tint": Color(0.5, 0.52, 0.72), "scale": 0.95},
+	"guarda_espinho": {"path": "res://assets/models/characters/Knight.glb", "tint": Color(0.55, 0.62, 0.5), "scale": 1.12},
+	"brasa": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(1.0, 0.68, 0.45), "scale": 1.0},
+	"veterano": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.72, 0.48, 0.4), "scale": 1.15},
 }
 
 func _build_visual() -> void:
@@ -267,7 +303,7 @@ func _physics_process(delta: float) -> void:
 
 	# Lobo de Cinza: arremesso telegrafado — a sua «habilidade»
 	# (abaixa-se 0,4s → lança-se a 9 m/s; anulável por stun, esquivável por timing)
-	if enemy_type == "wolf":
+	if enemy_type in ["wolf", "alfa"]:
 		if _pounce_cooldown > 0.0:
 			_pounce_cooldown -= delta
 		if _pouncing > 0.0:
@@ -277,7 +313,7 @@ func _physics_process(delta: float) -> void:
 			if not _pounce_hit and dist < 1.5:
 				_pounce_hit = true
 				if _player.has_method("take_damage"):
-					_player.take_damage(12.0, self)
+					_player.take_damage(float(stats["dmg"]) + 4.0, self)
 				_attack_cooldown = 1.2
 			_update_enemy_anim(delta)
 			move_and_slide()
@@ -323,7 +359,7 @@ func _physics_process(delta: float) -> void:
 		_start_slam()
 
 	# Conjurador: manter distância e disparar com canal visível
-	if enemy_type == "cinza":
+	if enemy_type in ["cinza", "brasa"]:
 		_cast_timer -= delta
 		if _cast_windup > 0.0:
 			# A canalizar — está vulnerável à interrupção
@@ -351,7 +387,7 @@ func _physics_process(delta: float) -> void:
 		if _cast_timer <= 0.0 and dist < 19.0:
 			_cast_windup = 0.75
 			var mf_cast := preload("res://src/visuals/model_factory.gd")
-			mf_cast.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.6, 0.0), Color(0.35, 0.95, 0.88), 0.6)
+			mf_cast.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.6, 0.0), (Color(0.95, 0.55, 0.25) if enemy_type == "brasa" else Color(0.35, 0.95, 0.88)), 0.6)
 			if _anim_player != null:
 				var mf := preload("res://src/visuals/model_factory.gd")
 				mf.play_anim(_anim_player, "Spellcast_Raise", 0.1, 0.75)
@@ -390,7 +426,7 @@ func _physics_process(delta: float) -> void:
 			_windup = 0.45
 			if _anim_player != null:
 				var mf := preload("res://src/visuals/model_factory.gd")
-				var attack_clip := "Attack" if enemy_type == "wolf" else "Unarmed_Melee_Attack_Punch_A"
+				var attack_clip := "Attack" if enemy_type in ["wolf", "alfa"] else "Unarmed_Melee_Attack_Punch_A"
 				mf.play_anim(_anim_player, attack_clip, 0.08, 0.45)
 				_anim_lock = 0.45
 			Audio.play("swing", -10.0, 0.6)
@@ -454,7 +490,7 @@ func _update_enemy_anim(delta: float) -> void:
 		_anim_lock -= delta
 		return
 	var speed_len := Vector2(velocity.x, velocity.z).length()
-	var walk_clip := "Walk" if enemy_type == "wolf" else "Walking_A"
+	var walk_clip := "Walk" if enemy_type in ["wolf", "alfa"] else "Walking_A"
 	var target := walk_clip if speed_len > 0.6 else "Idle"
 	if _anim_player.current_animation != target:
 		var mf := preload("res://src/visuals/model_factory.gd")
@@ -462,7 +498,7 @@ func _update_enemy_anim(delta: float) -> void:
 
 func _fire_projectile(dir: Vector3) -> void:
 	var mf_fire := preload("res://src/visuals/model_factory.gd")
-	mf_fire.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.6, 0.0), Color(0.4, 0.8, 0.95), 0.9)
+	mf_fire.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.6, 0.0), (Color(1.0, 0.62, 0.3) if enemy_type == "brasa" else Color(0.4, 0.8, 0.95)), 0.9)
 	if _anim_player != null:
 		var mf := preload("res://src/visuals/model_factory.gd")
 		mf.play_anim(_anim_player, "Spellcast_Shoot", 0.08, 0.4)
@@ -475,7 +511,12 @@ func _fire_projectile(dir: Vector3) -> void:
 	sm.radius = 0.22
 	sm.height = 0.44
 	mesh.mesh = sm
-	mesh.material_override = _mat(Color(0.6, 0.3, 0.95), 0.0, 0.3, Color(0.6, 0.25, 0.95), 2.5)
+	var proj_color := Color(0.6, 0.3, 0.95)
+	var proj_energy := Color(0.6, 0.25, 0.95)
+	if enemy_type == "brasa":
+		proj_color = Color(0.98, 0.5, 0.12)
+		proj_energy = Color(0.98, 0.42, 0.08)
+	mesh.material_override = _mat(proj_color, 0.0, 0.3, proj_energy, 2.5)
 	p.add_child(mesh)
 	var shape := CollisionShape3D.new()
 	var sp := SphereShape3D.new()
@@ -550,7 +591,7 @@ func take_damage(amount: float, posture_dmg: float, _from: Node3D = null) -> voi
 		mf.flash_model(visual, 0.1)
 	if _anim_player != null and not _dead:
 		var mf := preload("res://src/visuals/model_factory.gd")
-		var hit_clip := "Idle_HitReact1" if enemy_type == "wolf" else "Hit_A"
+		var hit_clip := "Idle_HitReact1" if enemy_type in ["wolf", "alfa"] else "Hit_A"
 		mf.play_anim(_anim_player, hit_clip, 0.08, 0.24)
 		_anim_lock = 0.24
 	if posture <= 0.0:
@@ -587,7 +628,7 @@ func _die() -> void:
 	_dead = true
 	if _anim_player != null:
 		var mf := preload("res://src/visuals/model_factory.gd")
-		var death_clip := "Death" if enemy_type == "wolf" else "Death_A"
+		var death_clip := "Death" if enemy_type in ["wolf", "alfa"] else "Death_A"
 		mf.play_anim(_anim_player, death_clip, 0.12)
 	if _slam_telegraph != null:
 		_slam_telegraph.queue_free()

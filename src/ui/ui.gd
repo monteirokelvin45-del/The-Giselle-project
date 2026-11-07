@@ -189,6 +189,7 @@ var _hit_marker: Label
 var _combo_label: Label
 var _stagger_label: Label
 var _vignette: TextureRect
+var _clock_label: Label
 var _boss_box: Control
 var _boss_title: Label
 var _boss_sub: Label
@@ -483,6 +484,18 @@ func _build_hud() -> void:
 	_rupture_ready.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_rupture_ready.visible = false
 	_hud.add_child(_rupture_ready)
+
+	# Relógio do mundo (☀ dia / ☾ noite) — topo centro, discreto
+	_clock_label = _make_label("☀ DIA", 12, Color(0.95, 0.85, 0.55))
+	_clock_label.anchor_left = 0.5
+	_clock_label.anchor_right = 0.5
+	_clock_label.offset_left = -70.0
+	_clock_label.offset_right = 70.0
+	_clock_label.offset_top = 8.0
+	_clock_label.offset_bottom = 32.0
+	_clock_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_clock_label.modulate.a = 0.85
+	_hud.add_child(_clock_label)
 
 	# Notificações (topo centro)
 	_notif_label = _make_label("", 17, Color(0.98, 0.92, 0.7))
@@ -801,6 +814,12 @@ func _process(delta: float) -> void:
 		else:
 			_posture_box.visible = false
 			_stagger_label.visible = false
+		# Relógio do mundo
+		var world_t := GameState.world_day_t
+		var daylight_now := clampf(sin(world_t * PI), 0.0, 1.0)
+		var is_night_now := daylight_now < 0.22
+		_clock_label.text = tr("☾ NOITE") if is_night_now else tr("☀ DIA")
+		_clock_label.add_theme_color_override("font_color", Color(0.68, 0.7, 0.98) if is_night_now else Color(0.95, 0.85, 0.55))
 		# Contador de combo
 		var combo := 0
 		if p.get("_combo") != null:

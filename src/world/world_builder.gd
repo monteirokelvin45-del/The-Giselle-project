@@ -25,11 +25,16 @@ static func build(root: Node3D) -> void:
 	wb._spawn_pickups()
 	wb._spawn_enemies()
 	wb._build_ambience()
+	wb._spawn_night()
 
 var root: Node3D
 var _mk  # MapKit (RefCounted) — composición v1.0
 var rng := RandomNumberGenerator.new()
 var _env_mf := preload("res://src/visuals/model_factory.gd")
+var _sun: DirectionalLight3D
+var _env_ref: Environment
+var _sky_mat: ProceduralSkyMaterial
+var _fog_day: float = 0.0058
 
 # -------------------------------------------------------------- materiais ---
 func _mat(color: Color, metallic: float = 0.0, roughness: float = 0.9, emissive: Color = Color.BLACK, energy: float = 1.0) -> StandardMaterial3D:
@@ -164,6 +169,7 @@ func _build_environment() -> void:
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 90.0
 	root.add_child(sun)
+	_sun = sun
 	# Ambiente + céu procedural + nevoeiro
 	var world_env := WorldEnvironment.new()
 	var env := Environment.new()
@@ -185,6 +191,9 @@ func _build_environment() -> void:
 	env.volumetric_fog_enabled = false
 	world_env.environment = env
 	root.add_child(world_env)
+	_env_ref = env
+	_sky_mat = sky_mat
+	_fog_day = 0.0058
 
 # ------------------------------------------------------- chão e estrada -----
 func _build_ground_and_road() -> void:
@@ -548,6 +557,20 @@ func _spawn_pickups() -> void:
 		pickup.position = Vector3(x, 0.55, z)
 		root.add_child(pickup)
 		placed += 1
+
+## Nós de mundo persistentes: o ciclo dia/noite e os ecos da noite na
+## floresta (inimigos só à noite, em área delimitada).
+func _spawn_night() -> void:
+	var dn: Node3D = Node3D.new()
+	dn.set_script(load("res://src/world/day_night.gd"))
+	root.add_child(dn)
+	dn.set("sun", _sun)
+	dn.set("env", _env_ref)
+	dn.set("sky_mat", _sky_mat)
+	dn.set("fog_day", _fog_day)
+	var ns: Node3D = Node3D.new()
+	ns.set_script(load("res://src/world/night_spawns.gd"))
+	root.add_child(ns)
 
 func _spawn_enemies() -> void:
 	var enemy_scene := preload("res://scenes/enemy.tscn")

@@ -76,3 +76,27 @@ Android nem olho humano. Duração: 30–45 min. Regista tudo com capturas.
 12. **Fúria do Guardião (50% HP)** — rugido, sacode, +dano, emissão rubra?
 
 Regista aqui o que sentiste fora do sítio:
+
+## v1.6 — arsenal e noite (2026-11-07)
+
+1. **Anoitecer** — fica parado ao fim da tarde na mata (ou espera o
+   ciclo): a luz esfria? O aviso «A NOITE CAI» aparece? O relógio ☾ NOITE
+   fica índigo?
+2. **Ecos chegam devagar** — à noite, na floresta: os inimigos aparecem
+   das sombras (≥ 12 m)? São umbra/espectro/alfa na maioria? (máx. 4
+   vivos)
+3. **Brush-pass do jogador** — à noite fora da floresta: nenhum Eco
+   nasce? (zona delimitada)
+4. **Aurora banha a floresta** — deixa um Eco a meio de combate e espera
+   o amanhecer: o aviso «AURORA» aparece? O Eco dissolve-se sem fila nem
+   recompensa?
+5. **Brasa de Ruína** — vês o clarão ember antes do projétil? O
+   projétil ember é visivelmente diferente do turquesa do Mago?
+6. **Lobo Alfa** — vês-o descendente (1.35×) antes da emboscada? O
+   arremesso telegrafado existe (windup) como no lobo normal?
+7. **Expedições** — Ruun/Sahr/Khar: os pools de 6 inimigos trazem
+   veterano/brasa? Sentes a ameaça elevar de nível?
+8. **HUD relógio** — ☀/☾ alterna com a luz? (o ciclo completo ~4 min:
+   decidirá no F5 se é demasiado rápido)
+
+Regista aqui o que sentiste fora do sítio:

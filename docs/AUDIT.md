@@ -757,3 +757,53 @@ v1.3/v1.4 deixam de poder partir em silêncio); inventário gdlint completo
 gdlint (baseline conhecido). **Pendente:** evidência do CI com as 33
 asserções a correr (ver o run do push desta branch); cobertura de bosses por
 asserts é futura e deliberada (não se simula feel com assert).
+
+---
+
+# 24. Addendum — Arsenal e a noite na floresta (v1.6, 2026-11-07)
+
+**Pedido explícito:** «Vamos ao arsenal dos inimigos, a noite deve ter
+inimigos nas florestas em áreas (específicas), vamos criar todos inimigos
+depois vamos passar para outra fase.»
+
+**Entregue:** 6 tipos novos de inimigo (alfa, umbra, espectro,
+guarda_espinho, brasa, veterano) sobre modelos já existentes — nada de
+placeholder, nada de assets externos; família lobo estendida (arremesso
+telegrafado + clipes `Walk/Attack/Idle_HitReact1/Death`, dano = dmg+4);
+família conjurador `cinza`→`cinza`/`brasa` (cor de clarão, projétil e flash
+por tipo); os novos universais (brasa/veterano) entram nas pools das 6
+regiões de expedição (contagem inalterada: 6 por pool);
+ciclo dia/noite **novo no mundo principal** (`day_night.gd` — antes
+inexistente; só as regiões tinham ciclo) com relógio partilhado
+(`GameState.world_day_t`), notificação trilingue de anoitecer/amanhecer e
+relógio ☀/☾ no HUD; **Ecos da Noite** (`night_spawns.gd`): inimigos
+noturnos (umbra/espectro/alfa/guarda_espinho/brasa, sorteio por peso)
+apenas na zona da floresta do Vale (círculo centro (0, −17), raio 21 m),
+máx. 4 vivos, nascimento ≥ 12 m do jogador, desalojados ao amanhecer.
+
+**Causa-raiz do vermelho (bisect guiado pelo CI, 20+ runs):** o boot
+headless falhava desde o primeiro push do v1.6. Eliminação metódica
+(csv, region.gd, UI, arsenal, world_builder inteiro, ficheiros novos
+— cada um testado isolado e consistentemente validado pelo validate.py
+local) convergiu para `src/world/world_builder.gd` e, dentro dele,
+para `var _env: Environment`: **a classe já tinha `func _env(path,…)`
+(usada por toda a composição do Vale) e o analyzer do GDScript rejeita
+a redeclaração de `_env` como variável de instância** — erro que só o
+engine apanha (gdparse é só sintaxe; os artefactos intermédios do bisect
+passavam todos no gdparse). Corrigido com rename `_env → _env_ref`
+(3 sítios) — commit `4fb8e34`. Lição registada: nunca introduzir
+membros com o mesmo nome de funções existentes da mesma classe.
+
+**Verificado:** gdparse nos alterados · validate.py ✓ · i18n 475/475 ·
+**CI duplo verde em `4fb8e34`** — push run `42412702718` (12/12 ✓,
+inclui boot das 5 cenas, i18n runtime, smoke 33/33, flows 5/5) + PR
+synchronize `42412707485` (success). **Pendente:** F5 do dono (ver GDD
+cap. 47, «Estado honesto»). A aurora desaloja Ecos mesmo a meio de um
+combate — escolha emética deliberada («banidos pela luz»), não um bug.
+
+**Limitações honestas:** a lua não tem disco (a noite é névoa e
+silhuetas); o relógio partilhado corre nas cenas de jogo mas academia/sala
+branca não o exibem (o HUD mostra apenas se a cena usa o ui.gd); spawns da
+noite não dão prémio se dissolvidos pela aurora; o cycle no Vale usa a
+mesma matemática de 240s das regiões — julgado lento/rápido no F5,
+ajusta-se num número.

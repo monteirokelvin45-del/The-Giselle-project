@@ -82,32 +82,32 @@ const REGIONS := [
 		"desc": "Pinhais eternos e lobos de cinza.",
 		"ground": Color(0.14, 0.26, 0.11), "fog": Color(0.3, 0.42, 0.27), "fog_density": 0.021,
 		"sky_top": Color(0.2, 0.35, 0.45), "sky_horizon": Color(0.55, 0.62, 0.48), "sun": Color(0.88, 0.95, 0.78),
-		"prop": "tree_single_A.gltf", "types": ["wolf", "wolf", "salteador", "salteador", "cinza", "salteador"]},
+		"prop": "tree_single_A.gltf", "types": ["wolf", "wolf", "salteador", "veterano", "cinza", "salteador"]},
 	{"id": "sahr", "name": "Deserto de Sahr", "level_req": 5, "power": 1.9, "xp": 200, "marcos": 120,
 		"desc": "Dunas infinitas e túmulos de Primeiros Engenheiros.",
 		"ground": Color(0.68, 0.56, 0.35), "fog": Color(0.8, 0.69, 0.46), "fog_density": 0.017,
 		"sky_top": Color(0.32, 0.42, 0.62), "sky_horizon": Color(0.9, 0.78, 0.55), "sun": Color(1.0, 0.9, 0.68),
-		"prop": "rock_single_A.gltf", "types": ["salteador", "salteador", "cinza", "salteador", "wolf", "cinza"]},
+		"prop": "rock_single_A.gltf", "types": ["salteador", "salteador", "cinza", "veterano", "wolf", "brasa"]},
 	{"id": "khar", "name": "Montanhas de Khar", "level_req": 7, "power": 2.35, "xp": 260, "marcos": 150,
 		"desc": "Picos de pedra e relâmpagos que nunca se apagam.",
 		"ground": Color(0.34, 0.36, 0.41), "fog": Color(0.42, 0.47, 0.55), "fog_density": 0.024,
 		"sky_top": Color(0.16, 0.22, 0.36), "sky_horizon": Color(0.55, 0.6, 0.7), "sun": Color(0.85, 0.9, 1.0),
-		"prop": "rock_single_C.gltf", "types": ["cinza", "cinza", "salteador", "guardiao", "cinza", "salteador"]},
+		"prop": "rock_single_C.gltf", "types": ["cinza", "cinza", "veterano", "guardiao", "cinza", "brasa"]},
 	{"id": "lume", "name": "Arquipélago de Lume", "level_req": 9, "power": 2.8, "xp": 330, "marcos": 190,
 		"desc": "Ilhas de pedra clara e faróis de fósforo azul.",
 		"ground": Color(0.16, 0.36, 0.45), "fog": Color(0.38, 0.58, 0.68), "fog_density": 0.021,
 		"sky_top": Color(0.14, 0.3, 0.48), "sky_horizon": Color(0.6, 0.82, 0.88), "sun": Color(0.82, 0.96, 1.0),
-		"prop": "rock_single_A.gltf", "types": ["cinza", "cinza", "cinza", "salteador", "guardiao", "cinza"]},
+		"prop": "rock_single_A.gltf", "types": ["cinza", "cinza", "cinza", "veterano", "guardiao", "brasa"]},
 	{"id": "aer", "name": "Ilhas de Aer", "level_req": 11, "power": 3.35, "xp": 420, "marcos": 240,
 		"desc": "Rochas suspensas num mar de nuvens.",
 		"ground": Color(0.28, 0.3, 0.4), "fog": Color(0.62, 0.64, 0.74), "fog_density": 0.034,
 		"sky_top": Color(0.22, 0.28, 0.55), "sky_horizon": Color(0.85, 0.8, 0.92), "sun": Color(0.9, 0.88, 1.0),
-		"prop": "rock_single_C.gltf", "types": ["guardiao", "cinza", "cinza", "guardiao", "cinza", "cinza"]},
+		"prop": "rock_single_C.gltf", "types": ["guardiao", "cinza", "veterano", "guardiao", "brasa", "cinza"]},
 	{"id": "orun", "name": "Fim do Abismo", "level_req": 13, "power": 4.0, "xp": 550, "marcos": 320,
 		"desc": "O lugar de onde nenhum Núcleo voltou a subir.",
 		"ground": Color(0.07, 0.05, 0.12), "fog": Color(0.14, 0.09, 0.22), "fog_density": 0.038,
 		"sky_top": Color(0.02, 0.02, 0.06), "sky_horizon": Color(0.3, 0.16, 0.45), "sun": Color(0.55, 0.35, 0.95),
-		"prop": "rock_single_C.gltf", "types": ["guardiao", "cinza", "guardiao", "cinza", "cinza", "cinza"]},
+		"prop": "rock_single_C.gltf", "types": ["guardiao", "cinza", "guardiao", "brasa", "cinza", "veterano"]},
 ]
 
 const ARENA_ENVIRONMENTS := [
@@ -146,6 +146,8 @@ var reputation: Dictionary = {
 ## Regiões visitadas / concluídas (id → nº de expedições limpas)
 var region_known: Dictionary = {"noro": true}
 var region_clears: Dictionary = {}
+## Relógio do mundo (0–1): 0.3 ≈ 09:00 · 0.75 ≈ meia-noite. Compartilhado entre cenas (day_night.gd/night_spawns.gd/HUD).
+var world_day_t: float = 0.3
 var current_region: String = "noro"
 ## Lesões (sec. 8 do GDD): 0 = saudável · 1 = magoado · 2 = grave
 const MAX_INJURY := 2
