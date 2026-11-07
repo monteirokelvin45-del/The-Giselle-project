@@ -93,7 +93,10 @@ quest-givers enraizados); viagem rápida [x] por faróis.
 - [x] **Medicamentos/curandeiro** (sec. 8, 2026-11-06): Remendo do curandeiro —
       45 marcos, −1 nível de lesão (loja do Garr; guarda de marcos
       `try_spend_marcos`). Cura total continua a ser o Bálsamo de Salvação.
-- [ ] Romances com memória de ações (mentir/proteger/quebrar promessas).
+- [x] Romances com memória de ações — v1.0 (2026-11-07): epílogos variam com a
+      lealdade (prova superada juntos ⇒ ≥60 ⇒ epílogo «provado» por
+      companheiro); tiers negativos adiados (não há verbo de promessa quebrável
+      — ver GDD cap. 40).
 
 ## v0.7 — Política e finais (sec. 23–25) ✅
 Os grandes objetivos (rei, governador, comandante, diretor, líder, explorador,
@@ -113,9 +116,13 @@ por reputação, decisões e estado do mundo.
       automático na decisão final (até aqui o final nunca era gravado — os
       saves são manuais), «Finais vividos: N» nos créditos e recusa de saves de
       versão mais recente que o build atual. Ver `docs/AUDIT.md` §16.
-- [ ] Meta-quests com estado de mundo persistido entre regiões (dragão da
-      Ferida, golpe da Custódia) — consequência global completa adiada para
-      pós-v1.0 (sec. 23).
+- [x] **Meta-quests globais com estado de mundo persistido** (2026-11-07):
+      `world_flags` no save (aditivo); «A Ferida» (Arquivista Voss; 3
+      resoluções com reputação/XP/Ruptura; créditos) e «O Golpe da Custódia»
+      (Bram Ferro; denunciar vs. silêncio — silêncio bloqueia o fim
+      «O Reformado» no menu da Decisão). GDD cap. 38–39; ROADMAP mantém
+      honestidade: não há mapa novo nem chefe novo — o desenlace é escolha +
+      persistência + consequência, como as secs. 23–25 pedem.
 
 ## v1.0 — Qualidade, acessibilidade e lançamento (sec. 32–34) — parcial ✅
 - [x] **Remapeamento de controlos** completo: menu de CONTROLOS com captura
@@ -135,7 +142,7 @@ por reputação, decisões e estado do mundo.
       `docs/l10n/strings_pt.csv` + `docs/LOCALIZATION.md`.
 - [x] **Localização em runtime PT/EN/ES** (2026-11-07): `tr()` em ~110 sítios,
       troca no arranque + no ecrã de título (PT→EN→ES, persistida no save),
-      423 chaves EN+ES completas (`l10n/game.csv`), gate `validate.py` [5/5]
+      460 chaves EN+ES completas (`l10n/game.csv`), gate `validate.py` [5/5]
       no CI, seleção de idioma no título com reload uniforme.
       Ver `docs/LOCALIZATION.md` e `docs/AUDIT.md` §15.
 - [x] **Engine executada**: Godot 4.7.2 — fonte compilada em `/tmp` em
@@ -156,10 +163,12 @@ por reputação, decisões e estado do mundo.
       (`cycle_tts_voice`), escolhida via `tts_voice` no save.
 - [ ] Testes com jogadores reais (algo que este repositório ainda não pode
       fazer).
-- [x] Traduções EN/ES e troca de idioma em runtime (2026-11-07, 423/423;
+- [x] Traduções EN/ES e troca de idioma em runtime (2026-11-07, 460/460;
       QA por falante nativo e revisão visual em F5 continuam por fazer).
 - [~] **Sonda de performance** criada (`tools/perf_probe.tscn`, headless,
       CPU-side: ms de frame/física, memória estática, objetos/nós/órfãos).
       Medição em hardware real (GPU/LOD/draw calls) continua em aberto —
       exige F5 numa máquina com os drivers do alvo (Android).
-- [ ] Meta-quests globais completas (ver v0.7).
+- [x] Meta-quests globais (ver v0.7; implementadas 2026-11-07 — Estado de
+      mundo persistido, consequência global: bloqueio de fim + reputação +
+      créditos; ver GDD 38–39). QA humano/F5 em hardware continua por fazer.

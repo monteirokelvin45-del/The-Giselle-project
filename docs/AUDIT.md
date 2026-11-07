@@ -555,3 +555,54 @@ decisão e persistido no save, mas
 ROADMAP — não têm design nem conteúdo no GDD; inventá-las aqui seria scope
 creep. Romances com memória de ações, QA por falante nativo, F5 e profiling
 em hardware real: em aberto.
+
+---
+
+# 17. Addendum — v1.0: cel nativo, meta-quests e memória de romance (2026-11-07)
+
+Fecha o bloco pedido pelo comandante: inspiração em Genshin Impact (técnica,
+nuncam conteúdo), as duas meta-quests antes adiadas e romances com memória —
+sem scope creep escondido.
+
+**1. Look cel nativo** (`model_factory.gd::apply_cel_look`, docs/VISUALS.md):
+todo `MeshInstance3D` dos modelos (env+personagens) recebe
+`DIFFUSE_TOON` + `SPECULAR_TOON` + rim (0.45/0.5) — recursos nativos do
+Godot 4, zero código de terceiros. Toggle **Pausa → Cel-shading** (persistido
+no save, aditivo). Saves antigos abrem com Ligada. Consequência conhecida:
+troca não repinta instâncias ativas — o botão avisa («requer recarregar a
+cena»). **Não feito e porquê:** inverted-hull (artefactos garantidos em
+GLES3/Compatibility), ILM/SDF face shadows (exigem mapas por personagem —
+KayKit não os tem; seria arte bespoke, não código). Falta a métrica real de
+frame-time com GPU (F5) — só o dono consegue medir.
+
+**2. A Ferida** (docs/GDD.md cap. 38): rumor via Voss (estágio≥5) → nó
+`voss_ferida` → 3 resoluções permanentes, cada uma com reputação+recompensa
+próprias; `world_flags["ferida"]` persiste no save; HUD objetivo; créditos
+ack. Zero cenas/geometria novas: o desenlace é escolha+consequência —
+exatamente o que as secs. 23–25 pediam.
+
+**3. O Golpe da Custódia** (cap. 39): rumor via Bram (estágio≥5 & ≥2 provas)
+→ nó `bram_golpe` → **Denunciar** (Imperial+15/Academia+10/+120XP/+80 marcos)
+ou **Ficar calado** (Academia−25 → **o fim «O Reformado» fica bloqueado** no
+menu da Decisão, com a razão escrita no botão bloqueado). Bloqueio testado
+no código do menu (botão disabled + texto razão). Créditos distinguem os
+dois desenlaces.
+
+**4. Romances com memória** (cap. 40): `ROMANCE_EPILOGUES_WARM` por
+companheiro quando a lealdade ≥60 no momento da decisão de fim (prova
+superada juntos ⇒ ≥60 pelo `_complete_exam`; romance ⇒ +30). Tiers
+negativos NÃO implementados (não existe verbo de promessa quebrável —
+cap. 40, limite honesto).
+
+**5. Documentação nova:** `docs/INSPIRATION.md` (11 repos estudados — 7 de
+fis/APIs/dados como referência de engenharia, 4 mortos/404 — e a fronteira
+legal: zero assets/dados HoYoverse no produto); `docs/VISUALS.md`;
+`docs/PLAYTEST.md` (checklist F5/Android/QA nativo EN/ES); GDD 38–40;
+ROADMAP riscado nas duas meta-quests e romances; LOCALIZATION 460/460.
+
+**Verificado:** gdparse 5/5 · validate.py · i18n 460/460 EN+ES · CI verde no
+push do cel (`322f1b6`; smoke 24/24 + flows verdes); CI do push das
+meta-quests (`8c73ae5`) a monitorizar no check do PR. **Bloqueado
+honestamente (falta ao dono):** F5 + GPU (rim/toon/clipping), Android
+(touch/fps/thermal), QA nativo EN/ES, testes com humanos — ver
+`docs/PLAYTEST.md`.

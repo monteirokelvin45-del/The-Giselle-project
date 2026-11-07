@@ -1,7 +1,7 @@
 # Localização (l10n) — The Giselle Project
 
 **Estado (honesto, 2026-11-07):** o jogo troca de idioma em runtime —
-PT (origem), EN e ES — com 423/423 strings traduzidas nas duas línguas, um
+PT (origem), EN e ES — com 460/460 strings traduzidas nas duas línguas, um
 gate de CI que impede regressões e um **E2E de runtime que corre no CI
 depois do `--import`** (`tools/i18n_runtime_check.gd`): verifica PT/EN/ES e
 format strings `%s`/`%d` no próprio engine. Os `.translation` (binários
@@ -13,7 +13,7 @@ ambiente os gera no import.
 - **Chaves = os próprios literais PT** no código (`tr("Jogo guardado.")`).
   Vantagem: se uma tradução faltar, `tr()` devolve a chave, ou seja o texto
   original — o jogo nunca mostra vazio nem rebenta.
-- `l10n/game.csv` — tabela única `keys,pt,en,es` com as 423 strings
+- `l10n/game.csv` — tabela única `keys,pt,en,es` com as 460 strings
   (UI, diálogos, notificações, finais, nomes PT mantidos como own names).
 - `tools/l10n_build.py` — re-extrai as chaves dos `.gd` atuais e escreve o
   CSV preservando traduções antigas. `--check` falha se:
@@ -22,7 +22,7 @@ ambiente os gera no import.
 - `tools/validate.py` corre `--check` no passo `[5/5]` → **o CI falha
   automaticamente se uma string nova entrar sem EN/ES**.
 - `tools/l10n_extract.py` — inventário PT para docs
-  (`docs/l10n/strings_pt.csv`, 423 entradas), independente do CSV de runtime.
+  (`docs/l10n/strings_pt.csv`, 460 entradas), independente do CSV de runtime.
 
 ## Idioma no jogo
 

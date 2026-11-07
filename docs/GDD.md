@@ -725,3 +725,75 @@ A qualidade faz tudo isso funcionar de maneira confiável.
 O jogo não será apenas sobre Kael ficar forte. Será sobre ele decidir o que
 fazer com essa força: proteger, governar, reformar, liderar, explorar,
 conquistar — ou criar uma nova ordem para o mundo.
+
+## 38. A Ferida (meta-quest de mundo, v1.0)
+
+**O quê.** Uma fechadura dos Engenheiros por cima de Orun está a ceder; o
+Núcleo da montanha sangra pelo céu. Não é um dragão — é o buraco que ele
+deixou, e o que nele dorme.
+
+**Estado de mundo persistido** (`world_flags["ferida"]`):
+`hidden → known → resolved_closed | resolved_fed | resolved_truth`
+(repõe-se num Novo Jogo).
+
+**Como desperta.** Só após o estágio 5 (Guardião vencido) **e** após
+conhecer o Arquivista Voss — primeiro contato libera o rumor
+(`«A Ferida de Orun está a sangrar...»`) na próxima visita à Academia;
+depois, o nó `voss_ferida` fica disponível indefinidamente.
+
+**As três resoluções** — todas permanentes para a run, todas com ack nos
+créditos e consequência de reputação (não há fim «errado» — há fins
+honestos, cada um com custo):
+
+| Escolha | Arquivistas | Imperial | Academia | Além |
+|---|---|---|---|---|
+| Selá-la (planta dos Engenheiros) | +15 | +10 | — | +150 XP, +60 marcos |
+| Alimentá-la (um Núcleo) | — | −15 | — | Irmandade +20, +60 Ruptura, +100 XP |
+| Publicá-la (fólios ao mundo) | +25 | −20 | −10 | +80 XP |
+
+**Objetivo lateral** aparece no HUD enquanto `known`; desaparece resolvida
+(✓ nos créditos e no HUD).
+
+## 39. O Golpe da Custódia (meta-quest de mundo, v1.0)
+
+**O quê.** O Marechal Cadena escolheu a semana da Prova Final para uma
+noite de armas contra os sem-magia da Academia — caloiros, professores —,
+um golpe «pela pureza». Bram Ferro ouve os rumores no pátio e puxa Kael de
+parte.
+
+**Estado de mundo persistido** (`world_flags["golpe"]`):
+`hidden → known → foiled_report | silent`.
+
+**Como desperta.** Estágio ≥ 5 **e** ≥ 2 provas concluídas (exames). O
+rumor chega por Bram (`bram_golpe`).
+
+**As resoluções:**
+- **Denunciar** (Imperial +15, Academia +10, +120 XP, +80 marcos) — Cadena
+  preso; a Academia sobrevive como projeto. Créditos: «denunciado».
+- **Ficar calado** (Academia −25, Imperial −10) — a noite acontece.
+  **Mecânica real:** o fim «O Reformado» fica bloqueado no menu da Decisão
+  («A Academia caiu…»), com o botão cinzento e a razão escrita — sem
+  maquilhar: o silêncio custa a porta mais honrada do jogo.
+
+**Objetivo lateral** aparece no HUD enquanto `known`; desaparece resolvida
+(✓ nos créditos e no HUD).
+
+## 40. Memória de ações — romances e lealdade (v1.0)
+
+Ler o mundo não basta; o mundo tem de **lembrar-se de ti**. A lealdade dos
+companheiros sobe quando Kael vence a prova **deles** (`_complete_exam`
+promove a lealdade mínima a 60) e no momento do romance (+30). Os epílogos
+de romance passam a ter **duas versões**: a padrão e a «provada» (lealdade
+≥ 60, «ROMANCE_EPILOGUES_WARM») —
+
+| Companheiro | Epílogo padrão | Epílogo «provado» (≥ 60) |
+|---|---|---|
+| Liora | fica; um mapa dizendo «casa» | fica porque lutaste **com** ela; a rota até «casa» está sempre aberta |
+| Bram | duas lâminas; dois copos | três lâminas («duas para ti»); tu sabes segurar os copos |
+| Sena | árvore sem nome | a árvore deita já fora; «Kael» significa «provado» |
+| Iven | a carta que sempre começa igual | navega contigo; «o cais já conhece o teu passo» |
+
+**Limite honesto:** não há «memória negativa» (quebrar promessas ≠ −lealdade)
+porque o jogo ainda não tem um verbo de promessa quebrável — seria UI sem
+substância. Quando existir, entra aqui o terceiro tier.
+

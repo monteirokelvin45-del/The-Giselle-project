@@ -86,6 +86,22 @@ Para testar o esquema no PC, põe `const FORCE_TOUCH := true` em `src/mobile/tou
 | Esc | Menu de pausa (salvar/carregar, atributos, Sistema, a Decisão, **Dificuldade**) |
 | Gamepad | A analógico — mover · R analógico — câmara · X ataque · Y pesado · A esquiva · B interagir · LB bloquear · RB Ruptura · L3 correr · R3 alvo · D-Pad↓ poção · Start pausa |
 
+## O que está pronto na v1.0 (2026-11-07)
+
+- **Look cel/toon nativo** (`DIFFUSE_TOON` + `SPECULAR_TOON` + rim) em todos os
+  modelos; toggle no menu de Pausa; detalhes e o porquê em `docs/VISUALS.md`.
+  Inspirado por Genshin Impact (técnica, nunca conteúdo) — atribuição completa em
+  `docs/INSPIRATION.md`.
+- **Duas meta-quests globais com estado de mundo persistido** (`world_flags`):
+  «A Ferida» (Arquivista Voss — selar/alimentar/revelar; consequências de
+  reputação e recompensa) e «O Golpe da Custódia» (Bram Ferro — denunciar vs.
+  silenciar; silenciar **bloqueia o fim «O Reformado»** na Decisão). Ver `docs/GDD.md` cap. 38–39.
+- **Romances com memória**: epílogos variam com a lealdade (prova superada
+  juntos ⇒ versão «provada»). Ver `docs/GDD.md` cap. 40.
+- **i18n completo**: 460/460 chaves PT/EN/ES com `l10n_build.py --check` no CI.
+- **QA humano**: checklist obrigatória em `docs/PLAYTEST.md` (F5, GPU, Android,
+  QA nativo) — nada disso pode ser substituído por CI.
+
 ## O que mudou na v0.2
 
 - **Android**: controlos táteis completos (joystick dinâmico + câmara por arrasto + botões de
@@ -175,7 +191,8 @@ Implementação do escopo do "Capítulo 35 — Escopo Realista" do documento de 
 - Mundo **fixo em um vale**: sem streaming, sem mudança de época/dia, sem
   persistência de NPCs, sem respawn de inimigos fora do Vale.
 - Sem conjuradores a cooperar taticamente, sem montarias, sem economia
-  completa, sem relações/romances — tudo isso está no GDD e no roadmap.
+  completa — tudo isso está no GDD e no roadmap. (As relações e os romances
+  chegaram na v1.0: epílogos por companheiro com lealdade.)
 - Death during boss resets you at the arena entrance with the guardian's
   current HP (sem reset total).
 
@@ -197,7 +214,7 @@ assets/models/           # modelos CC0: characters/ env/ (KayKit), creatures/ (Q
 assets/art/              # key art (título) + referência de personagem (kael_reference.jpg)
 assets/audio/            # SFX sintetizados (tools/synth_audio.py)
 tools/                   # validate.py, headless_check.sh, smoke_*.tscn, perf_probe.tscn
-docs/                    # GDD.md, ROADMAP.md, ASSETS.md, licenses/
+docs/                    # GDD.md, ROADMAP.md, ASSETS.md, licenses/, INSPIRATION.md, VISUALS.md, PLAYTEST.md
 ```
 
 ## Ferramentas de qualidade
