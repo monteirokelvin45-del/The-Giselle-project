@@ -721,3 +721,22 @@ execução do workflow na branch). **Limitações honestas:** o *game feel*
 final exige F5/GPU do dono; o foguete `_hit_stop` continua a usar a
 técnica `Engine.time_scale` (pré-existente); a Corrida do Predador usa FOV
 e não partículas (decisão: legível sem poluir o ecrã em GLES3).
+
+---
+
+# 22. Addendum — Jogabilidade ao máximo (v1.4, 2026-11-07)
+
+**Pedido explícito:** «Vamos melhorar a jogabilidade ao máximo.»
+
+**Entregue:** esquiva perfeita (timing → Ruptura/fôlego/hit-stop), sprint
+attack (+25% dano/alcance/arrancada), sinal `damaged` no jogador, flinch em
+golpes pesados nos inimigos (imune: Guardião), HP do alvo fixado no HUD,
+marcador de impacto ✕, contador de combo, prompt «GOLPEIA AGORA» no alvo
+atordoado, banner cinematográfico do Guardião (fade duplo), vinheta de dano
+radial (ImageTexture nativa — sem shaders) + pulso sub-30% de vida.
+
+**Verificado:** gdparse nos alterados · validate.py ✓ · i18n 465/465 ·
+vínculos de sinais idempotentes (ligados uma vez) · vinheta criada com
+EXPAND_IGNORE_SIZE (evita o erro «textura 256px presa»). **Pendente:** CI do
+push (a correr no momento da escrita — ver execução na branch); feel em F5
+do dono (janela da esquiva perfeita, intensidade do flinch).

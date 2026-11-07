@@ -184,6 +184,20 @@ var _notif_queue: Array[String] = []
 var _notif_time := 0.0
 var _time := 0.0
 var _player_cache: Node3D = null
+var _enemy_hp_bar: ProgressBar
+var _hit_marker: Label
+var _combo_label: Label
+var _stagger_label: Label
+var _vignette: TextureRect
+var _boss_box: Control
+var _boss_title: Label
+var _boss_sub: Label
+var _boss_time: float = 0.0
+var _boss_banner_shown: bool = false
+var _vignette_hit: float = 0.0
+var _hit_marker_t: float = 0.0
+var _hit_marker_hooked: bool = false
+var _damage_hooked: bool = false
 
 const ENDINGS := {
 	"academia": {
@@ -308,6 +322,24 @@ func _make_bar(width: float, height: float, fill: Color) -> ProgressBar:
 	bar.add_theme_stylebox_override("fill", fg)
 	return bar
 
+func _make_vignette_texture() -> ImageTexture:
+	var size := 256
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var center := Vector2(size / 2.0, size / 2.0)
+	for y in range(size):
+		for x in range(size):
+			var d: float = Vector2(x + 0.5, y + 0.5).distance_to(center) / (size * 0.5)
+			var a: float = clampf((d - 0.55) / 0.45, 0.0, 1.0)
+			a = a * a * 0.85
+			img.set_pixel(x, y, Color(0.55, 0.03, 0.02, a))
+	return ImageTexture.create_from_image(img)
+
+func _on_hit_landed() -> void:
+	_hit_marker_t = 0.18
+
+func _on_player_damaged() -> void:
+	_vignette_hit = 0.55
+
 func _build_hud() -> void:
 	_hud = Control.new()
 	_hud.anchor_right = 1.0
@@ -315,6 +347,17 @@ func _build_hud() -> void:
 	_hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hud.visible = false
 	_layer.add_child(_hud)
+
+	# Vinheta de dano/vida baixa (atrás de tudo no HUD — só molduras)
+	_vignette = TextureRect.new()
+	_vignette.texture = _make_vignette_texture()
+	_vignette.anchor_right = 1.0
+	_vignette.anchor_bottom = 1.0
+	_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_vignette.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_vignette.stretch_mode = TextureRect.STRETCH_SCALE
+	_vignette.modulate.a = 0.0
+	_hud.add_child(_vignette)
 
 	# Bloco superior esquerdo
 	var left := MarginContainer.new()
@@ -422,6 +465,8 @@ func _build_hud() -> void:
 	_enemy_name_label = _make_label("Inimigo", 13, Color(0.95, 0.6, 0.4))
 	_enemy_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_posture_box.add_child(_enemy_name_label)
+	_enemy_hp_bar = _make_bar(300, 12, Color(0.88, 0.32, 0.22))
+	_posture_box.add_child(_enemy_hp_bar)
 	_posture_bar = _make_bar(300, 10, Color(0.75, 0.55, 0.95))
 	_posture_box.add_child(_posture_bar)
 
@@ -454,6 +499,87 @@ func _build_hud() -> void:
 	_notif_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	_notif_label.modulate.a = 0.0
 	_hud.add_child(_notif_label)
+
+	# Marcador de impacto (X no centro, flash de 0,18s)
+	_hit_marker = _make_label("✕", 34, Color(1.0, 0.9, 0.6))
+	_hit_marker.anchor_left = 0.5
+	_hit_marker.anchor_right = 0.5
+	_hit_marker.anchor_top = 0.5
+	_hit_marker.anchor_bottom = 0.5
+	_hit_marker.offset_left = -20.0
+	_hit_marker.offset_right = 20.0
+	_hit_marker.offset_top = -52.0
+	_hit_marker.offset_bottom = -12.0
+	_hit_marker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_hit_marker.add_theme_constant_override("outline_size", 8)
+	_hit_marker.add_theme_color_override("font_outline_color", Color(0.2, 0.08, 0.02, 0.9))
+	_hit_marker.modulate.a = 0.0
+	_hud.add_child(_hit_marker)
+
+	# Contador de combo (à direita da mira)
+	_combo_label = _make_label("×2", 30, Color(1.0, 0.78, 0.3))
+	_combo_label.anchor_left = 0.5
+	_combo_label.anchor_top = 0.5
+	_combo_label.offset_left = 78.0
+	_combo_label.offset_right = 170.0
+	_combo_label.offset_top = -24.0
+	_combo_label.offset_bottom = 24.0
+	_combo_label.add_theme_constant_override("outline_size", 8)
+	_combo_label.add_theme_color_override("font_outline_color", Color(0.2, 0.08, 0.02, 0.9))
+	_combo_label.modulate.a = 0.0
+	_hud.add_child(_combo_label)
+
+	# Aviso de "GOLPEIA AGORA" (alvo atordoado)
+	_stagger_label = _make_label("GOLPEIA AGORA", 24, Color(1.0, 0.85, 0.35))
+	_stagger_label.anchor_left = 0.5
+	_stagger_label.anchor_right = 0.5
+	_stagger_label.anchor_top = 1.0
+	_stagger_label.anchor_bottom = 1.0
+	_stagger_label.offset_left = -200.0
+	_stagger_label.offset_right = 200.0
+	_stagger_label.offset_top = -352.0
+	_stagger_label.offset_bottom = -322.0
+	_stagger_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_stagger_label.add_theme_constant_override("outline_size", 8)
+	_stagger_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_stagger_label.visible = false
+	_hud.add_child(_stagger_label)
+
+	# Banner do chefe (primeira vez que o Guardião é fereido)
+	_boss_box = Control.new()
+	_boss_box.anchor_left = 0.5
+	_boss_box.anchor_right = 0.5
+	_boss_box.anchor_top = 0.5
+	_boss_box.anchor_bottom = 0.5
+	_boss_box.offset_left = -430.0
+	_boss_box.offset_right = 430.0
+	_boss_box.offset_top = -140.0
+	_boss_box.offset_bottom = -50.0
+	_boss_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_box.modulate.a = 0.0
+	_boss_box.visible = false
+	_hud.add_child(_boss_box)
+	var band := ColorRect.new()
+	band.color = Color(0.05, 0.04, 0.03, 0.72)
+	band.anchor_right = 1.0
+	band.anchor_bottom = 1.0
+	_boss_box.add_child(band)
+	_boss_title = _make_label("O GUARDIÃO DA PROVA", 40, Color(0.98, 0.78, 0.32))
+	_boss_title.anchor_right = 1.0
+	_boss_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_boss_title.offset_top = 10.0
+	_boss_title.offset_bottom = 60.0
+	_boss_title.add_theme_constant_override("outline_size", 10)
+	_boss_title.add_theme_color_override("font_outline_color", Color(0.15, 0.05, 0.0, 0.95))
+	_boss_box.add_child(_boss_title)
+	_boss_sub = _make_label("O último obstáculo entre ti e o final da Prova.", 15, Color(0.85, 0.84, 0.8))
+	_boss_sub.anchor_right = 1.0
+	_boss_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_boss_sub.offset_top = 58.0
+	_boss_sub.offset_bottom = 88.0
+	_boss_sub.add_theme_constant_override("outline_size", 6)
+	_boss_sub.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	_boss_box.add_child(_boss_sub)
 
 	# Mira (ponto central)
 	_crosshair = ColorRect.new()
@@ -641,16 +767,61 @@ func _process(delta: float) -> void:
 		_rupture_ready.visible = GameState.rupture >= 100.0
 		if _rupture_ready.visible:
 			_rupture_ready.modulate.a = 0.6 + 0.4 * sin(_time * 6.0)
-		# Barra de postura do alvo fixado
+		# Ligações de sinais do jogador (uma vez)
+		if not _hit_marker_hooked and p.has_signal("attack_landed"):
+			p.attack_landed.connect(_on_hit_landed)
+			_hit_marker_hooked = true
+		if not _damage_hooked and p.has_signal("damaged"):
+			p.damaged.connect(_on_player_damaged)
+			_damage_hooked = true
+		# Barras de vida/postura do alvo fixado
 		var locked: Node3D = p.get("locked_enemy")
 		if locked != null and is_instance_valid(locked):
 			_posture_box.visible = true
 			_enemy_name_label.text = tr(String(locked.get("display_name")))
+			var max_e_hp := float(locked.get("max_hp"))
+			if max_e_hp > 0.0:
+				_enemy_hp_bar.value = clampf(float(locked.get("hp")) / max_e_hp * 100.0, 0.0, 100.0)
 			var max_posture := float(locked.get("max_posture"))
 			if max_posture > 0.0:
 				_posture_bar.value = clampf(float(locked.get("posture")) / max_posture * 100.0, 0.0, 100.0)
+			# Aviso de "GOLPEIA AGORA" (atordoado/postura quebrada)
+			var stunned := 0.0
+			if locked.get("_stunned") != null:
+				stunned = float(locked.get("_stunned"))
+			if stunned > 0.6:
+				_stagger_label.visible = true
+				_stagger_label.modulate.a = 0.65 + 0.35 * sin(_time * 8.0)
+			else:
+				_stagger_label.visible = false
 		else:
 			_posture_box.visible = false
+			_stagger_label.visible = false
+		# Contador de combo
+		var combo := 0
+		if p.get("_combo") != null:
+			combo = int(p.get("_combo"))
+		if combo >= 2:
+			_combo_label.text = "×%d" % combo
+			_combo_label.modulate.a = 1.0
+		else:
+			_combo_label.modulate.a = maxf(0.0, _combo_label.modulate.a - 4.0 * delta)
+		# Vinheta de vida baixa + flash de dano
+		var hp_now := float(p.get("hp"))
+		_vignette_hit = maxf(0.0, _vignette_hit - delta * 1.7)
+		var vignette_target := _vignette_hit * 0.6
+		if hp_now < max_hp * 0.3:
+			vignette_target += 0.20 + 0.07 * sin(_time * 5.0)
+		_vignette.modulate.a = clampf(vignette_target, 0.0, 1.0)
+		# Banner do Guardião (primeira vez que é ferido)
+		if not _boss_banner_shown:
+			for enemy in get_tree().get_nodes_in_group("enemy"):
+				if not is_instance_valid(enemy):
+					continue
+				if enemy.get("enemy_type") == "guardiao" and float(enemy.get("hp")) < float(enemy.get("max_hp")) * 0.999:
+					_boss_banner_shown = true
+					_boss_time = 3.0
+					break
 		# Prompt de interação
 		var target: Node3D = p.get("current_interactable")
 		if target != null and is_instance_valid(target) and target.has_method("get_prompt"):
@@ -658,6 +829,20 @@ func _process(delta: float) -> void:
 			_prompt_label.visible = not is_blocking() and not Dialogue.active
 		else:
 			_prompt_label.visible = false
+	if _hit_marker_t > 0.0:
+		_hit_marker_t -= delta
+		_hit_marker.modulate.a = clampf(_hit_marker_t / 0.18, 0.0, 1.0)
+	else:
+		_hit_marker.modulate.a = 0.0
+	if _boss_time > 0.0:
+		_boss_time -= delta
+		var elapsed := 3.0 - _boss_time
+		var fade_in: float = clampf(elapsed / 0.3, 0.0, 1.0)
+		var fade_out: float = clampf(_boss_time / 0.6, 0.0, 1.0)
+		_boss_box.modulate.a = minf(fade_in, fade_out)
+		_boss_box.visible = true
+	else:
+		_boss_box.visible = false
 	# Notificações
 	if _notif_time > 0.0:
 		_notif_time -= delta

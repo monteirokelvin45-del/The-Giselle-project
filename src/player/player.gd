@@ -3,6 +3,7 @@ extends CharacterBody3D
 
 signal attack_performed()
 signal attack_landed()
+signal damaged()
 
 const GRAVITY := 26.0
 const CAM_DISTANCE := 4.6
@@ -509,8 +510,13 @@ func _do_attack(heavy: bool) -> void:
 	var combo_idx := _combo % 3
 	var base: float = [12.0, 14.0, 17.0][combo_idx] if not heavy else 34.0
 	var reach := 2.4 if not heavy else 2.8
+	if sprint_strike:
+		reach += 0.4
 	var posture_dmg := (12.0 if not heavy else 30.0) * GameState.posture_mult()
 	var mult := GameState.damage_mult() * (1.5 if GameState.rupture_time_left > 0.0 else 1.0)
+	var sprint_strike := _sprinting and not heavy
+	if sprint_strike:
+		mult *= 1.25
 	if _next_attack_bonus:
 		mult *= 1.5
 		_next_attack_bonus = false
@@ -589,7 +595,7 @@ func _do_attack(heavy: bool) -> void:
 	elif hit_any:
 		_combo += 1
 	_combo_reset = 1.15
-	_lunge = forward * (2.0 if heavy else 3.4)
+	_lunge = forward * (2.0 if heavy else (4.6 if sprint_strike else 3.4))
 
 # ------------------------------------------------------------------ física ---
 func _physics_process(delta: float) -> void:
@@ -814,6 +820,14 @@ func _find_interactable() -> Node3D:
 # ----------------------------------------------------------------- dano -----
 func take_damage(amount: float, from_node: Node3D = null) -> void:
 	if _invuln_timer > 0.0:
+		if _dodge_timer > 0.2:
+			# Arancada da esquiva no instante do impacto — esquiva perfeita
+			GameState.add_rupture(15.0)
+			stamina = minf(GameState.max_stamina(), stamina + 10.0)
+			GameState.notify("FANTASMA — esquiva perfeita!")
+			_hit_stop(0.05)
+			var mfp := preload("res://src/visuals/model_factory.gd")
+			mfp.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.2, 0.0), Color(1.0, 0.9, 0.5), 0.7)
 		return
 	var final := amount * GameState.difficulty_taken_mult()
 	var parried := false
@@ -850,6 +864,7 @@ func take_damage(amount: float, from_node: Node3D = null) -> void:
 		hits_taken_attacking += 1
 	hp -= final
 	total_damage_taken += final
+	damaged.emit()
 	if final >= GameState.max_hp() * 0.25:
 		GameState.add_injury()
 	if _anim_player != null and not _dying:

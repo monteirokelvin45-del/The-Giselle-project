@@ -523,6 +523,9 @@ func take_damage(amount: float, posture_dmg: float, _from: Node3D = null) -> voi
 	hp -= amount
 	posture -= posture_dmg
 	_combat = true
+	# Flinch em golpes pesados (posture >= 25, i.e. pesado/slam) — não no Guardião
+	if posture_dmg >= 25.0 and enemy_type != "guardiao":
+		_stunned = maxf(_stunned, 0.35)
 	if enemy_type == "guardiao" and not _enraged and hp <= max_hp * 0.5 and hp > 0.0:
 		_enraged = true
 		GameState.notify("O Guardião RUGE — a Prova enfurece!")

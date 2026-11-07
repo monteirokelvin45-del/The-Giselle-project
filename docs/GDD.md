@@ -899,3 +899,42 @@ fallbacks seguros em `balance.gd`); l10n 461/461; validate.py ✓.
 **Estado honesto.** Verificado estruturalmente (gdparse/validate/i18n + boot
 + smoke no CI). O *feeling* em si (quão justo sabe o arremesso, se o FOV
 nervoso durante o buff) só fecha com os olhos do dono — F5.
+
+## 45. Jogabilidade ao máximo (v1.4, 2026-11-07)
+
+**O quê.** A camada de leitura e resposta que separa «funciona» de «dá gozo»:
+cada golpe que acerta, cada acerto que fere, cada alvo que vacila tem sinal —
+e cada super/habilidade tem consequência visível.
+
+**Combate — Kael**
+- **Esquiva perfeita**: impacto durante a arrancada da esquiva (`_dodge_timer > 0,2s`)
+  → +15 Ruptura, +10 fôlego, hit-stop de 50 ms, clarão dourado e «FANTASMA».
+  A janela recompensa timing, não spam.
+- **Sprint attack**: atacar em corrida → +25% dano, +0,4 alcance, arrancada 4,6
+  (leitura de risco/recompensa — arrancar para dentro do grupo).
+- **Sinal `damaged`** emitido ao sofrer dano (o HUD reage).
+
+**Inimigos**
+- **Flinch em golpes pesados** (pós-25 de postura): salteador/mago/lobo vergam
+  0,35s — interrompe padrões, dá a janela para contra-atacar. Guardião imune
+  por desenho (peso do chefe).
+
+**HUD / UI (ui.gd)**
+- **HP do alvo fixado** (barra carmesim 300×12 acima da postura) — a vida do
+  inimigo deixa de ser adivinhada.
+- **Marcador de impacto** (✕ dourado, flash 0,18s no centro) em cada acerto.
+- **Contador de combo** (×N) à direita da mira, some sozinho.
+- **«GOLPEIA AGORA»** dourado e pulsante quando o alvo está atordoado.
+- **Banner do Guardião da Prova** na primeira vez que é ferido: título com
+  banda escura + legenda, fade duplo — o momento-chave do jogo com peso
+  cinematográfico.
+- **Vinheta de dano** (gradiente radial nativo via Image, zero shaders): flash
+  vermelho ao sofrer golpe; pulso persistente abaixo de 30% de vida.
+- **Sinais ligados uma vez** (attack_landed → marcador; damaged → vinheta) —
+  sem polling de eventos, sem vazamento de conexões.
+
+**i18n** — 465/465 (4 chaves novas). validate.py ✓.
+
+**Estado honesto.** Estrutural e fumo (headless) verde no CI; o *balanceamento*
+do flinch e da esquiva perfeita só fecha com os olhos do dono no F5 — se o
+flinch parecer «atordoamento demais», baixar para 0,25s em `enemy.gd`.

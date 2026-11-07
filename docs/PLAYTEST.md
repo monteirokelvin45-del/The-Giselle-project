@@ -57,3 +57,22 @@ Android nem olho humano. Duração: 30–45 min. Regista tudo com capturas.
 ## G. Reportar
 - Criar issue com: dispositivo, janela (px), dificuldade, idioma, passos,
   esperado vs observado, captura. Tag: `playtest-YYYY-MM-DD`.
+
+---
+
+## v1.3 + v1.4 — checklist de jogabilidade (2026-11-07)
+
+1. **Salto no último passo** — corre e salta na beira: sem coyote prendeste ou "comiste" saltos? (esperado: 0,12s de tolerância)
+2. **Esquiva perfeita** (FANTASMA) — deixa-te atingir durante a arrancada: recebeste Ruptura/fôlego e o flash?
+3. **Sprint attack** — ataca em corrida: sentiste a arrancada estendida?
+4. **Arremesso do Lobo** — vês o lobo abaixar-se antes? Consegues esquivar ou atordoar no meio do salto?
+5. **Mago de Cinza** — vês o clarão turquesa antes do disparo? Tens tempo para a Corrente?
+6. **Flinch** — o Salteador verga quando o acertas com o pesado? E o Guardião NÃO verga?
+7. **HP do alvo fixado** — a barra carmesim desce plausivelmente?
+8. **GOLPEIA AGORA** — aparece quando a postura quebra? Some depois?
+9. **Banner do Guardião** — aparece na primeira ferida e não reaparece?
+10. **Vinheta** — flash vermelho ao apanhares um golpe; pulso abaixo de 30% de vida?
+11. **Marcador ✕ e combo ×N** — piscam a cada acerto; somem sozinhos?
+12. **Fúria do Guardião (50% HP)** — rugido, sacode, +dano, emissão rubra?
+
+Regista aqui o que sentiste fora do sítio:
