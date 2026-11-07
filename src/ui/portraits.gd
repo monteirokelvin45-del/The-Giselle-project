@@ -3,10 +3,8 @@ extends RefCounted
 ## recortes «bust» derivados das folhas geradas por IA com a referência de
 ## personagem do dono (assets/art/kael_reference.jpg). As folhas completas
 ## ficam no mesmo diretório (*.jpg) para docs/arte.
-## Se o falante não estiver na tabela (retrato ainda não gerado — Bram, Sena,
-## Iven, Voss, Cadena, Vladimir), path_for devolve "" e o UI segue sem
-## retrato — nunca um rosto errado. Ao gerar as folhas em falta, adicionar
-## aqui os caminhos correspondentes (ver docs/CHARACTER.md).
+## Se o falante não estiver na tabela, path_for devolve "" e o UI segue sem
+## retrato — nunca um rosto errado.
 
 const KAEL := {
 	"neutral": "res://assets/art/portraits/kael_neutral_face.jpg",
@@ -23,6 +21,12 @@ const PORTRAITS := {
 	"garr": "res://assets/art/portraits/garr_face.jpg",
 	"liora": "res://assets/art/portraits/liora_face.jpg",
 	"dario": "res://assets/art/portraits/dario_face.jpg",
+	"bram": "res://assets/art/portraits/bram_face.jpg",
+	"sena": "res://assets/art/portraits/sena_face.jpg",
+	"iven": "res://assets/art/portraits/iven_face.jpg",
+	"voss": "res://assets/art/portraits/voss_face.jpg",
+	"cadena": "res://assets/art/portraits/cadena_face.jpg",
+	"vladimir": "res://assets/art/portraits/vladimir_face.jpg",
 }
 const KAEL_DEFAULT := "determined"
 

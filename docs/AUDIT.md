@@ -693,9 +693,12 @@ ao estilo da referência) · CI do push `42373668333` 12/12 ✓ e CI do PR
 `42373672722` ✓ (ambos via `gh`, 2026-11-07 ~17:5x UTC — aliás, o
 `smoke_test` do PR anterior que falhara às 51s era mesmo flake: a mesma
 asserção passou no push seguinte com o mesmo código).
-**Pendente:** a geração das 6 folhas em falta (Bram, Sena, Iven, Voss,
-Cadena, Vladimir) — limite de imagem da ferramenta (10 por turno, atingido
-duas vezes nesta sessão).
+**Resolvido (2026-11-07, mesmo dia):** as 6 folhas em falta (Bram, Sena,
+Iven, Voss, Cadena, Vladimir) foram geradas; recortes bust a partir do painel
+de close-up da própria folha (moldura fina de inset — uniforme entre os
+cinco) para Bram/Sena/Iven/Voss/Cadena e bust da figura principal para
+Vladimir. 16/16 retratos integrados (`src/ui/portraits.gd`); validate.py ✓
+· i18n 461/461.
 
 ---
 

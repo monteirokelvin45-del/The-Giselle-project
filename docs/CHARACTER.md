@@ -71,12 +71,12 @@ existência para todos os retratos).
 | Garr, o Ferreiro | `garr_face.jpg` | ✓ gerado |
 | Liora Venn | `liora_face.jpg` | ✓ gerado |
 | Mestre Dario Vale | `dario_face.jpg` | ✓ gerado |
-| Bram Ferro | `bram_face.jpg` | por gerar (limite de imagem da sessão) |
-| Sena Raiz | `sena_face.jpg` | por gerar (idem) |
-| Iven Lago | `iven_face.jpg` | por gerar (idem) |
-| Arquivista Voss | `voss_face.jpg` | por gerar (idem) |
-| Marechal Cadena | `cadena_face.jpg` | por gerar (idem) |
-| Vladimir, Guardião da Prova | `vladimir_face.jpg` | por gerar (idem) |
+| Bram Ferro | `bram_face.jpg` | ✓ gerado |
+| Sena Raiz | `sena_face.jpg` | ✓ gerado |
+| Iven Lago | `iven_face.jpg` | ✓ gerado |
+| Arquivista Voss | `voss_face.jpg` | ✓ gerado |
+| Marechal Cadena | `cadena_face.jpg` | ✓ gerado |
+| Vladimir, Guardião da Prova | `vladimir_face.jpg` | ✓ gerado |
 
 Integração: o diálogo de fala mostra o retrato no painel (`src/ui/dialogue.gd`,
 128 px de largura, `KEEP_ASPECT_COVERED`); A DECISÃO mostra `kael_battle` junto

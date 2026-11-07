@@ -852,11 +852,12 @@ identidade e estilo; recortes bust para o jogo; integração no diálogo de fala
 (painel), na decisão final (Kael em combate) e no ecrã de fim (romanceado ou
 Kael decidido).
 
-**Estado honesto.** 10/16 folhas geradas (Kael ×5, Elen, Tomás, Garr, Liora,
-Dario). Seis pendentes (Bram, Sena, Iven, Voss, Cadena, Vladimir) por limite
-da ferramenta de imagem na sessão; o jogo funciona sem elas (fallback
-invisível) e o código resolve-as assim que existirem. Ver
-`docs/CHARACTER.md` («Elenco — retratos»).
+**Estado honesto.** 16/16 folhas geradas (Kael ×5, Elen, Tomás, Garr, Liora,
+Dario, Bram, Sena, Iven, Voss, Cadena, Vladimir). Os recortes bust seguem duas
+composições: Kael e os cinco primeiros secundários usam a figura principal;
+Bram/Sena/Iven/Voss/Cadena usam o painel de close-up da própria folha
+(moldura fina de inset, uniforme entre os cinco); Vladimir usa a figura
+principal. Ver `docs/CHARACTER.md` («Elenco — retratos»).
 
 ## 44. Movimento e poderes — game feel (v1.3, 2026-11-07)
 
