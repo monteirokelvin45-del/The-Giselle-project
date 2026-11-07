@@ -170,7 +170,7 @@ static func spawn_damage_number(tree: SceneTree, pos: Vector3, amount: int, colo
 	if scene == null:
 		return
 	var label := Label3D.new()
-	label.text = tr(str(amount))
+	label.text = str(amount)
 	label.font_size = 96
 	label.modulate = color
 	label.outline_size = 22
