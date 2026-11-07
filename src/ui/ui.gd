@@ -233,6 +233,14 @@ const ROMANCE_EPILOGUES := {
 	"sena": "Sena planta algo novo no jardim da Academia: uma árvore que ninguém reconhece.\n«Nasce quando o amor quer», diz ela. Chama-se, por agora, apenas «Kael».",
 	"iven": "Iven navega. Sempre navegou. Mas agora, na última vigília antes de cada viagem, escreve uma carta — e a carta começa sempre da mesma maneira:\n«Kael, o porto continua aqui à tua espera.»",
 }
+## Se a lealdade subiu ≥ 60 (prova superada juntos), o epílogo reconhece —
+## memória de ações do jogador, não só a declaração de romance.
+const ROMANCE_EPILOGUES_WARM := {
+	"liora": "Liora fica — e fica porque lutaste com ela, não só por ela. Não como conselheira: como o corpo e o sossego de uma escolha provada.\nNos mapas que ela desenha agora, há um lugar marcado apenas «casa», e a rota até ele está sempre aberta.",
+	"bram": "Bram funde três lâminas numa só — «duas para ti, forasteiro» —, e ri-se baixinho pela primeira vez em anos.\nAs noites da forja têm sempre dois copos. E tu sabes segurá-los.",
+	"sena": "Sena planta contigo, mão sobre mão. A árvore que ninguém reconhece nasceu do teu silêncio e das tuas provas — agora já deita fora.\nChama-se «Kael», mas no jardim todos sabem que significa «provado».",
+	"iven": "Iven navega contigo neste último porto. A carta que escrevia antes de partir agora começa de outra maneira:\n«Kael, volta, o cais já conhece o teu passo.»",
+}
 
 func _ready() -> void:
 	_layer = CanvasLayer.new()
@@ -1247,6 +1255,9 @@ func _build_decision() -> void:
 				var fname := String(GameState.REPUTATION_NAMES.get(faction, faction))
 				btn.text = "🔒 " + String(ending["choice"]) + tr("\nRequer: %s %d  (tens %d)") % [fname, amount, rep]
 				btn.disabled = true
+		if key == "academia" and GameState.world_flag("golpe", "hidden") == "silent":
+			btn.text = "🔒 " + String(ending["choice"]) + tr("\nA Academia caiu: calaste-te quando a Custódia marchou.")
+			btn.disabled = true
 		vbox.add_child(btn)
 
 func _open_decision() -> void:
@@ -1270,7 +1281,10 @@ func _choose_ending(key: String) -> void:
 	var ending_text := String(ending["text"])
 	var rid := GameState.romance_id
 	if rid != "" and ROMANCE_EPILOGUES.has(rid):
-		ending_text += "\n\n— «Incluindo, claro», pensa Kael.\n" + String(ROMANCE_EPILOGUES[rid])
+		var epilogue := String(ROMANCE_EPILOGUES[rid])
+		if ROMANCE_EPILOGUES_WARM.has(rid) and GameState.companion_loyalty(rid) >= 60:
+			epilogue = String(ROMANCE_EPILOGUES_WARM[rid])
+		ending_text += "\n\n— «Incluindo, claro», pensa Kael.\n" + epilogue
 	_ending_title.text = tr(String(ending["title"]))
 	_ending_text.text = tr(ending_text)
 	_credits_label.text = tr(_build_credits_text())
@@ -1310,4 +1324,18 @@ func _build_credits_text() -> String:
 		tr("Nv %d · %d marcos · %d XP totais") % [GameState.level, GameState.marcos, GameState.xp],
 		tr("Finais vividos: %d") % GameState.endings_seen.size(),
 	]
+	var ferida: String = String(GameState.world_flag("ferida", "hidden"))
+	match ferida:
+		"resolved_closed":
+			lines.append(tr("A Ferida — selada com o engenho dos Engenheiros."))
+		"resolved_fed":
+			lines.append(tr("A Ferida — adormecida a Núcleo, por enquanto."))
+		"resolved_truth":
+			lines.append(tr("A Ferida — a verdade, finalmente crúne."))
+	var golpe: String = String(GameState.world_flag("golpe", "hidden"))
+	match golpe:
+		"foiled_report":
+			lines.append(tr("O Golpe da Custódia — denunciado; Veyra guarda as leis."))
+		"silent":
+			lines.append(tr("O Golpe da Custódia — calaste-te; a Academia que resta é outra."))
 	return "\n".join(lines)

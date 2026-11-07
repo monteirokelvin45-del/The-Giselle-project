@@ -90,6 +90,8 @@ func _resolve_tree() -> String:
 		"bram", "sena", "iven", "liora_academia":
 			return _companion_tree()
 		"voss":
+			if GameState.world_flag("ferida", "hidden") == "known":
+				return "voss_ferida"
 			return "voss" if not GameState.exams_done.has("voss_met") else "voss_after"
 		_:
 			return dialogue_id

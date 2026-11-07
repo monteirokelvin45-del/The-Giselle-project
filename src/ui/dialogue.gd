@@ -140,6 +140,23 @@ const TREES := {
 		"name": "Bram Ferro",
 		"text": "O aço não mente, forasteiro. Viste o meu cansaço e não hesitaste. É por isso que eu e a corrente temos respeito por ti. Precisas de alguma coisa da forja?",
 	},
+	"bram_golpe": {
+		"name": "Bram Ferro",
+		"text": "Fica aqui, junto à forja, onde só ouvimos os martelos. Aquela ronda nova da Custódia não desfila — apronta. O Marechal Cadena escolheu a semana da Prova Final para «limpar» a Academia: numa só noite, os sem-magia — caloiros, tu, eu — e os mestres que os deixaram entrar. Desta data a Custódia ouve quem souber cedo.",
+		"choices": [
+			{"text": "«Conto aos Mestres hoje. Com datas e testemunhas.» (Imperial +15 · Academia +10)", "action": "golpe_report", "next": "bram_golpe_foil"},
+			{"text": "«Não é comigo. A minha cabeça no ninho não salva ninhos.» (Academia −25 · O fim «O Reformado» fica bloqueado)", "action": "golpe_silent", "next": "bram_golpe_silent"},
+			{"text": "«Ainda não decidi. Preciso de tempo.»", "action": "none"},
+		],
+	},
+	"bram_golpe_foil": {
+		"name": "Bram Ferro",
+		"text": "Boa. Boa! Os Mestres sabem às quatro; às seis, Cadena dorme numa cela de pedra e Veyra faz jurar a Custódia de novo. Devias sentir alívio... só me sinto cansado. Mas dorme descansado hoje, forasteiro.",
+	},
+	"bram_golpe_silent": {
+		"name": "Bram Ferro",
+		"text": "Eu... antes preferia não saber. Mas se guardares silêncio, guarda pelo menos com os olhos abertos: naquela noite vais saber exactamente de que é feita a Academia que se salva — e a que se deixa queimar.",
+	},
 	"bram_romance": {
 		"name": "Bram Ferro",
 		"text": "Olha... não sou bom com palavras bonitas. Mas desde que me devolveste a espada, não consigo deixar de pensar onde acabas os teus dias. Algo mais do que camaradagem, entre nós dois?",
@@ -252,6 +269,28 @@ const TREES := {
 	"voss_after": {
 		"name": "Arquivista Voss",
 		"text": "Ainda aqui? Bom. Os que ficam são os que veem. Quando a Academia cair — e vai cair —, sê o que a segura. Ou o que a deixa cair. A escolha será tua, como sempre foi.",
+	},
+	"voss_ferida": {
+		"name": "Arquivista Voss",
+		"text": "Perguntaste. Bom. Khar treme há três semanas, e os últimos três epicentros formam um triângulo perfeito. Lá em cima, por cima de Orun, a fechadura dos Engenheiros está a ceder. O Núcleo daquela montanha está a vazar — e a Ferida sangra para cima, pelo céu.",
+		"choices": [
+			{"text": "«Os arquivos têm a planta da fechadura. Sela-se isto.» (Arquivistas +15 · Imperial +10)", "action": "ferida_closed", "next": "voss_ferida_closed"},
+			{"text": "«Núcleo para quem dorme. Alimenta-se — e cala-se.» (Irmandade +20 · Imperial −15)", "action": "ferida_fed", "next": "voss_ferida_fed"},
+			{"text": "«O mundo tem de saber. Publica tudo.» (Arquivistas +25 · Imperial −20)", "action": "ferida_truth", "next": "voss_ferida_truth"},
+			{"text": "«Ainda não sei. Volto quando souber.»", "action": "none"},
+		],
+	},
+	"voss_ferida_closed": {
+		"name": "Arquivista Voss",
+		"text": "Planta no cofre poente, ferraria a norte, uma visita à cumeeia... e uma lua calada. Está feito — e eu carrego o fardo. Que Veyra durma descansada sem sequer saber o que se evitou.",
+	},
+	"voss_ferida_fed": {
+		"name": "Arquivista Voss",
+		"text": "Ai... a Irmandade aprovaria. Um Núcleo de visita largado na boca da Ferida — e o silêncio a seguir. Celebra-se cedo demais: o que se alimenta nunca morre — apenas aprende a esperar.",
+	},
+	"voss_ferida_truth": {
+		"name": "Arquivista Voss",
+		"text": "Os pergaminhos saíram antes do amanhecer. Amanhã Veyra acorda sem o sono da ignorância — e com a ira na garganta. Espero que tenhamos feito a coisa certa, rapaz sem magia.",
 	},
 	"garr_shop": {
 		"name": "Garr, o Ferreiro",

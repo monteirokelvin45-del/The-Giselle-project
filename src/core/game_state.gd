@@ -49,6 +49,15 @@ var endings_seen: Array[String] = []
 
 ## Dificuldade: casual | normal | pesadelo (afetada por mults; ver DIFFICULTY)
 var difficulty: String = "normal"
+## Meta-quests globais (v1.0): estado de mundo persistido entre regiões
+## (A Ferida, O Golpe da Custódia). Repõe-se num Novo Jogo (é estado de run).
+var world_flags: Dictionary = {}
+
+func world_flag(key: String, default = null) -> Variant:
+	return world_flags.get(key, default)
+
+func set_world_flag(key: String, value) -> void:
+	world_flags[key] = value
 const DIFFICULTY := {
 	"casual": {"taken": 0.65, "enemy_hp": 0.75, "xp": 1.0, "label": "Casual (relaxado)"},
 	"normal": {"taken": 1.0, "enemy_hp": 1.0, "xp": 1.0, "label": "Normal"},
@@ -514,6 +523,16 @@ func side_objectives() -> Array[String]:
 		list.append(tr("Fibras de Ruína: %d/5") % herb_count)
 	elif herb_quest_state == "done":
 		list.append(tr("Luz para as Lâmpadas: concluído ✓"))
+	var ferida: String = String(world_flag("ferida", "hidden"))
+	if ferida == "known":
+		list.append(tr("A Ferida: fala com o Arquivista Voss."))
+	elif ferida.begins_with("resolved_"):
+		list.append(tr("A Ferida: concluída ✓"))
+	var golpe: String = String(world_flag("golpe", "hidden"))
+	if golpe == "known":
+		list.append(tr("O Golpe: fala com Bram Ferro e decide."))
+	elif golpe == "foiled_report" or golpe == "silent":
+		list.append(tr("O Golpe: concluído ✓"))
 	return list
 
 func advance_stage(to_stage: int) -> void:
@@ -588,6 +607,7 @@ func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 		"custom_bindings": custom_bindings, "music_enabled": music_enabled,
 		"weapon_tempered": weapon_tempered, "aim_assist": aim_assist, "menu_narration": menu_narration, "tts_voice": tts_voice,
 		"cel_toon": cel_toon,
+		"world_flags": world_flags,
 		"locale": locale,
 		"rupture_activations": rupture_activations, "techniques_seen": techniques_seen,
 		"px": pos.x, "py": pos.y, "pz": pos.z, "hp": hp, "stamina": stamina,
@@ -679,6 +699,10 @@ func _apply_save_dict(parsed: Dictionary) -> void:
 	aim_assist = bool(parsed.get("aim_assist", true))
 	menu_narration = bool(parsed.get("menu_narration", false))
 	tts_voice = String(parsed.get("tts_voice", ""))
+	cel_toon = bool(parsed.get("cel_toon", true))
+	world_flags = parsed.get("world_flags", {})
+	if typeof(world_flags) != TYPE_DICTIONARY:
+		world_flags = {}
 	rupture_activations = int(parsed.get("rupture_activations", 0))
 	techniques_seen = parsed.get("techniques_seen", {}) if typeof(parsed.get("techniques_seen", {})) == TYPE_DICTIONARY else {}
 	saved_position = Vector3(float(parsed.get("px", 0.0)), float(parsed.get("py", 1.0)), float(parsed.get("pz", 34.0)))
@@ -782,6 +806,7 @@ func reset_for_new_game() -> void:
 	injury = 0
 	fatigue = 0
 	tts_voice = ""
+	world_flags.clear()
 	# endings_seen NÃO é reposto: são metadados entre runs ("finais anteriores").
 	if Keymap != null and Keymap.has_method("apply_custom_bindings"):
 		Keymap.apply_custom_bindings(custom_bindings)

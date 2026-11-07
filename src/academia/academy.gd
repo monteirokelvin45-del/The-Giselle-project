@@ -43,6 +43,8 @@ func _ready() -> void:
 	Audio.play_music("exploration")
 	if not Dialogue.dialogue_finished.is_connected(_on_dialogue_action):
 		Dialogue.dialogue_finished.connect(_on_dialogue_action)
+	_ferida_rumor_check()
+	_golpe_rumor_check()
 
 func respawn_position() -> Vector3:
 	return Vector3(0.0, 1.3, 38.0)
@@ -249,6 +251,44 @@ func _on_dialogue_action(action: String) -> void:
 			GameState.exams_done["voss_met"] = true
 			GameState.add_reputation("arquivistas", 10)
 			GameState.add_reputation("irmandade", 5)
+			_ferida_rumor_check()
+		"ferida_closed":
+			GameState.set_world_flag("ferida", "resolved_closed")
+			GameState.add_reputation("arquivistas", 15)
+			GameState.add_reputation("imperial", 10)
+			GameState.add_xp(150)
+			GameState.add_marcos(60)
+			GameState.notify(tr("A Ferida será selada. O Arquivo confia em ti."))
+			GameState.stats_changed.emit()
+		"ferida_fed":
+			GameState.set_world_flag("ferida", "resolved_fed")
+			GameState.add_reputation("irmandade", 20)
+			GameState.add_reputation("imperial", -15)
+			GameState.add_rupture(60.0)
+			GameState.add_xp(100)
+			GameState.notify(tr("A Ferida bebeu o Núcleo — e dormiu. A Irmandade celebra; o Império range."))
+			GameState.stats_changed.emit()
+		"ferida_truth":
+			GameState.set_world_flag("ferida", "resolved_truth")
+			GameState.add_reputation("arquivistas", 25)
+			GameState.add_reputation("imperial", -20)
+			GameState.add_reputation("academia", -10)
+			GameState.add_xp(80)
+			GameState.notify(tr("Os fólios saíram. O mundo inteiro lê a anatomia da magia."))
+			GameState.stats_changed.emit()
+		"golpe_report":
+			GameState.set_world_flag("golpe", "foiled_report")
+			GameState.add_reputation("imperial", 15)
+			GameState.add_reputation("academia", 10)
+			GameState.add_xp(120)
+			GameState.add_marcos(80)
+			GameState.notify(tr("A Custódia marcha para a cela. Veyra respira."))
+			GameState.stats_changed.emit()
+		"golpe_silent":
+			GameState.set_world_flag("golpe", "silent")
+			GameState.add_reputation("academia", -25)
+			GameState.add_reputation("imperial", -10)
+			GameState.notify(tr("Calaste-te. A Academia amanhece diferente."))
 			GameState.stats_changed.emit()
 		"romance_bram": _romance("bram")
 		"romance_sena": _romance("sena")
@@ -306,6 +346,22 @@ func _complete_exam(exam_id: String) -> void:
 	GameState.notify(tr("PROVA SUPERADA — %s junta-se a ti!") % String(COMPANION_NAMES.get(companion, companion)))
 	GameState.stats_changed.emit()
 	Audio.play("levelup")
+	_ferida_rumor_check()
+	_golpe_rumor_check()
+
+## Rumores das meta-quests (estado de mundo persistido): só disparam uma vez,
+## depois de o Guardião ter sido vencido (main_stage >= 5).
+func _ferida_rumor_check() -> void:
+	if GameState.main_stage >= 5 and GameState.exams_done.has("voss_met") and GameState.world_flag("ferida", "hidden") == "hidden":
+		GameState.set_world_flag("ferida", "known")
+		GameState.notify(tr("Voss puxa-te de parte: «A Ferida de Orun está a sangrar. Queres ouvir o resto?»"))
+		GameState.stats_changed.emit()
+
+func _golpe_rumor_check() -> void:
+	if GameState.main_stage >= 5 and GameState.exams_done.size() >= 2 and GameState.world_flag("golpe", "hidden") == "hidden":
+		GameState.set_world_flag("golpe", "known")
+		GameState.notify(tr("Bram Ferro manda chamar: «Vem cá. Isto não se diz no meio dos caloiros.»"))
+		GameState.stats_changed.emit()
 
 # ------------------------------------------------------------------ portal ---
 func portal_exit() -> void:
