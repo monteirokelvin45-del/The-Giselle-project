@@ -43,6 +43,9 @@ var ambush_spawned: bool = false
 var artifact_unlocked: bool = false
 var evaluations_used: int = 0
 var ending: String = ""
+## Finais já vividos (metadados entre runs — "finais anteriores").
+## Só cresce; `reset_for_new_game()` não o apaga de propósito.
+var endings_seen: Array[String] = []
 
 ## Dificuldade: casual | normal | pesadelo (afetada por mults; ver DIFFICULTY)
 var difficulty: String = "normal"
@@ -571,6 +574,7 @@ func save_game(pos: Vector3, hp: float, stamina: float) -> bool:
 		"wolf_quest_state": wolf_quest_state, "herb_quest_state": herb_quest_state,
 		"ambush_spawned": ambush_spawned, "artifact_unlocked": artifact_unlocked,
 		"evaluations_used": evaluations_used, "ending": ending,
+		"endings_seen": endings_seen,
 		"threat_level": threat_level, "arena_environment": arena_environment,
 		"arena_enemy_count": arena_enemy_count, "arena_time_limit": arena_time_limit,
 		"arena_potions": arena_potions,
@@ -716,6 +720,10 @@ func load_game() -> bool:
 			notify("Ficheiro de gravação corrompido.")
 			return false
 		notify("Gravação principal corrompida — restaurado o backup.")
+	var file_version := int((parsed as Dictionary).get("version", 1))
+	if file_version > SAVE_VERSION:
+		notify(tr("Gravação de uma versão mais recente do jogo — não abro."))
+		return false
 	var stored_checksum := String((parsed as Dictionary).get("checksum", ""))
 	if stored_checksum != "":
 		var data := (parsed as Dictionary).duplicate(true)
@@ -772,10 +780,18 @@ func reset_for_new_game() -> void:
 	injury = 0
 	fatigue = 0
 	tts_voice = ""
+	# endings_seen NÃO é reposto: são metadados entre runs ("finais anteriores").
 	if Keymap != null and Keymap.has_method("apply_custom_bindings"):
 		Keymap.apply_custom_bindings(custom_bindings)
 	stats_changed.emit()
 
+
+func register_ending(key: String) -> void:
+	if key != "" and not endings_seen.has(key):
+		endings_seen.append(key)
+
+func ending_seen(key: String) -> bool:
+	return endings_seen.has(key)
 
 # -------------------------------------------------------- técnicas de Kael ---
 const TECHNIQUES := {

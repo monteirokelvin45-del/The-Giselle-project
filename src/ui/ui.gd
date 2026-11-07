@@ -1246,6 +1246,12 @@ func _open_decision() -> void:
 func _choose_ending(key: String) -> void:
 	GameState.ending = key
 	GameState.main_stage = 7
+	GameState.register_ending(key)
+	# Autosave na decisão: sem isto o final nunca era gravado (os saves são
+	# manuais no menu de pausa) e "finais anteriores" fica letra morta.
+	var player := get_tree().get_first_node_in_group("player")
+	if player != null:
+		GameState.save_game(player.global_position, float(player.get("hp")), float(player.get("stamina")))
 	decision_open = false
 	_decision_overlay.visible = false
 	ending_open = true
@@ -1291,5 +1297,6 @@ func _build_credits_text() -> String:
 		tr("Obrigado por jogar."),
 		"",
 		tr("Nv %d · %d marcos · %d XP totais") % [GameState.level, GameState.marcos, GameState.xp],
+		tr("Finais vividos: %d") % GameState.endings_seen.size(),
 	]
 	return "\n".join(lines)

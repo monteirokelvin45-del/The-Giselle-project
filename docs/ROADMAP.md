@@ -108,6 +108,11 @@ por reputação, decisões e estado do mundo.
       acumuladas ao longo do jogo (reputação, avaliações, finais anteriores).
 - [x] Epílogos de romance por companheiro (Liora, Bram, Sena, Iven) anexados ao
       final, persistidos save-side.
+- [x] **«Finais anteriores» persistidos** (2026-11-07): `endings_seen` no save
+      (aditivo; sobrevive ao «Novo Jogo» — são metadados entre runs), autosave
+      automático na decisão final (até aqui o final nunca era gravado — os
+      saves são manuais), «Finais vividos: N» nos créditos e recusa de saves de
+      versão mais recente que o build atual. Ver `docs/AUDIT.md` §16.
 - [ ] Meta-quests com estado de mundo persistido entre regiões (dragão da
       Ferida, golpe da Custódia) — consequência global completa adiada para
       pós-v1.0 (sec. 23).
@@ -130,15 +135,18 @@ por reputação, decisões e estado do mundo.
       `docs/l10n/strings_pt.csv` + `docs/LOCALIZATION.md`.
 - [x] **Localização em runtime PT/EN/ES** (2026-11-07): `tr()` em ~110 sítios,
       troca no arranque + no ecrã de título (PT→EN→ES, persistida no save),
-      421 chaves EN+ES completas (`l10n/game.csv`), gate `validate.py` [5/5]
+      423 chaves EN+ES completas (`l10n/game.csv`), gate `validate.py` [5/5]
       no CI, seleção de idioma no título com reload uniforme.
       Ver `docs/LOCALIZATION.md` e `docs/AUDIT.md` §15.
-- [x] **Engine executada neste ambiente**: Godot 4.7.2 compilado do
-      código-fonte (headless linuxbsd); 5 cenas em smoke boot limpas; 11
-      24 asserções de jogabilidade verdes (save/load, XP, técnicas, combate
-      real, salto/ataques aéreos/slam de queda) + fluxos completos (Sala
-      Branca → avaliação; Prova de Duelo → Bram). Ver `docs/BUILD.md` e
-      `docs/AUDIT.md` §9.
+- [x] **Engine executada**: Godot 4.7.2 — fonte compilada em `/tmp` em
+      2026-11-07 (headless linuxbsd) e, após o wipe do `/tmp` na sessão
+      seguinte, **o CI passa a ser o verificador de engine**: binário oficial
+      4.7.2-stable do GitHub, 5 cenas em smoke boot limpas; 24 asserções de
+      jogabilidade verdes (save/load, XP, técnicas, combate real, salto/ataques
+      aéreos/slam de queda) + fluxos completos (Sala Branca → avaliação;
+      Prova de Duelo → Bram) + passo i18n runtime (PT/EN/ES).
+      Ver `docs/BUILD.md`, `docs/AUDIT.md` §9 e `.github/workflows/
+      headless-smoke.yml`.
 - [x] Assistência de mira suave nos ataques corpo a corpo (o corpo vira
       para o alvo mais próximo ao alcance — desligável na pausa).
 - [x] **Narração de menus** (2026-11-06): TTS do sistema ligável na pausa,
@@ -148,7 +156,7 @@ por reputação, decisões e estado do mundo.
       (`cycle_tts_voice`), escolhida via `tts_voice` no save.
 - [ ] Testes com jogadores reais (algo que este repositório ainda não pode
       fazer).
-- [x] Traduções EN/ES e troca de idioma em runtime (2026-11-07, 421/421;
+- [x] Traduções EN/ES e troca de idioma em runtime (2026-11-07, 423/423;
       QA por falante nativo e revisão visual em F5 continuam por fazer).
 - [~] **Sonda de performance** criada (`tools/perf_probe.tscn`, headless,
       CPU-side: ms de frame/física, memória estática, objetos/nós/órfãos).

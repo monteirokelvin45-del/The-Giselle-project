@@ -83,6 +83,7 @@ Jogo guardado.,Jogo guardado.,Game saved.,Partida guardada.
 Não existe jogo guardado.,Não existe jogo guardado.,No saved game exists.,No existe ninguna partida guardada.
 Ficheiro de gravação corrompido.,Ficheiro de gravação corrompido.,Save file corrupted.,Archivo de guardado corrupto.
 Gravação principal corrompida — restaurado o backup.,Gravação principal corrompida — restaurado o backup.,Main save corrupted — backup restored.,Guardado principal corrupto — restaurada la copia de seguridad.
+Gravação de uma versão mais recente do jogo — não abro.,Gravação de uma versão mais recente do jogo — não abro.,Save file from a newer version of the game — I will not open it.,Partida guardada de una versión más reciente del juego — no la abro.
 Gravação adulterada ou corrompida (checksum inválido).,Gravação adulterada ou corrompida (checksum inválido).,Save tampered with or corrupted (invalid checksum).,Guardado alterado o corrupto (checksum no válido).
 Jogo carregado.,Jogo carregado.,Game loaded.,Partida cargada.
 Passo Vazio,Passo Vazio,Empty Step,Paso Vacío
@@ -388,7 +389,7 @@ MAPA DE ARKANO,MAPA DE ARKANO,MAP OF ARKANO,MAPA DE ARKANO
 "Onde queres que a estrada te leve, Kael?","Onde queres que a estrada te leve, Kael?","Where do you want the road to take you, Kael?","¿A dónde quieres que te lleve el camino, Kael?"
 Explorada ×%d,Explorada ×%d,Explored ×%d,Explorada ×%d
 "Descoberta, não concluída","Descoberta, não concluída","Discovered, not cleared","Descubierta, no completada"
-  ·  Nv %d+,·  Nv %d+,  ·  Lv %d+,  ·  Nv %d+
+  ·  Nv %d+,·  Nv %d+,·  Lv %d+,·  Nv %d+
 🔒 Nv %d,🔒 Nv %d,🔒 Lv %d,🔒 Nv %d
 Ainda não estás à altura (Nv %d).,Ainda não estás à altura (Nv %d).,You are not up to the task yet (Lv %d).,Todavía no estás a la altura (Nv %d).
 Região descoberta: %s,Região descoberta: %s,Region discovered: %s,Región descubierta: %s
@@ -415,8 +416,9 @@ Elen Noro · Garr · Tomás · Liora Venn · Mestre Dario Vale,Elen Noro · Garr
 O mundo de Arkanor continua. Tu também.,O mundo de Arkanor continua. Tu também.,The world of Arkanor goes on. So do you.,El mundo de Arkanor continúa. Tú también.
 Obrigado por jogar.,Obrigado por jogar.,Thank you for playing.,Gracias por jugar.
 Nv %d · %d marcos · %d XP totais,Nv %d · %d marcos · %d XP totais,Lv %d · %d marcos · %d total XP,Nv %d · %d marcos · %d XP totales
+Finais vividos: %d,Finais vividos: %d,Endings lived: %d,Finales vividos: %d
 Modelo em falta: %s,Modelo em falta: %s,Missing model: %s,Falta modelo: %s
 Cena não é Node3D: %s,Cena não é Node3D: %s,Scene is not a Node3D: %s,La escena no es Node3D: %s
 Personagem em falta: %s,Personagem em falta: %s,Missing character: %s,Falta personaje: %s
-  ·  TEMPESTADE À MEDIDA,·  TEMPESTADE À MEDIDA,  ·  CUSTOM STORM,  ·  TORMENTA A MEDIDA
+  ·  TEMPESTADE À MEDIDA,·  TEMPESTADE À MEDIDA,·  CUSTOM STORM,·  TORMENTA A MEDIDA
 REGIÃO CONCLUÍDA — %s  ·  +%d XP  ·  +%d marcos,REGIÃO CONCLUÍDA — %s  ·  +%d XP  ·  +%d marcos,REGION CLEARED — %s  ·  +%d XP  ·  +%d marcos,REGIÓN COMPLETADA — %s  ·  +%d XP  ·  +%d marcos

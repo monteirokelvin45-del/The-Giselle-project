@@ -508,3 +508,50 @@ headless_check, smoke 24/24, flows 5/5) e PR #1 com check `pass`.
 
 Supersedes: dívida «Tradução runtime inexistente» (§6.3 #2) e o fecho de
 scope no addendum v1.0.
+
+---
+
+# 16. Addendum — Recuperação de desastre + finais persistidos (2026-11-07)
+
+**Recuperação após wipe do `/tmp`:** a sessão foi reiniciada (timeout) e o
+ambiente perdeu `/tmp` por completo — incluindo a árvore de fonte do Godot
+4.7.2 (~612 MB, ~5 h de build com duas sessões a comandar-a) e o `.bin` da
+média memória. O repositório em `/home/user` não perdeu UM byte (verificado
+com clone fresco do `origin/arena/...` — diff vazio exceto as alterações por
+commitar) e os refs do git tinham recuado para `9b6a63a Initial commit`;
+restaurado com `git reset --hard origin/arena/498f65a7-the-giselle-project`
+(d89248a). O **CI passou a ser o verificador de engine** (binário oficial
+4.7.2-stable do GitHub): validate 5/5 + import + 5 cenas + i18n runtime
+(PT/EN/ES) + smoke_test 24/24 + smoke_flows 5/5. Nenhuma tarefa ficou por
+causa do wipe.
+
+**Gap encontrado e corrigido (auditoria ao save/load):** os «finais anteriores»
+da decisão v0.7 eram **letra morta**: `GameState.ending` era escrito na
+decisão e persistido no save, mas
+1. saves só existem de forma manual (menu de pausa) → o final NUNCA era
+   gravado na decisão;
+2. nada, em parte nenhuma, lia `ending`/`endings_seen` entre runs;
+3. o `version` do save era escrito e nunca verificado → um save de um build
+   futuro seria carregado em silêncio pelo build anterior.
+
+**Entregue:**
+- `endings_seen: Array[String]` no save (aditivo, backward compatible; saves
+  antigos carregam com `[]`); sobrevive a `reset_for_new_game()` de propósito
+  (metadados entre runs). Duplicados impossíveis; ~50 B por final.
+- `register_ending()` é chamado na decisão final (`ui.gd::_choose_ending`) e
+  **o save acontece automaticamente nesse momento** (posição/vida/fôlego do
+  jogador, como no guardar manual) — sem esta peça, «finais anteriores» nunca
+  persistia na prática.
+- Créditos passam a mostrar `Finais vividos: N` (string PT/EN/ES).
+- `load_game()` **recusa saves de versão mais recente** que `SAVE_VERSION`
+  (2) com notificação honesta — saves antigos continuam a carregar (defaults
+  são a migração).
+- `validate.py` [2/5] passou a tratar `res://…*.translation` como artefactos
+  gerados por `--import` (não commitados); `.translation` binários continuam
+  fora do git por desenho; o gate de runtime corre no CI depois do import.
+
+**Ainda em aberto (sem mudança):** meta-quests globais Ferida/Custódia
+(consequência world-state entre regiões) continuam adiadas para pós-v1.0 no
+ROADMAP — não têm design nem conteúdo no GDD; inventá-las aqui seria scope
+creep. Romances com memória de ações, QA por falante nativo, F5 e profiling
+em hardware real: em aberto.
