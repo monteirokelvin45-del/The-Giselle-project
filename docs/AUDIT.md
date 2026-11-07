@@ -807,3 +807,52 @@ branca não o exibem (o HUD mostra apenas se a cena usa o ui.gd); spawns da
 noite não dão prémio se dissolvidos pela aurora; o cycle no Vale usa a
 mesma matemática de 240s das regiões — julgado lento/rápido no F5,
 ajusta-se num número.
+
+## 25. v1.7 — Qualidade & Performance (fundação mensurável) — 2026-11-07
+
+Resposta direta ao dono: «na parte profunda fazemos performance pelos
+profilers e testes em aparelhos fracos». O que era automatizável para
+esta stack (Godot 4.2+/GLES3, Android) foi colocado em código e em CI;
+o que exige GPU ou aparelho real ficou documentado como fluxo de medição
+(docs/PERF.md), não como promessa.
+
+**Entregas:**
+- `tools/stress_test.tscn/runner.gd` (novo): mundo principal + equipa de
+  **10 inimigos de todos os tipos** (wolf…alfa) à volta do jogador —
+  pior caso real do combate; ~14 s de física; asserts de instância da
+  equipa, identidade do pool (mesma Area3D reutilizada), stash do pool e
+  contagem de inimigos; imprime monitores CPU-side (FPS, físico, memória
+  estática, nós, órfãos). Passo novo no CI (push + PR synchronize).
+- `src/enemies/projectile_pool.gd` (novo) + `projectile.gd` reutilizável:
+  malha/colisor/materiais cacheados; timeout/impacto **estacionam o nó
+  fora da cena** em vez de o destruir. Antes: "instanciar+destruir" por
+  disparo — o maior churn de nós do combate.
+- IA com degradação por distância em `enemy.gd`: acima de
+  `combat.remote_ai_distance_m` (34.0, balance.json) salta a separação
+  O(n²) entre inimigos, a query de coordenação e a animação por frame;
+  movimento/cooldowns continuam a 60 Hz.
+- Janelas de combate para dados (`balance.json` → `combat`):
+  `parry_window_base` (era literal 0.2 em game_state.gd — agora
+  `Balance.combat_cfg()`) e `dash_iframes` (era literal 0.36 em
+  player.gd). Contrato igual ao `jump` (995a1b6): afinar sem recompilar.
+- `smoke_test_runner.gd`: +3 asserções de save→load (posição, hp,
+  fôlego) — a cobertura de save era só de marcos/voz.
+- `docs/PERF.md` (novo): o que o CI prova vs o que só o aparelho proba;
+  como medir no Android (Editor/Monitors, `adb dumpsys gfxinfo framestats`,
+  RenderDoc em GLES3); checklist de entrada de asset (marcadores
+  provisórios); frame budget provisório — a confirmar no aparelho.
+
+**Verificação:** gdparse ✓ (8 ficheiros) · validate.py ✓ (a incluir o
+.tscn novo) · i18n inalterado (475/475 — v1.7 sem strings novas de UI)
+· **CI duplo verde em `cf68298`** — push `42414206666` (13/13 ✓, passo
+stress incluído) + PR synchronize `42414212054` (success).
+
+**Limites honestos:** o CI não tem GPU — frame times, 1% low e fluidez
+no Android precisam de F5 do dono (fluxo em PERF.md); «relatório semanal
+automático» não existe (exigiria runner Android persistente, não é
+realista neste repositório); os SMOKE|PERF impressos não foram
+extraídos do sandbox (logs do CI bloqueados) — o gate é o exit code do
+runner (0 = todos os asserts PASS); streaming de chunks, LOD de meshes
+e impostores continuam **não implementados** (prematuros); o tuning dos
+34 m e o tempo de física do stress calibram-se com a primeira medição
+no aparelho.
