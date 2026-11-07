@@ -837,7 +837,7 @@ o que exige GPU ou aparelho real ficou documentado como fluxo de medição
   player.gd). Contrato igual ao `jump` (995a1b6): afinar sem recompilar.
 - `smoke_test_runner.gd`: +3 asserções de save→load (posição, hp,
   fôlego) — a cobertura de save era só de marcos/voz.
-- `docs/PERF.md` (novo): o que o CI prova vs o que só o aparelho proba;
+- `docs/PERF.md` (novo): o que o CI prova vs o que só o aparelho prova;
   como medir no Android (Editor/Monitors, `adb dumpsys gfxinfo framestats`,
   RenderDoc em GLES3); checklist de entrada de asset (marcadores
   provisórios); frame budget provisório — a confirmar no aparelho.
