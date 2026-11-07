@@ -113,6 +113,76 @@ func _process(_delta: float) -> void:
 			var hp_after: float = float(enemy.get("hp"))
 			_check(hp_after < hp_before, "ataque corpo a corpo tira vida ao inimigo")
 			_air_hp_before = float(enemy.get("hp"))
+			# ---- v1.5 «Qualidade de tudo» — asserções de regressão ----
+			# Esquiva perfeita: arranque da esquiva no instante do impacto
+			GameState.rupture = 0.0
+			player.set("_invuln_timer", 0.5)
+			player.set("_dodge_timer", 0.3)
+			var hp_ghost := float(player.get("hp"))
+			player.call("take_damage", 5.0, null)
+			_check(float(player.get("hp")) == hp_ghost, "esquiva perfeita não tira vida")
+			var rupture_esperado: float = 15.0 * GameState.rupture_gain_mult()
+			_check(is_equal_approx(GameState.rupture, rupture_esperado), "esquiva perfeita dá +15 Ruptura (× mult)")
+			player.set("_invuln_timer", 0.0)
+			player.set("_dodge_timer", 0.0)
+
+			# Sinal damaged emite ao sofrer dano (o HUD depende dele)
+			var damaged_seen := [false]
+			var pobj: Object = player
+			if pobj.has_signal("damaged"):
+				var sig: Signal = pobj.get("damaged")
+				sig.connect(func(): damaged_seen[0] = true)
+			player.call("take_damage", 5.0, null)
+			_check(damaged_seen[0], "sinal damaged emite ao sofrer dano")
+
+			# Sprint attack fere mais que o golpe normal (mesmo alvo)
+			player.set("_attack_cooldown", 0.0)
+			var e2: Node3D = enemy_scene.instantiate()
+			get_tree().get_root().add_child(e2)
+			e2.global_position = player.global_position + Vector3(0.0, 0.0, 1.5)
+			var antes2 := float(e2.get("hp"))
+			player.call("_do_attack", false)
+			var dano_normal := antes2 - float(e2.get("hp"))
+			player.set("_attack_cooldown", 0.0)
+			player.set("_sprinting", true)
+			var antes3 := float(e2.get("hp"))
+			player.call("_do_attack", false)
+			var dano_sprint := antes3 - float(e2.get("hp"))
+			player.set("_sprinting", false)
+			_check(dano_sprint > dano_normal, "sprint attack fere mais que o golpe normal")
+			e2.queue_free()
+
+			# Flinch em golpe pesado (≥25 postura) — Salteador vergou
+			var e3: Node3D = enemy_scene.instantiate()
+			get_tree().get_root().add_child(e3)
+			e3.global_position = player.global_position + Vector3(0.0, 0.0, 1.5)
+			e3.call("take_damage", 1.0, 30.0, player)
+			_check(float(e3.get("_stunned")) > 0.3, "pós-25 postura aplica flinch no Salteador")
+			e3.queue_free()
+
+			# Lobo entra no arremesso telegrafado com o jogador a 5 m
+			var wolf: Node3D = enemy_scene.instantiate()
+			wolf.set("enemy_type", "wolf")
+			get_tree().get_root().add_child(wolf)
+			wolf.global_position = player.global_position + Vector3(0.0, 0.0, 5.0)
+			wolf.set("_attack_cooldown", 0.0)
+			wolf.set("_pounce_cooldown", 0.0)
+			wolf.call("_physics_process", 0.016)
+			_check(float(wolf.get("_pounce_windup")) > 0.3 or float(wolf.get("_pouncing")) > 0.0, "lobo entra no arremesso telegrafado")
+			wolf.queue_free()
+
+			# Guardião enfurece aos 50% de vida
+			var guardian: Node3D = enemy_scene.instantiate()
+			guardian.set("enemy_type", "guardiao")
+			get_tree().get_root().add_child(guardian)
+			guardian.global_position = player.global_position + Vector3(0.0, 0.0, 3.0)
+			guardian.call("take_damage", 160.0, 0.0, player)
+			_check(bool(guardian.get("_enraged")), "Guardião enfurece aos 50% de vida")
+			guardian.queue_free()
+
+			# Salto data-driven
+			var jump_cfg: Dictionary = Balance.jump_cfg()
+			_check(is_equal_approx(float(jump_cfg.get("coyote", 0.0)), 0.12) and is_equal_approx(float(jump_cfg.get("jump_buffer", 0.0)), 0.12), "coyote/jump buffer 0,12s no balance.json")
 		else:
 			_check(false, "enemy.tscn instancia")
 		print("SMOKE|INFO reputação imperial inicial = ", int(GameState.reputation.get("imperial", 0)))

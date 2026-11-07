@@ -161,7 +161,7 @@ func double_canopy(tree_count: int, sapling_count: int, area_min: float, area_ma
 		env(model, pos, rng.randf_range(0.0, TAU), s)
 	tree_scatter(tree_count, area_min, area_max, avoid, avoid_radius,
 		["decoration/nature/tree_single_A.gltf", "decoration/nature/tree_single_B.gltf",
-		 "decoration/nature/trees_A_medium.gltf", "decoration/nature/trees_B_medium.gltf"],
+		"decoration/nature/trees_A_medium.gltf", "decoration/nature/trees_B_medium.gltf"],
 		0.9, 2.3, seed_offset)
 
 # ---------------------------------------------------------- POIs -----------

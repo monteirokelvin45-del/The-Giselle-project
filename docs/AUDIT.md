@@ -740,3 +740,20 @@ vínculos de sinais idempotentes (ligados uma vez) · vinheta criada com
 EXPAND_IGNORE_SIZE (evita o erro «textura 256px presa»). **Pendente:** CI do
 push (a correr no momento da escrita — ver execução na branch); feel em F5
 do dono (janela da esquiva perfeita, intensidade do flinch).
+
+---
+
+# 23. Addendum — Qualidade de tudo (v1.5, 2026-11-07)
+
+**Pedido explícito:** «Vamos atacar a qualidade de tudo.»
+
+**Entregue:** smoke de jogabilidade expandido de 24 → 33 asserções
+(9 novas, todas determinísticas, a correr no CI em cada push/PR — mecânicas
+v1.3/v1.4 deixam de poder partir em silêncio); inventário gdlint completo
+(563 → 2 correções reais + 561 convenções da casa documentadas); academy.gd
+(PORTAL→portal) e map_kit.gd (whitespace) limpos.
+
+**Verificado:** gdparse nos alterados · validate.py · i18n 465/465 ·
+gdlint (baseline conhecido). **Pendente:** evidência do CI com as 33
+asserções a correr (ver o run do push desta branch); cobertura de bosses por
+asserts é futura e deliberada (não se simula feel com assert).

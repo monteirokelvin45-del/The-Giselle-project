@@ -242,9 +242,9 @@ func _spawn_rest_point() -> void:
 ## v1.0 — jardins e porta: sebes baixas, flora densa, braseiros da linhagem.
 func _build_gardens_extra() -> void:
 	var mk = preload("res://src/world/map_kit.gd").new(self, 8642)
-	var PORTAL := Vector3(0.0, 0.0, 44.0)
-	mk.flora_scatter(42, 12, 6.0, 42.0, PORTAL, 7.0, 24)
-	mk.tree_scatter(9, 14.0, 40.0, PORTAL, 7.0,
+	var portal := Vector3(0.0, 0.0, 44.0)
+	mk.flora_scatter(42, 12, 6.0, 42.0, portal, 7.0, 24)
+	mk.tree_scatter(9, 14.0, 40.0, portal, 7.0,
 		["decoration/nature/tree_single_A.gltf", "decoration/nature/trees_A_medium.gltf", "decoration/nature/tree_single_B.gltf"],
 		0.9, 1.6, 25)
 	var basalt := mk.mat(Color(0.16, 0.13, 0.2), 0.3, 0.6)

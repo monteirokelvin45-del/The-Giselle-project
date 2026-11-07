@@ -938,3 +938,38 @@ e cada super/habilidade tem consequência visível.
 **Estado honesto.** Estrutural e fumo (headless) verde no CI; o *balanceamento*
 do flinch e da esquiva perfeita só fecha com os olhos do dono no F5 — se o
 flinch parecer «atordoamento demais», baixar para 0,25s em `enemy.gd`.
+
+## 46. Qualidade de tudo (v1.5, 2026-11-07)
+
+**O quê.** Não é features — é a rede de segurança por baixo delas: cada
+mecânica que o jogador sente agora também é protegida por uma asserção que
+corre no CI.
+
+**1. Smoke test expandido (tools/smoke_test_runner.gd)** — 9 novas
+asserções «v1.5» sobre a cena real (main.tscn), todas determinísticas:
+- esquiva perfeita: 0 de dano + Ruptura = 15 × `rupture_gain_mult()`;
+- sinal `damaged` emite ao sofrer dano (o HUD depende dele);
+- sprint attack fere mais que o golpe normal (mesmo alvo, mesma janela);
+- golpe pesado (≥25 postura) aplica flinch de 0,35s no Salteador;
+- lobo entra no arremesso telegrafado com o jogador a 5 m (windup > 0,3s);
+- Guardião enfurece aos 50% de vida;
+- coyote time e jump buffer = 0,12s no balance.json.
+
+**2. Auditoria gdlint (gdtoolkit) — inventário honesto.** 563 problemas
+nos 26 scripts, decompostos em: 299 max-line-length, 173
+class-definitions-order, 48 function-preload-variable-name, 1
+mixed-tabs-and-spaces, 1 function-variable-name. **Só as duas únicas reais
+foram corrigidas** (renomeação local `PORTAL`→`portal` em academy.gd;
+tabs+espaço em map_kit.gd). As restantes 561 são a convenção da casa
+(linhas longas, pré-loads locais, ordem de definições) — alterá-las em
+massa seria risco puro sem ganho; ficam documentadas.
+
+**3. i18n segue 465/465; validate.py segue verde.**
+
+**Estado honesto.** O ganho real da v1.5 é _regressão impossível_: as
+mecânicas v1.3/v1.4 agora falham o build se quebrarem. O que continua por
+cobrir (dizer com a boca cheia): bosses e fluxos de menu não têm asserts de
+feel; a auditoria de
+lint cobre sintaxe, não semântica; e a engine local não está instalada
+neste ambiente — o analyzer corre só no CI (foi por isso que a v1.4 teve de
+varresser duas vezes os mesmos erros).
