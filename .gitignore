@@ -1,0 +1,16 @@
+.godot/
+.import/
+*.import
+*.tmp
+*.log
+.DS_Store
+build/
+export/
+
+# Android builds
+*.apk
+*.aab
+.gradle/
+android/build/
+export/
+tools/.bin/

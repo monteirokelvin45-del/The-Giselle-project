@@ -1,0 +1,6 @@
+[gd_scene format=3 load_steps=2]
+
+[ext_resource type="Script" path="res://src/academia/academy.gd" id="1_academia"]
+
+[node name="Academia" type="Node3D"]
+script = ExtResource("1_academia")

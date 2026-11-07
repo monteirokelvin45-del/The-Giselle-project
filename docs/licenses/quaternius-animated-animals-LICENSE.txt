@@ -1,0 +1,17 @@
+Quaternius — Ultimate Animated Animal Pack (Wolf)
+Fonte (mirror): Papyszoo/CC0-Public-Domain-Models
+  https://github.com/Papyszoo/CC0-Public-Domain-Models/tree/main/packs/quaternius-ultimateanimatedanimals
+Autor original: Quaternius (https://quaternius.com)
+Licença: CC0 1.0 Universal (domínio público) — manifesto do pack:
+
+  {
+    "name": "Quaternius: Ultimate Animated Animal Pack",
+    "creator": "Quaternius",
+    "website": "https://quaternius.com/packs/ultimateanimatedanimals.html",
+    "license": "CC0",
+    "description": "CC0 3D model asset pack by Quaternius: Ultimate Animated Animal Pack."
+  }
+
+Repositório-fonte declara CC0-1.0 (ver API: license spdx_id CC0-1.0).
+Ficheiro usado: models/wolf/wolf.glb (12 clipes: Attack, Death, Eating, Gallop,
+Gallop_Jump, Idle, Idle_2, Idle_2_HeadLow, Idle_HitReact1/2, Jump_ToIdle, Walk).

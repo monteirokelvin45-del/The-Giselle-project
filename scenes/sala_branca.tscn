@@ -1,0 +1,6 @@
+[gd_scene format=3 load_steps=2]
+
+[ext_resource type="Script" path="res://src/system/sala_branca.gd" id="1_sala"]
+
+[node name="SalaBranca" type="Node3D"]
+script = ExtResource("1_sala")
