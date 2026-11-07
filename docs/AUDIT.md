@@ -687,8 +687,12 @@ Vladimir) não geradas — o assistente atingiu o limite de geração de imagens
 da sessão (10 por turno). `src/ui/portraits.gd` já as resolve por nome assim
 que os ficheiros existirem (fallback invisível até lá; nunca um rosto errado).
 
-**Verificado:** gdparse nos alterados · retratos gerados confirmados
-visualmente (Kael 5/5 e secundários 5/5 fiéis ao estilo da referência).
-**Pendente:** CI do próprio push (a correr no momento em que este addendum foi
-escrito) — só é considerado concluído com a evidência de `gh`; e a geração
-das 6 folhas em falta.
+**Verificado:** gdparse nos alterados · validate.py · i18n 460/460 ·
+retratos gerados confirmados visualmente (Kael 5/5 e secundários 5/5 fiéis
+ao estilo da referência) · CI do push `42373668333` 12/12 ✓ e CI do PR
+`42373672722` ✓ (ambos via `gh`, 2026-11-07 ~17:5x UTC — aliás, o
+`smoke_test` do PR anterior que falhara às 51s era mesmo flake: a mesma
+asserção passou no push seguinte com o mesmo código).
+**Pendente:** a geração das 6 folhas em falta (Bram, Sena, Iven, Voss,
+Cadena, Vladimir) — limite de imagem da ferramenta (10 por turno, atingido
+duas vezes nesta sessão).
