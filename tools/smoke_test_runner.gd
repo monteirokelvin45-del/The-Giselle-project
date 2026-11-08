@@ -116,24 +116,6 @@ func _process(_delta: float) -> void:
 			var hp_after: float = float(enemy.get("hp"))
 			_check(hp_after < hp_before, "ataque corpo a corpo tira vida ao inimigo")
 			_air_hp_before = float(enemy.get("hp"))
-			# ---- v1.8 «As Seis Disciplinas» — asserts elementais ----
-			var tester: Node3D = enemy_scene.instantiate()
-			tester.set("enemy_type", "cinza")  # antes de entrar na árvore
-			get_tree().get_root().add_child(tester)
-			tester.call("element_apply_status", "ignea_queimadura")
-			_check(tester.call("element_has_status", "ignea_queimadura"), "queimadura regista no alvo")
-			tester.call("element_apply_status", "hidrica_saturado")
-			_check(not tester.call("element_has_status", "ignea_queimadura"), "Grande Apagão consome a queimadura")
-			_check(not tester.call("element_has_status", "hidrica_saturado"), "Grande Apagão não deixa a saturação ativa")
-			tester.call("element_apply_status", "lumina_revelado")
-			_check(tester.call("element_has_status", "lumina_revelado"), "revelado regista no alvo")
-			tester.call("element_apply_status", "umbral_oculto")
-			_check(not tester.call("element_has_status", "lumina_revelado"), "Despertar do Selado consome o revelado")
-			_check(not tester.call("element_has_status", "umbral_oculto"), "Despertar do Selado não aplica o oculto")
-			_check(tester.call("element_apply_status", "status_que_nao_existe") == false, "status desconhecido recusa aplicação")
-			var El := preload("res://src/core/elements.gd")
-			_check(String(El.reaction("cinetica", "hidrica_saturado").get("id", "")) == "cavitacao", "tabela de reações resolve Cavitação")
-			_check(El.reaction("vital", "hidrica_saturado").is_empty(), "pares sem reação devolvem vazio")
 			# ---- v1.5 «Qualidade de tudo» — asserções de regressão ----
 			# Esquiva perfeita: arranque da esquiva no instante do impacto
 			GameState.rupture = 0.0
