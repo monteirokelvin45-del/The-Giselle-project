@@ -1282,3 +1282,41 @@ Descarga: Actions → workflow «Android debug APK» → run mais recente →
 Artifacts → `AcademiaDoZero-android-debug-apk` (retém 90 dias).
 **Não é build de release** — para a loja é precisa keystore própria do
 dono; assinatura de release nunca foi commitada nesta branch.
+
+## 36. APK debug para o dono testar (2026-11-09)
+
+**Desbloqueado.** Build verde: run `42521260372` (branch
+`arena/498f65a7-the-giselle-project` @ `eeb13f2`) —
+artifact **`AcademiaDoZero-android-debug-apk`**, ~53 MB (55 829 591
+bytes), retido 90 dias.
+
+**O caminho real (evidência das tentativas):**
+- Sandbox não tem Godot/SDK (rede restrita) — APK é construído na
+  runner da GitHub. Path sugerido `.tpz` de 730 MB **falhou 5×**
+  (redirect para release-assets rejeitado pelo egress da runner — o
+  zip do engine de 49 MB passa, o tpz não; nem por faixas HTTP Range;
+  tuxfamily corrigia o path só depois de 404).
+- Solução: imagem `barichello/godot-ci:4.7.2` (Godot 4.7.2 + templates
+  embutidos). Falhas restantes, cada uma revelada por annotations
+  (`::error::`) porque `results-receiver.* EOF`: templates no path
+  esperado (`/root/…` ≠ `/github/home/…` → symlink), `java_sdk_path` no
+  editor settings, e SDK real da imagem = **`/usr/lib/android-sdk`**
+  (ANDROID_SDK_ROOT era um engodo).
+- Keystore: **debug deitada fora no runner** (`androiddebugkey`, senha
+  throwaway `android/android`) — nunca commitada; release exige a
+  keystore do dono.
+
+**Custo CI total para o APK: 10 runs nesta ronda** (9 nós até ao
+sucesso) + smokes disparadas por push — registado sem disfarce.
+
+**Como o dono instala:** GitHub → Actions → workflow «Android debug
+APK» → run `42521260372` → Artifacts → `AcademiaDoZero-android-debug-apk`
+(.zip → `AcademiaDoZero-debug.apk`) → transferir para o telemóvel →
+abrir (permito instalar de origens desconhecidas se pedir) ou
+`adb install AcademiaDoZero-debug.apk`.
+
+**Limites:** build de debug (não assinada para Play); engine
+4.7.2-stable; sem F5 prévio deste export em dispositivo — o crash
+first-launch é possível (era impossível provar ecrã na runner).
+Validade da assinatura: debug (10 000 dias). Nenhum ficheiro do repo
+muda para instalar este APK.
