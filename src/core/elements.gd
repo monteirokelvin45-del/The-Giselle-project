@@ -1,10 +1,10 @@
 extends RefCounted
 
 const DISCIPLINE_NAMES := {
-	"cinetica": "Carga Cinética",
-	"ignea": "Queimadura Ígnea",
-	"hidrica": "Saturação Hídrica",
+	"cinetica": "Carga Cinetica",
+	"ignea": "Queimadura Ignea",
+	"hidrica": "Saturacao Hidrica",
 	"vital": "Toxina Vital",
-	"lumina": "Revelado Lúmina",
+	"lumina": "Revelado Lumina",
 	"umbral": "Oculto Umbral",
 }
