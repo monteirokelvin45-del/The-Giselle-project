@@ -44,6 +44,22 @@ jobs:
           sed -i 's#^keystore/debug_user=""#keystore/debug_user="androiddebugkey"#' export_presets.cfg
           sed -i 's#^keystore/debug_password=""#keystore/debug_password="android"#' export_presets.cfg
 
+      - name: Configurar templates e Java SDK para o Godot
+        run: |
+          DEST="$HOME/.local/share/godot/export_templates"
+          mkdir -p "$DEST"
+          SRC=$(find /root /usr/local /opt -maxdepth 8 -type d -name "4.7.2.stable" -path "*export_templates*" 2>/dev/null | head -1 || true)
+          if [ -z "$SRC" ]; then
+            SRC=$(find / -maxdepth 10 -xdev -type d -name "4.7.2.stable" -path "*export_templates*" -not -path "$DEST/*" 2>/dev/null | head -1 || true)
+          fi
+          echo "templates detetados em: ${SRC:-NENHUM}"
+          [ -n "$SRC" ] && ln -sfn "$SRC" "$DEST/4.7.2.stable"
+          ls -la "$DEST/4.7.2.stable" 2>&1 | head -8
+          JH=$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")
+          mkdir -p "$HOME/.config/godot"
+          printf '[gd_resource type="EditorSettings" format=3]\n[resource]\nexport/android/java_sdk_path="%s"\nexport/android/android_sdk_path="%s"\n' "$JH" "${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" > "$HOME/.config/godot/editor_settings-4.tres"
+          echo "java_sdk_path: $JH"; cat "$HOME/.config/godot/editor_settings-4.tres"
+
       - name: Import dos recursos + exportação APK
         run: |
           godot --headless --path . --import > /tmp/import.log 2>&1 || {
