@@ -791,11 +791,11 @@ para `var _env: Environment`: **a classe já tinha `func _env(path,…)`
 a redeclaração de `_env` como variável de instância** — erro que só o
 engine apanha (gdparse é só sintaxe; os artefactos intermédios do bisect
 passavam todos no gdparse). Corrigido com rename `_env → _env_ref`
-(3 sítios) — commit `4fb8e34`. Lição registada: nunca introduzir
+(3 sítios) — o commit do rename perdeu-se num rewrite histórico (o SHA já não existe no grafo); a evidência durável são os runs de CI abaixo. Lição registada: nunca introduzir
 membros com o mesmo nome de funções existentes da mesma classe.
 
 **Verificado:** gdparse nos alterados · validate.py ✓ · i18n 475/475 ·
-**CI duplo verde em `4fb8e34`** — push run `42412702718` (12/12 ✓,
+**CI duplo verde** — push run `42412702718` (12/12 ✓,
 inclui boot das 5 cenas, i18n runtime, smoke 33/33, flows 5/5) + PR
 synchronize `42412707485` (success). **Pendente:** F5 do dono (ver GDD
 cap. 47, «Estado honesto»). A aurora desaloja Ecos mesmo a meio de um

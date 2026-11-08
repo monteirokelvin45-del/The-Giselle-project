@@ -1044,8 +1044,8 @@ cada (mantendo a contagem): `veterano` e `brasa` substituíram um
 **i18n** — 475/475 (10 chaves novas: 6 nomes + 2 avisos de transição +
 ☀ DIA/☾ NOITE, trilingue). validate.py ✓.
 
-**Estado honesto.** Estrutural verificado: **CI duplo verde em `4fb8e34`**
-(push `42412702718` 12/12 + PR `42412707485`; boot das 5 cenas, i18n
+**Estado honesto.** Estrutural verificado: **CI duplo verde** — push run `42412702718` (12/12) + PR synchronize
+`42412707485` (boot das 5 cenas, i18n
 runtime PT/EN/ES, 33 asserções, flows 5/5). **o que exige F5 do dono:** o peso da noite
 (o ciclo de ~4 min é talvez demasiado rápido para apreciar o que foi
 construído; se desejar, subir delta/240), a densidade dos spawns
