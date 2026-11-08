@@ -162,6 +162,7 @@ var _xp_bar: ProgressBar
 var _hp_bar: ProgressBar
 var _stamina_bar: ProgressBar
 var _rupture_bar: ProgressBar
+var _status_label: Label
 var _marcos_label: Label
 var _potions_label: Label
 var _objective_label: Label
@@ -377,6 +378,8 @@ func _build_hud() -> void:
 	vbox.add_child(_stamina_bar)
 	_rupture_bar = _make_bar(230, 9, Color(0.95, 0.62, 0.15))
 	vbox.add_child(_rupture_bar)
+	_status_label = _make_label("", 12, Color(0.78, 0.74, 0.52))
+	vbox.add_child(_status_label)
 	_marcos_label = _make_label("◈ 75 marcos", 13, Color(0.9, 0.78, 0.35))
 	vbox.add_child(_marcos_label)
 	_potions_label = _make_label("Poções: 2  (R)", 13, Color(0.62, 0.82, 0.95))
@@ -777,6 +780,7 @@ func _process(delta: float) -> void:
 		_stamina_bar.max_value = max_st
 		_stamina_bar.value = clampf(float(p.get("stamina")), 0.0, max_st)
 		_rupture_bar.value = GameState.rupture
+		_refresh_status_label()
 		_rupture_ready.visible = GameState.rupture >= 100.0
 		if _rupture_ready.visible:
 			_rupture_ready.modulate.a = 0.6 + 0.4 * sin(_time * 6.0)
@@ -1573,3 +1577,23 @@ func _build_credits_text() -> String:
 		"silent":
 			lines.append(tr("O Golpe da Custódia — calaste-te; a Academia que resta é outra."))
 	return "\n".join(lines)
+
+## v1.8: statuses elementais do inimigo mais próximo (HUD de uma linha).
+func _refresh_status_label() -> void:
+	if _status_label == null:
+		return
+	var p := get_tree().get_first_node_in_group("player")
+	if p == null:
+		_status_label.text = ""
+		return
+	var nearest: Node3D = null
+	var best := 12.0
+	for e in get_tree().get_nodes_in_group("enemy"):
+		if not is_instance_valid(e) or not e.has_method("element_status_list_flat"):
+			continue
+		var d: Vector3 = e.global_position - p.global_position
+		d.y = 0.0
+		if d.length() < best:
+			best = d.length()
+			nearest = e
+	_status_label.text = "" if nearest == null else String(nearest.call("element_status_list_flat"))

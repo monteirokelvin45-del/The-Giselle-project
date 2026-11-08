@@ -448,6 +448,108 @@ func _physics_process(delta: float) -> void:
 		_update_enemy_anim(delta)
 	move_and_slide()
 
+## ---------------- v1.8 «As Seis Disciplinas» — statuses e reações ----------------
+## Statuses vivem no inimigo como a postura; qualquer fonte aplica via
+## element_apply_status (o jogador nunca lança disciplinas — é um Vazio).
+func element_apply_status(id: String) -> bool:
+	var def := Elements.status_def(id)
+	if def.is_empty():
+		return false
+	var disc := String(def.get("discipline", ""))
+	var reaction: Dictionary = {}
+	for active_id in _statuses.keys():
+		var r := Elements.reaction(disc, String(active_id))
+		if not r.is_empty():
+			reaction = r
+			break
+	if not reaction.is_empty():
+		_resolve_reaction(reaction)
+		for consume_id in reaction.get("consumes", []):
+			_statuses.erase(String(consume_id))
+		if bool(reaction.get("applies_incoming", false)):
+			_statuses[id] = maxf(float(_statuses.get(id, 0.0)), float(def.get("duration", 5.0)))
+		return true
+	_statuses[id] = maxf(float(_statuses.get(id, 0.0)), float(def.get("duration", 5.0)))
+	for clear_id in def.get("clears", []):
+		_statuses.erase(String(clear_id))
+	var mf := preload("res://src/visuals/model_factory.gd")
+	mf.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.7, 0.0), Elements.discipline_color(disc), 0.7)
+	return true
+
+func element_has_status(id: String) -> bool:
+	return float(_statuses.get(id, 0.0)) > 0.0
+
+func element_status_time(id: String) -> float:
+	return float(_statuses.get(id, 0.0))
+
+## Uma linha para o HUD: "Cinética 4s · Ígnea 6s" (nomes trilingues via CSV).
+func element_status_list_flat() -> String:
+	if _statuses.is_empty():
+		return ""
+	var parts: Array[String] = []
+	for id in _statuses.keys():
+		var def := Elements.status_def(id)
+		var disc := String(def.get("discipline", "cinetica"))
+		parts.append(Elements.discipline_name(disc) + " " + str(int(float(_statuses[id]))) + "s")
+	parts.sort()
+	return " · ".join(parts)
+
+func _tick_statuses(delta: float) -> void:
+	if _statuses.is_empty():
+		return
+	var expired: Array[String] = []
+	for id in _statuses.keys():
+		_statuses[id] = float(_statuses[id]) - delta
+		var def := Elements.status_def(id)
+		var dot := float(def.get("dot", 0.0))
+		if dot > 0.0:
+			hp = maxf(hp - dot * delta, 0.0)
+			if hp <= 0.0 and not _dead:
+				_die()
+		if float(_statuses[id]) <= 0.0:
+			expired.append(String(id))
+	for e in expired:
+		_statuses.erase(e)
+
+func _resolve_reaction(reaction: Dictionary) -> void:
+	var mf := preload("res://src/visuals/model_factory.gd")
+	var rcolor := Elements.discipline_color(String(reaction.get("incoming", "cinetica")))
+	mf.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.6, 0.0), rcolor, 1.3)
+	var center := global_position + Vector3(0.0, 1.5, 0.0)
+	var radius := float(reaction.get("radius", 0.0))
+	var aoe := float(reaction.get("aoe_damage", 0.0))
+	if aoe > 0.0 and radius > 0.0:
+		for other in get_tree().get_nodes_in_group("enemy"):
+			if not is_instance_valid(other) or not other.has_method("take_damage"):
+				continue
+			var to_t: Vector3 = other.global_position - global_position
+			to_t.y = 0.0
+			if to_t.length() <= radius:
+				other.take_damage(aoe, 0.0, self)
+		if bool(reaction.get("hits_player", false)):
+			var pl := get_tree().get_first_node_in_group("player")
+			if pl != null and pl.has_method("take_damage"):
+				var to_p: Vector3 = pl.global_position - global_position
+				to_p.y = 0.0
+				if to_p.length() <= radius:
+					pl.take_damage(aoe, self)
+	var pd := float(reaction.get("posture_damage", 0.0))
+	if pd > 0.0:
+		posture -= pd
+	var fr := float(reaction.get("freeze", 0.0))
+	if fr > 0.0:
+		_stunned = maxf(_stunned, fr)
+	var st := float(reaction.get("stealth", 0.0))
+	if st > 0.0:
+		_stealth_t = maxf(_stealth_t, st)
+	var pushf := float(reaction.get("push", 0.0))
+	if pushf > 0.0 and _player != null and is_instance_valid(_player):
+		var away: Vector3 = global_position - _player.global_position
+		away.y = 0.0
+		if away.length() > 0.01:
+			velocity += away.normalized() * pushf
+	GameState.notify(tr("Reação: %s") % Elements.reaction_name(String(reaction.get("id", "vapor_veyra"))))
+
 func _nearest_ally_of_type(type: String, max_dist: float) -> Node3D:
 	var best: Node3D = null
 	var best_d := max_dist
