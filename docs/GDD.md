@@ -1057,3 +1057,77 @@ combate (dawn banishes) incomoda — é escolh emética deliberada
 rotação); a lua é uma cor, não um disco — desenhar um disco de lua seria
 mais um asset fake; fica como está, honestamente: é noite de névoa e
 silhuetas.
+
+## 48. As Seis Disciplinas (v1.8, 2026-11-08)
+
+**O quê.** O mundo tem seis disciplinas elementares — e Kael (Vazio) não
+«escolhe» uma: ele **carrega a disciplina alheia e a devolve
+acentada**. Sistema próprio sobre dados: tudo o que é balanço vive em
+`src/balance/elements.json` (cores, TTL, DoT, multiplicadores, definições
+de reação); tudo o que é lógica vive em `enemy.gd` (aplicação, timers,
+resolução), HUD em `ui.gd`; nada disto é autoload — `Elements` é um
+módulo estático carregado com `preload` onde é preciso (sem estado de
+cena, sem ordem de boot).
+
+**Pedido explícito (parafraseado pelo dono):** «full8 — as
+disciplinas». Mapa inteiro de design em `docs/ELEMENTOS-DESIGN.md`; só se
+aplica aqui o que foi de facto entregue.
+
+**As seis disciplinas (cor canónica, do JSON):**
+
+| Disciplina | Cor | Onde nasce no jogo |
+|---|---|---|
+| Cinética | `#B9C4CC` | hit físico do jogador · Corrente de Âncora (Ruptura de âncora) |
+| Ígnea | `#FF7A36` | — (sem fonte in-game; reservada) |
+| Hídrica | `#4FB6E6` | — (sem fonte in-game; reservada) |
+| Vital | `#6FE07A` | — (sem fonte in-game; reservada) |
+| Lúmina | `#FFE87A` | Ruptura (AoE revelação, r = 5 m) |
+| Umbral | `#B06CFF` | — (sem fonte in-game; reservada) |
+
+**Statuses (6) — todos no `enemy._statuses`, TTL por contador, DoT
+genérico:** `cinetica_carga` 6 s (postura +30%) · `ignea_queimadura`
+8 s (DoT 6/s) · `hidrica_saturado` 8 s (lentidão 0.75, limpa
+queimadura) · `vital_toxina` 10 s (DoT 4/s, bloqueia regen) ·
+`lumina_revelado` 6 s (crit 2.0×) · `umbral_oculto` 5 s (silêncio).
+
+**Reações (8)** — automáticas quando chega uma disciplina sobre um
+status compatível; consomem o status, disparam dano/postura/gelo/fuga/
+aviso: `vapor_veyra` (ignea×hidrica, AoE 40 r 2.5, fere o jogador) ·
+`cavitacao` (cinética×hidrica, 60 postura) · `apagao` (hidrica×ignea,
+limpa ambos) · `onda_choque` (cinética×ignea, AoE 20 + 15 postura + push
+5, aplica a si) · `fotostase` (vital×lumina, congela 2 s) ·
+`eclipse` (lumina×umbral, cloak 2.5 s) · `despertar_selado` (umbral×
+lumina, 50 postura + 1.5 s no chão) · `herda_vazio` (cinética×vital, AoE
+35 r 3). Aviso de reação no HUD («Reação: …») trilingue.
+
+**HUD** — uma linha minimalista sob a barra de Ruptura: «Disciplina Ns»
+por statuses ordenados; some sozinha quando expira.
+
+**i18n** — 491/491 no `l10n/game.csv` (15 chaves novas trilingues:
+6 nomes de status, 8 nomes de reação, 1 grelha do HUD + aviso). CSV↔.gd
+gateado por validate.py [5/5] — nenhuma string entra sem os 3 idiomas.
+
+**Estado honesto.** CI verde em `4a6ed55` (push `42464030352`; boot
+das 5 cenas, i18n runtime, smoke com 11 asserts v1.8). **Gaps
+obrigatórios de dizer:** (a) só Cinética e Lúmina têm fontes in-game
+(golpe/corrente, Ruptura) — Ígnea, Hídrica, Vital e Umbral têm os
+sistemas montáveis mas **nenhuma ação do jogador as dispara**; (b)
+modifiers dos JSON (`slow_mult`, `posture_taken_mult`, `blocks_regen`,
+`crit_mult`, `silence_fx`) **não são lidos em runtime** — contrato de
+dados sem consumidor; (c) `Elements.enemy_discipline()` existe mas
+**nenhum inimigo lança a disciplina dele** — os arquétipos ELEMENTO do
+JSON são prospeto de design, não gameplay; (d) a reação "Eclipse" só
+recusa Revelado na janela de 2.5 s (não muda VFX/anims); (e) os
+números (DoT 6, raios, push 5.0, interruptor 3.0 do Revelado vs
+iFrames) são intuição de design — sem telemetria, ajustam-se no F5 do
+dono; (f) o texto final dos runners não é extraível do sandbox — o gate
+é exit code, verde.
+
+**O que a próxima iteração ganha com isto** — mesmo sem mudança de
+gameplay nova, o motor elemental está montável: as 4 disciplinas sem
+fonte ligam-se com 1–2 linhas cada (ex.: element_apply_status no cast do
+Mago de Cinza → Ígnea/Cinza; Tormenta no jalapão → Hídrica); e os
+modifiers do JSON têm design claro: `slow_mult` no movimento, `blocks_regen`
+no `_tick_regen`, `crit_mult` no roll de dano, `posture_taken_mult` no
+`posture -= pd * mult`. Nada disto foi feito; está documentado para não
+perdido — ver ELEMENTOS-DESIGN.md e AUDIT §26.

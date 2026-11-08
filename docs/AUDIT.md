@@ -856,3 +856,83 @@ runner (0 = todos os asserts PASS); streaming de chunks, LOD de meshes
 e impostores continuam **não implementados** (prematuros); o tuning dos
 34 m e o tempo de física do stress calibram-se com a primeira medição
 no aparelho.
+
+## 26. v1.8 «As Seis Disciplinas» — 2026-11-08
+
+**O quê.** Feature completa: seis disciplinas (Cinética, Ígnea, Hídrica,
+Vital, Lúmina, Umbral) com tabela de dados em `res://src/balance/elements.json`,
+módulo estático mínimo (`src/core/elements.gd`, `preload` — sem autoload, sem
+estudo de cena), statuses com contador em `enemy.gd` (TTL, DoT, clears),
+reações automáticas por pares (consumíveis, AoE, posture/freeze/stealth/push/
+notify trilingue), HUD de uma linha (ui.gd), sources jogador (golpe físico →
+Carga Cinética; corrente de âncora → Carga Cinética; Ruptura → Revelado
+Lúmina em AoE r = 5 m; backlash de interrupção preservado), 15 chaves i18n
+novas (491/491 no CSV), 11 asserts de regressão no `smoke_test.tscn`.
+
+**Verificação final:** CI push `42464030352` em `4a6ed55` **success**
+(e PR synchronize `42464035460`): validate 5/5 · import + boot das 5 cenas ·
+i18n runtime PT/EN/ES · smoke (com os 11 asserts v1.8 a rodar) · stress ·
+flows. Commits da feature incremental em histórico (`df92dba`, `2326d3f`);
+o restaurador final está em `d3fca8b..4a6ed55`.
+
+**A história honesta — a CI mentiu-nos durante 12 pushes.** A primeira falha
+verdadeira (`df92dba`, 42460706682) era analyze-falha REAL no `--import`:
+`enemy.gd` chamava `Elements.*` sem `preload` — o Godot compila todos os
+.gd no import e rebentava. Corrigido, parecia remediação suficiente (456e964,
+2326d3f — join e mais fixes): ainda RED. Depois começou a bisection
+autoinfligida: revertemos CSV e features em parcelas (31d07a8, 1d5d674,
+f5d2871) e TODOS os «reverts parciais» ficavam vermelhos — porque
+**o gate i18n [5/5] falhava antes do headless sequer correr e o meu
+filtro `select(.conclusion != "success")` contava steps «skipped» como
+«failed»**. Nove pushes de «o elements.gd é veneno» eram simplesmente
+literals sem as 15 chaves CSV (validate-red ⇒ tudo a seguir skipped).
+O sinal correto sempre esteve lá: a diferença entre 05d0ea4
+(validate-fail) e os quatro `df92dba..2326d3f` (headless-fail).
+
+Restaurado o v1.8 inteiro + `const Elements := preload(...)` (d3fca8b):
+validate verde, headless **vermelho REAL** — e aí sim o analyzer mostrou o
+verdadeiro defeito seguinte: `enemy.gd` usava `_statuses` (18×) e
+`_stealth_t` (2×) sem declaração de membro (42462400721). Declarados os
+dois + `_tick_statuses` de facto invocada (estava definida e nunca chamada;
+TTL não corria) + cloak do «Eclipse de um Segundo» ligado a recusar
+«lumina_revelado» (2,5 s) → `4a6ed55` verde.
+
+**Budget honesto desta fase: ~58 runs de CI** (alguns pares push+PR). O
+estoque total do repositório está muito além do plano original (~41 para
+todas as fases). O que aprendemos, sem maquilhagem:
+
+- **Step-level ou nada.** Um «CONCLUSION: failure» com `skipped` abaixo de
+  validate diz «gate estrutural», não «boot quebrado». Filtrar skipped conta
+  falha falsa — custou ~9 pushes.
+- **O gate i18n roda ANTES do Godot.** Push que reintroduz literals .gd
+  sem as linhas CSV equivalentes nunca chega ao headless. Nunca push sem
+  `python3 tools/validate.py` completo local ([1/5]…[5/5] verdes).
+- **gdparse ≠ analyzer.** gdparse validava TUDO; o dano era cross-file
+  (identificador não declarado, membro inexistente). Só o `--import` do
+  CI apanha isso — daí a única bisection verdadeira ser por push.
+- **Código não referenciado é compilado na importação mesmo assim.** Não
+  há «deixa correr que ninguém chama»: todos os .gd do projeto são
+  analisados.
+- **Uma decisão por vez, e sempre com a árvore completa por trás** —
+  nunca um ficheiro «isolado» cujos literais dependem do CSV reverso.
+
+**Limites honestos (não fingir o contrário):**
+- `enemy_discipline` está no JSON e em `Elements.enemy_discipline()` mas
+  **não está wired** — inimigos ainda não «lançam» as suas disciplinas;
+  as únicas fontes em jogo hoje são os hits do jogador (físico/corrente →
+  Cinética) e a Ruptura (Lúmina AoE r = 5 m).
+- `slow_mult` (0.75, hidrica), `posture_taken_mult` (1.3, cinética),
+  `blocks_regen` (vital), `crit_mult` (2.0, lúmina), `silence_fx`
+  (umbral) **não são aplicados em runtime** — estão no JSON como contrato
+  de dados, documentados, não implementados.
+- `hidrica_saturado` e `vital_toxina` **não têm fonte in-game** — nenhuma
+  ação do jogador aplica Hidrica/Vital hoje (o sistema existe, falta a
+  tesoura).
+- O cloak do Eclipse só recusa Revelado (não cega VFX/animações) —
+  wiring mínimo honesto, não o efeito de assinatura completo.
+- O texto final do runner de smoke não é extraível do sandbox (logs do
+  receiver devolvem EOF); o gate é o exit code do runner — verde em
+  `4a6ed55`.
+- O balanceamento (dot 6, radius 2.5, push 5.0, mult 3.0 do Revelado vs
+  iFrames da esquiva) é numérico de intuição; a telemetria do aparelho
+  (F5 do dono) manda.
