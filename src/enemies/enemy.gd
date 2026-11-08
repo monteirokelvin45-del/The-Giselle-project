@@ -486,7 +486,7 @@ func element_status_time(id: String) -> float:
 func element_status_list_flat() -> String:
 	if _statuses.is_empty():
 		return ""
-	var parts: Array[String] = []
+	var parts := PackedStringArray()
 	for id in _statuses.keys():
 		var def := Elements.status_def(id)
 		var disc := String(def.get("discipline", "cinetica"))
