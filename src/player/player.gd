@@ -336,13 +336,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("rupture"):
 		if GameState.try_activate_rupture():
 			Audio.play("rupture")
-			for enemy in get_tree().get_nodes_in_group("enemy"):
-				if not is_instance_valid(enemy) or not enemy.has_method("element_apply_status"):
-					continue
-				var to_e: Vector3 = enemy.global_position - global_position
-				to_e.y = 0.0
-				if to_e.length() <= 5.0:
-					enemy.element_apply_status("lumina_revelado")   # a Ruptura revela quem está perto
 	elif event.is_action_pressed("potion"):
 		_drink_potion()
 	elif event.is_action_pressed("ability_1"):
@@ -454,8 +447,6 @@ func _try_chain() -> void:
 		nearest.interrupt_cast()
 	if nearest.has_method("take_damage"):
 		nearest.take_damage(10.0 * GameState.damage_mult(), 25.0 * GameState.posture_mult(), self)
-		if nearest.has_method("element_apply_status"):
-			nearest.element_apply_status("cinetica_carga")
 	GameState.add_rupture(8.0)
 	var mf := preload("res://src/visuals/model_factory.gd")
 	mf.spawn_hit_burst(get_tree(), nearest.global_position, Color(1.0, 0.9, 0.6), 0.8)
@@ -571,8 +562,6 @@ func _do_attack(heavy: bool) -> void:
 			if dot > 0.25 or dist < 1.1:
 				if enemy.has_method("take_damage"):
 					enemy.take_damage(base * mult, posture_dmg, self)
-					if enemy.has_method("element_apply_status"):
-						enemy.element_apply_status("cinetica_carga")   # golpe físico → carga cinética
 					hit_any = true
 	_play_attack_anim(heavy)
 	if hit_any:
