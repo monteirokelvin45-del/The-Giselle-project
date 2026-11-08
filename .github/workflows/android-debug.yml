@@ -47,35 +47,49 @@ jobs:
           unzip -o /tmp/godot.zip -d /tmp/godot-bin
           chmod +x "${GODOT_BIN}"
           "${GODOT_BIN}" --version
-      - name: Diagnóstico de rede (1 KB por fonte)
+      - name: Descarregar export templates por faixas (HTTP Range)
         run: |
+          set -e
           URL1="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_TEMPLATES}"
           URL2="https://downloads.tuxfamily.org/godotengine/4.7.2/${GODOT_TEMPLATES}"
-          for url in "$URL1" "$URL2"; do
-            echo "probe: $url"
-            curl -m 90 -r 0-1023 -o /tmp/probe.bin -w "code=%{http_code} bytes=%{size_download} time=%{time_total}s
-" "$url" || echo "curl exit=$?"
-          done
-      - name: Descarregar export templates (grande)
-        run: |
-          URL1="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_TEMPLATES}"
-          URL2="https://downloads.tuxfamily.org/godotengine/4.7.2/${GODOT_TEMPLATES}"
-          rm -f /tmp/templates.tpz
-          for url in "$URL1" "$URL2"; do
-            echo ":: group::fonte: $url"
-            if curl -fL -C - --retry 3 --retry-delay 10 --retry-all-errors --max-time 1500 -o /tmp/templates.tpz "$url"; then
-              echo "descarga OK de $url"; echo "::endgroup::"; break
+          CHUNK=48000000
+          download_from() {
+            local URL="$1"
+            echo "fonte: $URL"
+            local TOTAL
+            TOTAL=$(curl -sIL "$URL" | tr -d '\r' | grep -i '^content-length:' | tail -1 | awk '{print $2}')
+            echo "content-length anunciado: ${TOTAL:-desconhecido}"
+            if [ -z "$TOTAL" ] || [ "$TOTAL" -lt 400000000 ]; then
+              echo "tamanho desconhecido/inválido — abortar esta fonte"; return 1
             fi
-            echo "fonte falhou — tentar próxima"; echo "::endgroup::"; rm -f /tmp/templates.tpz
-          done
-          TEMPLATE_SIZE=$(stat -c%s /tmp/templates.tpz 2>/dev/null || echo 0)
-          echo "templates.tpz: ${TEMPLATE_SIZE} bytes"
-          if [ "${TEMPLATE_SIZE}" -lt 400000000 ]; then
-            echo "templates demasiado pequeno — descarga falhou nas duas fontes"; exit 1
-          fi
+            local N=$(( (TOTAL + CHUNK - 1) / CHUNK ))
+            echo "faixas: $N x ${CHUNK} bytes"
+            rm -f /tmp/part_*
+            local i=0 FROM TO GOT
+            while [ $i -lt $N ]; do
+              FROM=$(( i * CHUNK ))
+              TO=$(( FROM + CHUNK - 1 ))
+              if [ $TO -ge $TOTAL ]; then TO=$(( TOTAL - 1 )); fi
+              curl -fL -sS --retry 3 --retry-delay 5 --retry-all-errors \
+                -r ${FROM}-${TO} -o "/tmp/part_${i}" "$URL" || return 1
+              GOT=$(stat -c%s "/tmp/part_${i}")
+              if [ "$GOT" -ne $(( TO - FROM + 1 )) ]; then
+                echo "faixa $i com tamanho errado ($GOT) — abortar esta fonte"; return 1
+              fi
+              i=$(( i + 1 ))
+              echo "faixa $i/$N ok ($GOT bytes)"
+            done
+            cat /tmp/part_* > /tmp/templates.tpz
+            local SIZE
+            SIZE=$(stat -c%s /tmp/templates.tpz)
+            echo "concatenado: $SIZE bytes (esperado $TOTAL)"
+            [ "$SIZE" -eq "$TOTAL" ] || { echo "tamanho final != anunciado"; return 1; }
+            echo "descarga completa OK"
+          }
+          download_from "$URL1" || download_from "$URL2"
           mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
           unzip -o /tmp/templates.tpz -d "$HOME/.local/share/godot/export_templates/4.7.2.stable" --strip-components=1
-          ls "$HOME/.local/share/godot/export_templates/4.7.2.stable" | head -5
+          ls "$HOME/.local/share/godot/export_templates/4.7.2.stable" | head -8
 
       - name: Android SDK (componentes mínimos)
         run: |
