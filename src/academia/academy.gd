@@ -154,29 +154,29 @@ func _build_ground() -> void:
 func _build_buildings() -> void:
 	# Forja de Bram (oestção-norte)
 	_collider_box(Vector3(6.4, 3.4, 5.2), Vector3(-40, 1.7, -28), 0.3)
-	_env("buildings/red/building_blacksmith_red.gltf", Vector3(-40, 0, -28), 0.3, 0.62)
+	_env("buildings/red/building_blacksmith_red.gltf", Vector3(-40, 0, -28), 0.3, 2.15)
 	# Biblioteca / Arquivo de Voss (este-norte) — a igreja amarela impõe presença
 	_collider_box(Vector3(6.6, 4.6, 5.4), Vector3(40, 2.3, -26), -0.35)
-	_env("buildings/yellow/building_church_yellow.gltf", Vector3(40, 0, -26), -0.35, 0.72)
+	_env("buildings/yellow/building_church_yellow.gltf", Vector3(40, 0, -26), -0.35, 2.3)
 	# Torre dos Professores (norte)
 	_collider_box(Vector3(4.6, 7.5, 4.6), Vector3(0, 3.75, -40), 0.0)
-	_env("buildings/yellow/building_tower_A_yellow.gltf", Vector3(0, 0, -40), 0.0, 0.95)
+	_env("buildings/yellow/building_tower_A_yellow.gltf", Vector3(0, 0, -40), 0.0, 2.6)
 	# Taverna de Veyra (oeste)
 	_collider_box(Vector3(6.0, 3.6, 5.0), Vector3(-40, 1.8, 18), 0.55)
-	_env("buildings/red/building_tavern_red.gltf", Vector3(-40, 0, 18), 0.55, 0.62)
+	_env("buildings/red/building_tavern_red.gltf", Vector3(-40, 0, 18), 0.55, 2.1)
 	# Dormitórios / tenda (oeste)
 	_env("decoration/props/tent.gltf", Vector3(-38, 0, 6.5), 1.2, 1.6)
 	_collider_box(Vector3(3.4, 2.4, 3.0), Vector3(-38, 1.2, 6.5), 1.2)
 	# Casas da academia (sul)
 	_collider_box(Vector3(3.4, 2.6, 2.9), Vector3(-18, 1.3, 30), 0.4)
-	_env("buildings/green/building_home_A_green.gltf", Vector3(-18, 0, 30), 0.4, 0.62)
+	_env("buildings/green/building_home_A_green.gltf", Vector3(-18, 0, 30), 0.4, 2.95)
 	_collider_box(Vector3(3.2, 2.5, 2.7), Vector3(20, 1.25, 30), -0.5)
-	_env("buildings/blue/building_home_B_blue.gltf", Vector3(20, 0, 30), -0.5, 0.62)
+	_env("buildings/blue/building_home_B_blue.gltf", Vector3(20, 0, 30), -0.5, 2.4)
 
 func _build_props() -> void:
 	# Poço no centro do pátio
 	_collider_box(Vector3(1.6, 1.2, 1.6), Vector3(0, 0.6, 12), 0.0)
-	_env("buildings/yellow/building_well_yellow.gltf", Vector3(0, 0, 12), 0.0, 0.7)
+	_env("buildings/yellow/building_well_yellow.gltf", Vector3(0, 0, 12), 0.0, 2.3)
 	# Montanhas a enquadrar o campus
 	_env("decoration/nature/mountain_A.gltf", Vector3(-58, 0, -44), 0.2, 3.4)
 	_env("decoration/nature/mountain_B.gltf", Vector3(56, 0, -46), 1.1, 3.0)
@@ -185,8 +185,23 @@ func _build_props() -> void:
 	# Armas e barris na forja e na arena
 	_env("decoration/props/weaponrack.gltf", Vector3(-34.5, 0, -24.5), 2.2, 1.2)
 	_env("decoration/props/barrel.gltf", Vector3(-44.5, 0, -22.5), 0.0, 1.1)
-	if ResourceLoader.exists(ENV + "decoration/props/anvil.gltf"):
-		_env("decoration/props/anvil.gltf", Vector3(-38.0, 0, -22.0), 0.5, 1.0)
+	# Bigorna proceural (não há asset — ver docs/ASSETS.md): forja Ennio/academia
+	var steel := _mat(Color(0.22, 0.22, 0.25), 0.7, 0.3)
+	var anvil := Vector3(-38.0, 0.0, -22.0)
+	var anvil_boxes := [
+		{"size": Vector3(0.85, 0.28, 0.38), "pos": anvil + Vector3(0, 0.14, 0)},
+		{"size": Vector3(0.42, 0.30, 0.28), "pos": anvil + Vector3(0, 0.43, 0)},
+		{"size": Vector3(0.95, 0.22, 0.32), "pos": anvil + Vector3(0.05, 0.69, 0)},
+		{"size": Vector3(0.30, 0.18, 0.30), "pos": anvil + Vector3(0.62, 0.66, 0)},
+	]
+	for b in anvil_boxes:
+		var bmi := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = b["size"]
+		bmi.mesh = box
+		bmi.material_override = steel
+		bmi.position = b["pos"]
+		add_child(bmi)
 	# Barris na arena (cantos)
 	var barrel_positions := [
 		Vector3(37, 0, -7), Vector3(51, 0, -7), Vector3(37, 0, 7), Vector3(51, 0, 7),
@@ -213,6 +228,8 @@ func _build_npcs() -> void:
 		{"id": "sena", "name": "Sena Raiz", "pos": Vector3(36.5, 0.3, 22.5), "robe": Color(0.28, 0.42, 0.22)},
 		{"id": "iven", "name": "Iven Lago", "pos": Vector3(28.0, 0.3, -8.0), "robe": Color(0.22, 0.3, 0.48)},
 		{"id": "liora_academia", "name": "Liora Venn", "pos": Vector3(22.0, 0.3, 12.0), "robe": Color(0.35, 0.32, 0.48)},
+		{"id": "nina", "name": "Nina, a estudante", "pos": Vector3(-22.0, 0.3, 12.0), "robe": Color(0.4, 0.32, 0.5)},
+		{"id": "ennio", "name": "Ennio, o arrogante", "pos": Vector3(-17.5, 0.3, -12.0), "robe": Color(0.3, 0.33, 0.42)},
 	]
 	for d in defs:
 		var npc = npc_scene.instantiate()

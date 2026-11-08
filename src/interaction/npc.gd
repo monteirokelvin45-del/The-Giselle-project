@@ -6,7 +6,7 @@ extends Node3D
 @export var robe_color: Color = Color(0.4, 0.32, 0.25)
 @export var wander_radius: float = 2.2   # 0 = enraizado (vendedores, quest-givers)
 
-const ROOTED_IDS := ["elen", "garr", "dario", "voss", "liora", "liora_academia", "bram", "sena", "iven"]
+const ROOTED_IDS := ["elen", "garr", "dario", "voss", "liora", "liora_academia", "bram", "sena", "iven", "renzo"]
 
 var _t: float = 0.0
 var visual: Node3D
@@ -18,6 +18,14 @@ var _wait_timer: float = 0.0
 
 ## Modelos KayKit (CC0): identidade visual por personagem
 const NPC_MODELS := {
+	"berta": {"path": "res://assets/models/characters/Rogue.glb", "tint": Color(0.85, 0.75, 0.62), "scale": 0.97},
+	"renzo": {"path": "res://assets/models/characters/Knight.glb", "tint": Color(0.6, 0.66, 0.74), "scale": 1.05},
+	"otavio": {"path": "res://assets/models/characters/Knight.glb", "tint": Color(0.72, 0.72, 0.76), "scale": 0.96},
+	"lia": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.78, 0.55, 0.38), "scale": 0.92},
+	"betinha": {"path": "res://assets/models/characters/Rogue.glb", "tint": Color(0.85, 0.8, 0.95), "scale": 0.62},
+	"silas": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.65, 0.5, 0.38), "scale": 1.0},
+	"nina": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(0.8, 0.7, 0.95), "scale": 0.9},
+	"ennio": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.55, 0.6, 0.72), "scale": 1.04},
 	"elen": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(0.9, 1.0, 0.85), "scale": 0.95},
 	"garr": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.92, 0.85, 0.78), "scale": 1.0},
 	"aldeao": {"path": "res://assets/models/characters/Rogue.glb", "tint": Color(0.85, 0.9, 0.75), "scale": 0.98},

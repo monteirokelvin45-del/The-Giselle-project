@@ -986,3 +986,61 @@ se `.git` local parecer vazio/estado-base de repente, NÃO manipular
 ficheiros — primeiro `git remote -v` + `ls-tree -r origin/<branch>`,
 depois `fetch` + `reset --mixed` para o remoto, nunca `reset --hard`
 cego.
+
+## 28. v1.10 «O mundo respira» — 2026-11-09
+
+**Pedido explícito do dono:** «Cria os outros NPCs, não vai dizer que só
+seram 5 pessoas nesse mundo? Melhore esses gaps. … vc tem que ter a
+capacidade de analise e decisão também — somos dois nisso.»
+
+**Sete decisões de engenharia (cada uma para um gap honesto):**
+
+1. **Escalas dos edifícios estavam estruturalmente erradas.** Medida
+   (accessor min/max de cada glTF, sem cena intermediária): a casa
+   KayKit nasce com **0.85 u de altura**; no jogo estava em **0.62** —
+   ralo de 51 cm contra um Kael de ~1.8 m, e ~3 m de colisor invisível
+   inabitado à volta. Agora cada edifício entra com escala derivada da
+   medida (tabela em `docs/ASSETS.md`): casas 2.4–2.95, taverna/igreja/
+   ferreiro 2.1–2.3, poço 2.3, mercado 2.15, torres do portão 2.6, castelo
+   3.0. Colisores **não foram tocados** (eram a âncora de jogo sã) — só o
+   visual passou a caber neles. F5 do dono para o veredito final.
+2. **Aldeia deixa de ser decorativa.** 6 novos aldeões no Vale com
+   identidade model+tint+escala (zero assets): Berta (padaria, junto à
+   taverna), Renzo (guarda do portão — ROOTED), Otávio (velho do poço),
+   Lia (aprendiz do Garr — forja), Betinha (criança da praça, escala 0.62),
+   Silas (caravaneiro do Khar, mercado). Dialogue trees de uma linha cada,
+   em PT com voz própria (EN+ES escritos à mão, 16 chaves novas no CSV).
+3. **Campus da Academia com gente real.** 2 estudantes: Nina (cútis ao
+   «estudo não-invasivo com mel») e Ennio (favorito auto-intitulado do
+   conselho) — mesmos arcos KayKit re-tintos, não são quest-givers ainda.
+4. **Bigorna existe.** A referência morta `anvil.gltf` (escola de
+   ResourceLoader.exists-silencioso) virou bigorna procedural
+   (4 caixas, aço escuro) — física honesta, sem asset.
+5. **Acampamento abandonado** na orla sudoeste da floresta: solo
+   queimado, caixas de cinza, brasas mornas, tenda tombada, crate aberto —
+   o Vale passa a sussurrar «a floresta tem dono» sem uma única mesh nova.
+6. **i18n** — 506/506 no `l10n/game.csv` (16 chaves: names + falas novas,
+   PT/EN/ES). Gate validando.
+7. **Galeria castelo/torres** — Silhouette do portão e do castelo (1.2 →
+   2.6; 1.55 → 3.0) coerente com «a Academia acima das casas»; tweak só
+   de número.
+
+**Verificação:** validate.py integral ✓ · CI (ver registo imediatamente abaixo
+desta secção — nota de orçamento: +2 runs de CI, deliberadamente agrupados
+com o resto da entrega; bisection não se repetiu).
+
+**Honestidade obrigatória (o que continua por fora):**
+- **Sem interiores** — casas seguem fachadas; interior é fase de
+  conteúdo (v2.0, decisão sua), não desta iteração.
+- Os 8 NPCs novos **não são quest-givers nem trocam bens** — são
+  população viva (vozes do mundo), nada mais. Falas EN/ES podem estar
+  imprecisas em espontaneidade; nenhuma delas muda a história.
+- Escalas estão ancoradas no colisor invisível (dimensão de jogo
+  3–4 m por casa), não em verificação visual em aparelho —
+  primeira coisa a dar F5. If it feels small, o número certo é o seu
+  olho, não a minha tabela.
+- Retratos dedicados para os 8 novos **não existem** — o dialogue cai no
+  fallback sem portrait (crash-free), como para qualquer id desconhecido;
+  assets de retrato novos continuam Fora.
+- O portão passou de 1.38 m para ~3.7 m de altura visual — se o F5 disser
+  «grande demais», a constante certa é uma linha.

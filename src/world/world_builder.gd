@@ -19,6 +19,7 @@ static func build(root: Node3D) -> void:
 	wb._build_village()
 	wb._build_forest()
 	wb._build_landmarks()
+	wb._build_abandoned_camp()
 	wb._build_academy_and_arena()
 	wb._build_mountains()
 	wb._spawn_npcs()
@@ -264,13 +265,13 @@ func _build_village() -> void:
 
 	# Casas KayKit em volta da praça (colisor invisível, modelo visível)
 	var houses := [
-		{"model": "buildings/red/building_home_A_red.gltf", "pos": Vector3(-7.5, 0, 25.5), "rot": 0.5, "col": Vector3(3.4, 2.6, 2.9), "scale": 0.62},
-		{"model": "buildings/yellow/building_home_B_yellow.gltf", "pos": Vector3(7.0, 0, 24.8), "rot": -0.4, "col": Vector3(3.1, 2.5, 2.7), "scale": 0.62},
-		{"model": "buildings/green/building_home_A_green.gltf", "pos": Vector3(-10.5, 0, 34.0), "rot": 1.35, "col": Vector3(3.6, 2.6, 3.0), "scale": 0.62},
-		{"model": "buildings/blue/building_home_B_blue.gltf", "pos": Vector3(10.0, 0, 33.5), "rot": -1.3, "col": Vector3(3.2, 2.5, 2.7), "scale": 0.62},
-		{"model": "buildings/yellow/building_home_A_yellow.gltf", "pos": Vector3(-5.5, 0, 39.5), "rot": 2.9, "col": Vector3(3.8, 2.7, 3.2), "scale": 0.62},  # casa da mãe
-		{"model": "buildings/red/building_home_A_red.gltf", "pos": Vector3(5.5, 0, 39.0), "rot": -2.8, "col": Vector3(3.1, 2.4, 2.6), "scale": 0.6},
-		{"model": "buildings/red/building_home_B_red.gltf", "pos": Vector3(13.0, 0, 28.5), "rot": -1.05, "col": Vector3(2.8, 2.5, 2.5), "scale": 0.6},
+		{"model": "buildings/red/building_home_A_red.gltf", "pos": Vector3(-7.5, 0, 25.5), "rot": 0.5, "col": Vector3(3.4, 2.6, 2.9), "scale": 2.95},
+		{"model": "buildings/yellow/building_home_B_yellow.gltf", "pos": Vector3(7.0, 0, 24.8), "rot": -0.4, "col": Vector3(3.1, 2.5, 2.7), "scale": 2.4},
+		{"model": "buildings/green/building_home_A_green.gltf", "pos": Vector3(-10.5, 0, 34.0), "rot": 1.35, "col": Vector3(3.6, 2.6, 3.0), "scale": 2.95},
+		{"model": "buildings/blue/building_home_B_blue.gltf", "pos": Vector3(10.0, 0, 33.5), "rot": -1.3, "col": Vector3(3.2, 2.5, 2.7), "scale": 2.4},
+		{"model": "buildings/yellow/building_home_A_yellow.gltf", "pos": Vector3(-5.5, 0, 39.5), "rot": 2.9, "col": Vector3(3.8, 2.7, 3.2), "scale": 2.95},  # casa da mãe
+		{"model": "buildings/red/building_home_A_red.gltf", "pos": Vector3(5.5, 0, 39.0), "rot": -2.8, "col": Vector3(3.1, 2.4, 2.6), "scale": 2.95},
+		{"model": "buildings/red/building_home_B_red.gltf", "pos": Vector3(13.0, 0, 28.5), "rot": -1.05, "col": Vector3(2.8, 2.5, 2.5), "scale": 2.4},
 	]
 	for h in houses:
 		var col: Vector3 = h["col"]
@@ -281,17 +282,17 @@ func _build_village() -> void:
 	# Taverna a nascente da praça
 	var tavern_pos := Vector3(12.5, 0, 37.0)
 	_collider_box(Vector3(4.1, 2.8, 3.3), tavern_pos + Vector3(0, 1.4, 0), -2.2)
-	_env("buildings/red/building_tavern_red.gltf", tavern_pos, -2.2, 0.62)
+	_env("buildings/red/building_tavern_red.gltf", tavern_pos, -2.2, 2.1)
 
 	# Capela no caminho (santuário)
 	var church_pos := Vector3(-8.5, 0, 8.0)
 	_collider_box(Vector3(4.6, 3.6, 3.8), church_pos + Vector3(0, 1.8, 0), 0.18)
-	_env("buildings/yellow/building_church_yellow.gltf", church_pos, 0.18, 0.66)
+	_env("buildings/yellow/building_church_yellow.gltf", church_pos, 0.18, 2.3)
 
 	# Forja do Garr (poente)
 	var forge_pos := Vector3(-11.5, 0, 24.5)
 	_collider_box(Vector3(3.6, 2.5, 3.0), forge_pos + Vector3(0, 1.25, 0), 0.35)
-	_env("buildings/red/building_blacksmith_red.gltf", forge_pos, 0.35, 0.62)
+	_env("buildings/red/building_blacksmith_red.gltf", forge_pos, 0.35, 2.15)
 	_visual_cyl(0.32, 0.34, 0.18, forge_pos + Vector3(-0.6, 0.28, 1.35), _mat(Color(0.18, 0.18, 0.2), 0.6, 0.4))  # bigorna
 	_visual_box(Vector3(0.6, 0.18, 0.6), forge_pos + Vector3(-0.6, 0.11, 1.35), timber)
 	_visual_box(Vector3(0.9, 0.12, 0.9), forge_pos + Vector3(0.4, 0.35, 1.3), _mat(Color(1.0, 0.45, 0.1), 0.0, 0.6, Color(1.0, 0.4, 0.05), 2.6))  # brasas
@@ -310,12 +311,12 @@ func _build_village() -> void:
 
 	# Poço no centro da praça
 	_collider_cyl(1.0, 0.9, Vector3(0, 0.45, 31))
-	_env("buildings/yellow/building_well_yellow.gltf", Vector3(0, 0, 31), 0.0, 0.5)
+	_env("buildings/yellow/building_well_yellow.gltf", Vector3(0, 0, 31), 0.0, 2.3)
 
 	# Banca de mercado com mercadorias
 	var stall := Vector3(5.6, 0, 29.6)
 	_collider_box(Vector3(2.3, 1.7, 1.8), stall + Vector3(0, 0.85, 0), 0.0)
-	_env("buildings/yellow/building_market_yellow.gltf", stall, 0.0, 0.62)
+	_env("buildings/yellow/building_market_yellow.gltf", stall, 0.0, 2.15)
 	_env("decoration/props/crate_A_big.gltf", stall + Vector3(1.9, 0, 0.9), 0.4, 0.9)
 	_env("decoration/props/crate_open.gltf", stall + Vector3(-1.4, 0, 0.7), 1.3, 0.9)
 	_env("decoration/props/sack.gltf", stall + Vector3(1.3, 0, -1.2), 0.0, 0.9)
@@ -419,15 +420,15 @@ func _build_academy_and_arena() -> void:
 	# Torres gémeas de entrada
 	_collider_cyl(1.6, 8.6, Vector3(-6.4, 4.3, -55.8))
 	_collider_cyl(1.6, 8.6, Vector3(6.4, 4.3, -55.8))
-	_env("buildings/yellow/building_tower_A_yellow.gltf", Vector3(-6.4, 0, -55.8), 0.0, 1.2)
-	_env("buildings/yellow/building_tower_A_yellow.gltf", Vector3(6.4, 0, -55.8), 0.0, 1.2)
+	_env("buildings/yellow/building_tower_A_yellow.gltf", Vector3(-6.4, 0, -55.8), 0.0, 2.6)
+	_env("buildings/yellow/building_tower_A_yellow.gltf", Vector3(6.4, 0, -55.8), 0.0, 2.6)
 	# Bandeiras aos lados do portão
 	for sx in [-1, 1]:
 		_visual_cyl(0.07, 0.07, 3.6, Vector3(sx * 3.4, 1.8, -54.3), _mat(Color(0.35, 0.3, 0.2), 0.4, 0.5))
 		_env("decoration/props/flag_yellow.gltf", Vector3(sx * 3.4, 3.5, -54.3), 0.0, 0.9)
 	# A grande Academia ao fundo (colisor sólido)
 	_collider_box(Vector3(21.0, 9.0, 7.0), Vector3(0, 4.5, -67.0))
-	_env("buildings/yellow/building_castle_yellow.gltf", Vector3(0, 0, -68.0), 0.0, 1.55)
+	_env("buildings/yellow/building_castle_yellow.gltf", Vector3(0, 0, -68.0), 0.0, 3.0)
 	# Portão fechado (visual) — grades
 	_visual_box(Vector3(4.2, 3.6, 0.3), Vector3(0, 1.8, -55.6), _mat(Color(0.18, 0.16, 0.2), 0.4, 0.5))
 
@@ -484,6 +485,32 @@ func _build_landmarks() -> void:
 
 
 # -------------------------------------------------------- ambiente v1.1 ----
+## Acampamento abandonado no limite da floresta: o primeiro sinal vivo de
+## que a mata "tem dono" — ninguém mora ali, alguém já ali morou. Só props
+## existentes + primitivos (zero assets novos, zero referências mortas).
+func _build_abandoned_camp() -> void:
+	var camp := Vector3(-20.5, 0.0, -6.0)
+	var scorch := CylinderMesh.new()
+	scorch.top_radius = 2.35
+	scorch.bottom_radius = 2.35
+	scorch.height = 0.03
+	var scorch_mi := MeshInstance3D.new()
+	scorch_mi.mesh = scorch
+	scorch_mi.material_override = _mat(Color(0.055, 0.05, 0.048), 0.0, 1.0)
+	scorch_mi.position = camp + Vector3(0, 0.02, 0)
+	root.add_child(scorch_mi)
+	var charred := _mat(Color(0.09, 0.075, 0.065), 0.1, 0.95)
+	_visual_box(Vector3(1.15, 0.5, 0.62), camp + Vector3(-0.9, 0.3, 0.7), charred, 0.65, 0.38)
+	_visual_box(Vector3(0.78, 0.34, 0.5), camp + Vector3(0.9, 0.22, -0.85), charred, -0.4, -0.3)
+	_visual_box(Vector3(0.4, 0.22, 0.35), camp + Vector3(0.35, 0.13, 1.05), charred, 1.9, 0.5)
+	var ember := _mat(Color(1.0, 0.42, 0.1), 0.0, 0.9, Color(1.0, 0.35, 0.05), 1.8)
+	_visual_box(Vector3(0.09, 0.05, 0.09), camp + Vector3(-0.15, 0.07, 0.25), ember, 0.2, 0.0)
+	_visual_box(Vector3(0.07, 0.04, 0.07), camp + Vector3(0.32, 0.06, -0.35), ember, 0.9, 0.0)
+	_env("decoration/props/tent.gltf", camp + Vector3(-1.15, 0.0, -1.05), 2.35, 0.95)
+	_env("decoration/props/barrel.gltf", camp + Vector3(1.25, 0.0, 0.55), 0.7, 1.0)
+	_env("decoration/props/crate_open.gltf", camp + Vector3(0.65, 0.0, 1.05), 1.15, 1.0)
+	_env("decoration/props/sack.gltf", camp + Vector3(-0.35, 0.0, -0.35), 0.0, 1.0)
+
 func _build_ambience() -> void:
 	var amb = preload("res://src/world/ambience.gd").new()
 	amb.name = "Ambience"
@@ -535,6 +562,12 @@ func _spawn_npcs() -> void:
 		{"name": "Tomás, o Aldeão", "id": "aldeao", "color": Color(0.35, 0.42, 0.3), "pos": Vector3(2.2, 0, 29.0)},
 		{"name": "Liora Venn", "id": "liora", "color": Color(0.85, 0.8, 0.88), "pos": Vector3(1.4, 0, -51.2)},
 		{"name": "Mestre Dario Vale", "id": "dario", "color": Color(0.22, 0.28, 0.5), "pos": Vector3(17.0, 0.0, -42.6)},
+		{"name": "Berta, a Padeira", "id": "berta", "color": Color(0.52, 0.4, 0.3), "pos": Vector3(6.2, 0, 36.6)},
+		{"name": "Renzo, guarda do portão", "id": "renzo", "color": Color(0.3, 0.34, 0.4), "pos": Vector3(2.4, 0, -53.0)},
+		{"name": "Otávio, o velho do poço", "id": "otavio", "color": Color(0.4, 0.4, 0.44), "pos": Vector3(0.9, 0, 29.6)},
+		{"name": "Lia, aprendiz do Garr", "id": "lia", "color": Color(0.45, 0.32, 0.22), "pos": Vector3(-8.8, 0, 27.8)},
+		{"name": "Betinha, a rapariga da praça", "id": "betinha", "color": Color(0.5, 0.44, 0.58), "pos": Vector3(4.6, 0, 29.4)},
+		{"name": "Silas, o caravaneiro", "id": "silas", "color": Color(0.38, 0.32, 0.24), "pos": Vector3(-8.6, 0, 18.7)},
 	]
 	for d in defs:
 		var npc = npc_scene.instantiate()

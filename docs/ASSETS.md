@@ -103,3 +103,28 @@ Lobos procedural mantém o comportamento v0.1 (sem animação esquelética).
 - **Gobkit / Alsomind Tech** — Nature Kit de vegetação, CC0 — https://gobkit.com
   (mirror: `Ariescar/gobkit-free-assets`)
 - Motor: **Godot Engine** (MIT) — https://godotengine.org
+
+## Medidas medidas (v1.10) — extents em unidades GLTF (pré-escala)
+
+Medidas por análise do accessor (min/max) dos glTFs envolvidos;
+1 unidade GLTF = 1 u. In-game = medida × escala de cena.
+
+| Modelo | x × z (footprint) | altura | escala pre-v1.10 | escala v1.10 |
+|---|---|---|---|---|
+| building_home_A | 0.79 × 0.93 | 0.85 | 0.62 (≈0.53 m) | 2.95 (≈2.5 m) |
+| building_home_B | 0.87 × 1.28 | 1.10 | 0.62 (≈0.68 m) | 2.40 (≈2.6 m) |
+| building_tavern_red | 1.17 × 1.40 | 1.33 | 0.62 (≈0.82 m) | 2.10 (≈2.8 m) |
+| building_blacksmith_red | 1.29 × 0.99 | 1.25 | 0.62 (≈0.78 m) | 2.15 (≈2.7 m) |
+| building_church_yellow | 1.03 × 1.65 | 1.16 | 0.66–0.72 (≈0.8 m) | 2.30 (≈2.7 m) |
+| building_market_yellow | 1.80 × 0.98 | 1.32 | 0.62 (≈0.82 m) | 2.15 (≈2.8 m) |
+| building_well_yellow | 0.65 × 0.83 | 0.75 | 0.5–0.7 (≈0.4 m) | 2.30 (≈1.7 m) |
+| building_tower_A_yellow | 0.99 × 2.19 | 1.15 | 1.2–0.95 (≈1.1–1.4 m) | 2.60 (≈3.0 m) |
+| building_castle_yellow | 1.98 × 3.98 | 2.26 | 1.55 (≈3.5 m) | 3.00 (≈6.8 m) |
+| wall_straight | 2.00 × 0.80 | 1.10 | 2.8 (≈3.1 m) | (intacto) |
+| wall_straight_gate | 2.00 × 0.90 | 1.41 | 2.6 (≈3.7 m) | (intacto) |
+| fence_wood_straight | 0.10 × 1.15 | 0.55 | 0.85 (≈0.47 m) | (intacto) |
+| tent | 0.52 × 0.52 | 0.52 | 0.95 (≈0.49 m) | (intacto) |
+
+Notas: os colisores invisíveis nunca mudaram (eram a âncora correta); as
+escalas antigas eram artefactos do «0.6 de partida». `anvil.gltf` **não
+existe** e deixou de ser referenciado (bigorna procedural no lugar).

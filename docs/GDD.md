@@ -1157,3 +1157,44 @@ disciplinas sem fonte, Kael imbuído (camada 2), uso adversarial pelos
 inimigos (camada 3) — cada um deles é uma pergunta tua (nomes visíveis,
 camada, glifos), não uma tarefa silenciosa minha. Enquanto a resposta não
 vier, a v1.9 fecha aqui e está livre para jogar.
+
+## 50. O mundo respira (v1.10, 2026-11-09)
+
+**O quê.** O Vale de Noro deixa de ser um décor com uma história e passa
+a ser um lugar habitado. Cada construção foi re-escalada a partir de
+medições reais (ver `docs/ASSETS.md` § «Medidas medidas»), o elenco
+aldeão passa de 5 vozes funcionais para 11, e a orla da floresta ganhou
+seu primeiro sinal visível de abandono.
+
+**Os novos rostos do Vale (e o que dizem de si mesmos):**
+
+| Nome | Onde | Voz |
+|---|---|---|
+| Berta, a Padeira | junto à taverna | alimenta os braços que a Academia consome |
+| Renzo, guarda do portão | portão da Academia (parado) | as regras e exceções da casa |
+| Otávio, o velho do poço | no poço da praça | o Vale lembra-se de ser só capim |
+| Lia, aprendiz do Garr | forja do Garr | sede de provar o braço |
+| Betinha, a rapariga da praça | à solta na praça | a inocência que mede Kael pelo tamanho do mito |
+| Silas, o caravaneiro | tenda de mercado | sal de Khar, corda de salitre, mundo grande lá fora |
+
+**No campus da Academia:** Nina (a estudante que prescreve mel contra a
+gritaria dos mestres contra os Vazios) e Ennio (o arrogante que se declara
+favorito do conselho — e ninguém lhe deu o título).
+
+**Escalada medida (não adivinhada):** o tamanho dos edifícios KayKit é
+cerca de 1 unidade GLTF; no jogo estava em 0.6 — casas de ~0.5 m contra
+Kael de ~1.8 m. Agora o visual preenche o colisor invisível original
+(3–4 m de envergadura por casa); com a mesma lógica, o castelo passou de
+uma masmorra de brinquedo a uma sede do poder (≈12 m de parede) e as
+torres do portão de 1.4 m para ≈3.7 m. Tudo números, nenhum asset novo.
+
+**Acampamento abandonado** na orla sudoeste: caixas carbonizadas, brasas
+que ainda mornam, círculos de solo queimado, uma tenda tombada — «a
+floresta tem dono», sem nenhum português explicando isto.
+
+**Estado honesto.** validate.py integral ✓. **Gaps:** interiores de casas
+e estruturas continuam sem vida (fase de conteúdo); NPCs novos são vozes,
+não quest-givers; retratos dedicados em falta (fallback silencioso,
+crash-free); escalas calibradas pela âncora de jogo (colisor) — o veredito
+final é o F5; Veyra continua por mapear no mundo real (o que está certo —
+ela ainda não deve ter pin). 🧾

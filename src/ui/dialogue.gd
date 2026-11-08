@@ -307,6 +307,38 @@ const TREES := {
 			{"text": "«Agora não, Garr.»", "action": "none"},
 		],
 	},
+	"berta": {
+		"name": "Berta, a Padeira",
+		"text": "Pão quente, Kael? A Academia come-te vivo — os rapazes voltam de lá pálidos, mas contentes.",
+	},
+	"renzo": {
+		"name": "Renzo, guarda do portão",
+		"text": "O portão só abre para ti ou para mestres selados. Fila para os outros — mesmo para os de família antiga.",
+	},
+	"otavio": {
+		"name": "Otávio, o velho do poço",
+		"text": "Vi este Vale ser só capim e poeira. Já fartei de contar impérios... deste poço, nunca.",
+	},
+	"lia": {
+		"name": "Lia, aprendiz do Garr",
+		"text": "Garr diz que sou quente demais para a bigorna. Quando ferrares por mim, queixas-te ao velho.",
+	},
+	"betinha": {
+		"name": "Betinha, a rapariga da praça",
+		"text": "És tu o tal Vazio? O Tomás diz que tens medo de ti. Eu acho giríssimo um sem nome.",
+	},
+	"silas": {
+		"name": "Silas, o caravaneiro",
+		"text": "Trouxe sal de Khar e vinho amargo até ao vosso ferreiro. Diz-lhe que a corda aguenta — o salitre é que cansa.",
+	},
+	"nina": {
+		"name": "Nina, a estudante",
+		"text": "Entre nós: os mestres debatem como curar a cabeça de um Vazio. Eu voto estudo sem tocar em nada... com mel à mesa.",
+	},
+	"ennio": {
+		"name": "Ennio, o arrogante",
+		"text": "Dizem que vais ganhar a prova e ser favorito do conselho. Também dizem que a Veyra engole torres. Acredita se quiseres.",
+	},
 }
 
 var active := false
