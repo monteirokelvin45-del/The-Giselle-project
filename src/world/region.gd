@@ -31,6 +31,7 @@ func _ready() -> void:
 	_build_environment()
 	_build_ground_and_props()
 	_spawn_enemies()
+	_spawn_region_echo()
 	_spawn_exit_portal()
 	_build_banner()
 	var player_scene := preload("res://scenes/player.tscn")
@@ -241,6 +242,29 @@ func _spawn_enemies() -> void:
 		enemy.died.connect(_on_enemy_died)
 		add_child(enemy)
 	_alive = types.size()
+
+## O eco solitário: uma voz humana por região. Não são quest-givers —
+## são a alma do lugar (por isso rooteados onde foram colocados).
+const REGION_ECHO := {
+	"ruun": {"id": "hex", "name": "Hex, o Lenhador", "pos": Vector3(7.5, 0.3, 8.5), "robe": Color(0.4, 0.46, 0.3)},
+	"sahr": {"id": "zafira", "name": "Zafira, a coveira", "pos": Vector3(-9.0, 0.3, 12.0), "robe": Color(0.55, 0.45, 0.3)},
+	"khar": {"id": "dane", "name": "Dane, vigia do relâmpago", "pos": Vector3(10.5, 0.3, 3.0), "robe": Color(0.4, 0.43, 0.55)},
+	"lume": {"id": "cafu", "name": "Cafu, faroleiro de Lume", "pos": Vector3(8.0, 0.3, 13.5), "robe": Color(0.3, 0.6, 0.56)},
+	"aer": {"id": "urik", "name": "Mestre Urik, asceta sem chão", "pos": Vector3(-8.5, 0.3, 4.0), "robe": Color(0.55, 0.57, 0.62)},
+	"orun": {"id": "mira", "name": "Mira, a última a subir", "pos": Vector3(9.0, 0.3, 9.0), "robe": Color(0.45, 0.4, 0.55)},
+}
+
+func _spawn_region_echo() -> void:
+	var echo: Dictionary = REGION_ECHO.get(String(GameState.current_region), {})
+	if echo.is_empty():
+		return
+	var npc_scene := preload("res://scenes/npc.tscn")
+	var npc = npc_scene.instantiate()
+	npc.set("npc_name", String(echo["name"]))
+	npc.set("dialogue_id", String(echo["id"]))
+	npc.set("robe_color", echo.get("robe", Color(0.4, 0.4, 0.4)))
+	npc.position = echo["pos"]
+	add_child(npc)
 
 func _spawn_exit_portal() -> void:
 	var portal_scene := preload("res://scenes/scene_portal.tscn")

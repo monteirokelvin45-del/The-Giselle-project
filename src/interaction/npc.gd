@@ -6,7 +6,7 @@ extends Node3D
 @export var robe_color: Color = Color(0.4, 0.32, 0.25)
 @export var wander_radius: float = 2.2   # 0 = enraizado (vendedores, quest-givers)
 
-const ROOTED_IDS := ["elen", "garr", "dario", "voss", "liora", "liora_academia", "bram", "sena", "iven", "renzo"]
+const ROOTED_IDS := ["elen", "garr", "dario", "voss", "liora", "liora_academia", "bram", "sena", "iven", "renzo", "hex", "zafira", "dane", "cafu", "urik", "mira"]
 
 var _t: float = 0.0
 var visual: Node3D
@@ -18,6 +18,12 @@ var _wait_timer: float = 0.0
 
 ## Modelos KayKit (CC0): identidade visual por personagem
 const NPC_MODELS := {
+	"hex": {"path": "res://assets/models/characters/Rogue.glb", "tint": Color(0.55, 0.62, 0.42), "scale": 0.95},
+	"zafira": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(0.75, 0.62, 0.4), "scale": 0.94},
+	"dane": {"path": "res://assets/models/characters/Barbarian.glb", "tint": Color(0.55, 0.6, 0.75), "scale": 1.04},
+	"cafu": {"path": "res://assets/models/characters/Mage.glb", "tint": Color(0.45, 0.85, 0.8), "scale": 0.9},
+	"urik": {"path": "res://assets/models/characters/Knight.glb", "tint": Color(0.75, 0.78, 0.85), "scale": 0.97},
+	"mira": {"path": "res://assets/models/characters/Rogue.glb", "tint": Color(0.62, 0.55, 0.75), "scale": 1.0},
 	"berta": {"path": "res://assets/models/characters/Rogue.glb", "tint": Color(0.85, 0.75, 0.62), "scale": 0.97},
 	"renzo": {"path": "res://assets/models/characters/Knight.glb", "tint": Color(0.6, 0.66, 0.74), "scale": 1.05},
 	"otavio": {"path": "res://assets/models/characters/Knight.glb", "tint": Color(0.72, 0.72, 0.76), "scale": 0.96},

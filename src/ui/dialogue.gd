@@ -339,6 +339,30 @@ const TREES := {
 		"name": "Ennio, o arrogante",
 		"text": "Dizem que vais ganhar a prova e ser favorito do conselho. Também dizem que a Veyra engole torres. Acredita se quiseres.",
 	},
+	"hex": {
+		"name": "Hex, o Lenhador",
+		"text": "A floresta leva os que a conhecem mal. E nem ralhar comigo vale a pena — eu já a conheço bem.",
+	},
+	"zafira": {
+		"name": "Zafira, a coveira",
+		"text": "Debaixo destas dunas dorme um mapa que ninguém desenhou. Será que alguém o desenha a dormir?",
+	},
+	"dane": {
+		"name": "Dane, vigia do relâmpago",
+		"text": "Quando o céu ganha listas e o relâmpago cai em Khar, corre para a pedra — não para cima dela.",
+	},
+	"cafu": {
+		"name": "Cafu, faroleiro de Lume",
+		"text": "Acendo o farol de fósforo azul. Quem não vê o farol, vê a estrela — e quem não vê a estrela... não volta.",
+	},
+	"urik": {
+		"name": "Mestre Urik, asceta sem chão",
+		"text": "Caí muito devagar nas rochas suspensas. Veyra não cai. Veyra não aprende a cair.",
+	},
+	"mira": {
+		"name": "Mira, a última a subir",
+		"text": "Sou a última que subiu deste abismo. Desço, falo, subo — a única função que me sobra.",
+	},
 }
 
 var active := false

@@ -1044,3 +1044,32 @@ com o resto da entrega; bisection não se repetiu).
   assets de retrato novos continuam Fora.
 - O portão passou de 1.38 m para ~3.7 m de altura visual — se o F5 disser
   «grande demais», a constante certa é uma linha.
+
+## 29. v1.11 «O eco das regiões» — 2026-11-09
+
+**Dono (pensando junto):** «vc viaja por várias regiões e encontra
+somente 8 pessoas isso é esquisito.» Diagnóstico: SEIS regiões de
+expedição com inimigos escalados — **zero** figuras humanas; o Vale
+tinha aldeões, o campus estudantes, as regiões eram natureza + feras.
+Correção mínima e honesta — **uma voz humana por região** (o «eco
+solitário»), rooteada, sem quests, sem itens, sem estado:
+
+| Região | Eco | Voz |
+|---|---|---|
+| Floresta de Ruun | Hex, o Lenhador | a floresta leva os desprevenidos; ele já a conhece |
+| Deserto de Sahr | Zafira, a coveira | o mapa nunca desenhado dorme debaixo das dunas |
+| Montanhas de Khar | Dane, vigia do relâmpago | desça para a pedra, não suba nela |
+| Arquipélago de Lume | Cafu, faroleiro de Lume | o farol de fósforo azul e os que não voltam |
+| Ilhas de Aer | Mestre Urik, asceta sem chão | aprender a cair; Veyra não aprende |
+| Fim do Abismo | Mira, a última a subir | desce, fala, sobe — a única função que lhe sobra |
+
+Cada um: entrada em `NPC_MODELS` (KayKit re-tinto/escala própria) +
+`ROOTED_IDS` + `REGION_ECHO` por região + tree de diálogo de uma linha
+trilingue + chave CSV (12 novas — PT/EN/ES, escritas à mão). Comportamento:
+parado no posto, vira para o jogador perto — nada mais.
+
+**Estado honesto:** validate.py integral ✓. **Limites:** os ecos **não são
+quest-givers, não trocam bens, não verificam história** — são alma do
+lugar, no máximo um detalhe de ruína humana. Nenhum deles representa
+facção ou tem destino próprio. Interiores seguem fora. EN/ES podem perder
+espontaneidade — ajustáveis no F5 do dono. CI: 1 run agrupado.

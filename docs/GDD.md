@@ -1198,3 +1198,28 @@ não quest-givers; retratos dedicados em falta (fallback silencioso,
 crash-free); escalas calibradas pela âncora de jogo (colisor) — o veredito
 final é o F5; Veyra continua por mapear no mundo real (o que está certo —
 ela ainda não deve ter pin). 🧾
+
+## 51. O eco das regiões (v1.11, 2026-11-09)
+
+**O quê.** Resposta direta ao dono: as seis regiões de expedição deixam
+de ser só natureza e feras — cada uma ganha **uma voz humana**, o seu
+«eco solitário» — alguém que ficou, ou voltou, ou nunca saiu.
+
+**Quem são (e o que sugerem de cada lugar):**
+
+| Região | Eco | Sussurro |
+|---|---|---|
+| Floresta de Ruun | Hex, o Lenhador | ninguém domina a mata; uns só sobrevivem nela |
+| Deserto de Sahr | Zafira, a coveira | o deserto guarda o que a Academia quer esquecer |
+| Montanhas de Khar | Dane, vigia do relâmpago | os picos relembram a quem sobe o que é humildade |
+| Arquipélago de Lume | Cafu, faroleiro de Lume | faróis azuis: alguém cuida de quem volta, alguém já não pode voltar |
+| Ilhas de Aer | Mestre Urik, asceta sem chão | a física de Veyra é outra; ninguém escapa dela, mas uns aprendem a coreografá-la |
+| Fim do Abismo | Mira, a última a subir | o abismo não é vazio; é alguém que restou dele e fala |
+
+Nenhuma fala forja história sozinha — são friagem humana em torno dos
+incêndios das regiões. Se algum deles te tocar, a fonte de lore oficial é
+você; eu só acendo a lanterna.
+
+**Estado honesto.** Ecos são rooteados, sem inventário, sem quests —
+**ainda**. Interiores seguem fora. O que muda: nenhuma região é agora
+deserta de gente.
