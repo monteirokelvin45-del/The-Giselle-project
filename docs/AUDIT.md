@@ -1073,3 +1073,36 @@ quest-givers, não trocam bens, não verificam história** — são alma do
 lugar, no máximo um detalhe de ruína humana. Nenhum deles representa
 facção ou tem destino próprio. Interiores seguem fora. EN/ES podem perder
 espontaneidade — ajustáveis no F5 do dono. CI: 1 run agrupado.
+
+## 30. v1.12 «Multidão» — 2026-11-09
+
+**Dono:** «Uns 25 ou 30 por cidade.» Aprovado como pedido, implementado
+como desenhado — não como 30 clones: **cidade é densidade, não nome**.
+
+**Entrega.** `src/world/crowd_person.gd` (novo, ~80 linhas): figurante de
+fundo KayKit (5 modelos), tinta/escala/índice determinísticos, sem
+colisor, sem interação, sem diálogo, caminhada lenta em anel curto. Zero
+assets. Incluído no Vale (**28**, em 7 clusters — mercado, poço, praça,
+taverna, forja, igreja, estrada) e no campus (**22**, em 5 clusters —
+pátio, jardins, forja, entrada). Determinístico por SEED própria
+(90210/1357911). Custo por frame: zero raycasts (o anel curto dispensa
+desvio), bobbing visual e face-any-player dentro de 4 m.
+
+**Porquê assim (a análise que o dono pediu):**
+- 30 NPCs interativos por cidade = 30 painéis «E — Falar com…» no
+  cabeça do jogador e 30 filas de diálogo para escrever; isso é conteúdo
+  de conteúdo, não de ambience — é a linha que separa «cidade viva» de
+  «menu aberto».
+- O Vale ganha ~34 humanos (28 crowd + 6 aldeões + nós), o campus ~30 —
+  dentro do pedido do dono, sem fingir profundidade que não existe.
+- Multidão colide com nada e não bloqueia nave de combate (sem
+  StaticBody) — a passagem por sombras/portas é livre como em qualquer
+  sequela KayKit meio povoada.
+
+**Estado honesto:** validate integral ✓. **Limites:** figurantes não
+têm voz, nem nome, nem retrato; não reagem a membros de combate; não são
+persistidos entre visitas; o alcance de caminhada é cosmetico (sem
+formação de multidão/fluxo); e o campus novo é algo mais «turma em vez de
+cidade» — quem quiser multidão com vida real nas ruas (mercadorias,
+animações, ritmo de dia/noite do Vale) está no capítulo 48+ desta fila.
+CI: 1 run agrupado.

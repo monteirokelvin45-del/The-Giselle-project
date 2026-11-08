@@ -33,6 +33,7 @@ func _ready() -> void:
 	_build_props()
 	_build_gardens_extra()
 	_build_npcs()
+	_build_crowd()
 	_spawn_exit_portal()
 	_spawn_rest_point()
 	var player_scene := preload("res://scenes/player.tscn")
@@ -238,6 +239,35 @@ func _build_npcs() -> void:
 		npc.set("robe_color", d["robe"])
 		npc.position = d["pos"]
 		add_child(npc)
+
+## Multidão do campus: 22 figurantes de fundo — pátio central, jardins,
+## imediações da forja, entrada. Não interagem; determinísticos por SEED.
+func _build_crowd() -> void:
+	const CLUSTERS := [
+		{"center": Vector3(0.0, 0.3, 0.0), "radius": 6.0, "count": 6},
+		{"center": Vector3(19.0, 0.3, 17.0), "radius": 4.5, "count": 4},
+		{"center": Vector3(-13.0, 0.3, 7.0), "radius": 3.6, "count": 4},
+		{"center": Vector3(-25.0, 0.3, 7.0), "radius": 4.6, "count": 4},
+		{"center": Vector3(1.5, 0.3, 26.0), "radius": 4.0, "count": 4},
+	]
+	var palettes := [Color(0.4, 0.36, 0.48), Color(0.34, 0.4, 0.36), Color(0.44, 0.4, 0.32), Color(0.36, 0.32, 0.42), Color(0.5, 0.44, 0.38)]
+	var crng := RandomNumberGenerator.new()
+	crng.seed = 1357911
+	var i := 0
+	for cluster in CLUSTERS:
+		for j in range(int(cluster["count"])):
+			i += 1
+			var cp := preload("res://src/world/crowd_person.gd").new()
+			var a := crng.randf() * TAU
+			var r := float(cluster["radius"]) * sqrt(crng.randf())
+			var p: Vector3 = cluster["center"] + Vector3(cos(a) * r, 0.0, sin(a) * r)
+			cp.set("anchor", p)
+			cp.set("wander_radius", crng.randf_range(1.2, 2.5))
+			cp.set("model_index", i)
+			cp.set("tint", palettes[i % palettes.size()])
+			cp.set("scale_factor", crng.randf_range(0.88, 1.02))
+			cp.position = p
+			add_child(cp)
 
 func _spawn_exit_portal() -> void:
 	var portal_scene := preload("res://scenes/scene_portal.tscn")

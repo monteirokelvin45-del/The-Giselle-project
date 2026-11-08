@@ -1223,3 +1223,29 @@ você; eu só acendo a lanterna.
 **Estado honesto.** Ecos são rooteados, sem inventário, sem quests —
 **ainda**. Interiores seguem fora. O que muda: nenhuma região é agora
 deserta de gente.
+
+## 52. Multidão (v1.12, 2026-11-09)
+
+**O quê.** Resposta direta ao dono: cada cidade deixa de «contar as
+cabeças» e passa a ter **gente nela**. Não são 30 protagonistas — nenhum
+mundo se povoa com protagonistas; povoa-se com gente que passa no
+mercado, gente que vai à igreja, gente que fica na entrada e só vê as
+costas de quem tem destino.
+
+**Como funciona (e porquê funciona).**`crowd_person.gd` — KayKit
+re-tintado, zero assets, zero texto: figura que caminha devagar num anel
+perto do seu posto, vira para o jogador quando ele se aproxima, nunca trava
+uma porta. **28** no Vale de Noro (mercado, poço, praça, taverna, forja,
+igreja, estrada) · **22** no campus (pátio, jardins, arcas, entrada) —
+à volta de 30 por cidade, como pedido, sem enganar ninguém com promessas
+de profundidade.
+
+**O que não fizeram (de caso pensado):** responder (se queres alguém de
+sempre no mercado, é um custo/find de conteúdo — diz), fugir, correr,
+meter no bolso poção, participar da prova de venda — nenhuma multidão de
+fundo faz isso, e não vou fingir que faz. O que eles fazem é velho e
+simples: **a cidade parece uma cidade**.
+
+**Estado honesto.** Vale e campus vivas nas memórias do renderer (não há
+persistência entre visitas — o wander é determinístico e local). Zero
+perfide de progressão. Zero assets. CI e validate acima dos próprios pés.

@@ -20,6 +20,7 @@ static func build(root: Node3D) -> void:
 	wb._build_forest()
 	wb._build_landmarks()
 	wb._build_abandoned_camp()
+	wb._build_crowd()
 	wb._build_academy_and_arena()
 	wb._build_mountains()
 	wb._spawn_npcs()
@@ -488,6 +489,38 @@ func _build_landmarks() -> void:
 ## Acampamento abandonado no limite da floresta: o primeiro sinal vivo de
 ## que a mata "tem dono" — ninguém mora ali, alguém já ali morou. Só props
 ## existentes + primitivos (zero assets novos, zero referências mortas).
+## Multidão do Vale: 28 figurantes de fundo nas áreas de maior fluxo —
+## mercado, poço, praça, taverna, forja, igreja e estrada de entrada.
+## Não interagem; determinísticos por SEED própria.
+func _build_crowd() -> void:
+	const CLUSTERS := [
+		{"center": Vector3(6.0, 0.0, 27.0), "radius": 3.4, "count": 5},
+		{"center": Vector3(0.0, 0.0, 31.5), "radius": 2.6, "count": 4},
+		{"center": Vector3(-6.5, 0.0, 29.5), "radius": 2.2, "count": 4},
+		{"center": Vector3(11.5, 0.0, 37.0), "radius": 2.4, "count": 5},
+		{"center": Vector3(-9.5, 0.0, 25.0), "radius": 1.8, "count": 3},
+		{"center": Vector3(-8.0, 0.0, 6.8), "radius": 2.6, "count": 3},
+		{"center": Vector3(1.5, 0.0, 8.0), "radius": 2.8, "count": 4},
+	]
+	var palettes := [Color(0.52, 0.38, 0.28), Color(0.35, 0.42, 0.35), Color(0.42, 0.34, 0.5), Color(0.5, 0.46, 0.32), Color(0.36, 0.38, 0.44), Color(0.55, 0.48, 0.4)]
+	var crng := RandomNumberGenerator.new()
+	crng.seed = 90210
+	var i := 0
+	for cluster in CLUSTERS:
+		for j in range(int(cluster["count"])):
+			i += 1
+			var cp := preload("res://src/world/crowd_person.gd").new()
+			var a := crng.randf() * TAU
+			var r := float(cluster["radius"]) * sqrt(crng.randf())
+			var p: Vector3 = cluster["center"] + Vector3(cos(a) * r, 0.0, sin(a) * r)
+			cp.set("anchor", p)
+			cp.set("wander_radius", crng.randf_range(1.1, 2.3))
+			cp.set("model_index", i)
+			cp.set("tint", palettes[i % palettes.size()])
+			cp.set("scale_factor", crng.randf_range(0.88, 1.02))
+			cp.position = p
+			root.add_child(cp)
+
 func _build_abandoned_camp() -> void:
 	var camp := Vector3(-20.5, 0.0, -6.0)
 	var scorch := CylinderMesh.new()
