@@ -134,6 +134,16 @@ func _process(_delta: float) -> void:
 			var El := preload("res://src/core/elements.gd")
 			_check(String(El.reaction("cinetica", "hidrica_saturado").get("id", "")) == "cavitacao", "tabela de reações resolve Cavitação")
 			_check(El.reaction("vital", "hidrica_saturado").is_empty(), "pares sem reação devolvem vazio")
+			# ---- v1.9 «disciplinas vivas» — modificadores ligados ----
+			tester.set("posture", 100.0)
+			tester.call("element_apply_status", "cinetica_carga")
+			tester.call("take_damage", 0.0, 10.0, null)
+			_check(float(tester.get("posture")) <= 100.0 - 13.0, "carga cinética eleva a postura sofrida (×1.3)")
+			tester.set("hp", 100.0)
+			tester.call("element_apply_status", "lumina_revelado")
+			tester.call("take_damage", 10.0, 0.0, null)
+			_check(is_equal_approx(float(tester.get("hp")), 80.0), "revelado duplica o dano recebido (crítico)")
+			tester.queue_free()
 			# ---- v1.5 «Qualidade de tudo» — asserções de regressão ----
 			# Esquiva perfeita: arranque da esquiva no instante do impacto
 			GameState.rupture = 0.0

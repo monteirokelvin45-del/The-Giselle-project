@@ -388,12 +388,13 @@ func _physics_process(delta: float) -> void:
 		else:
 			var perp := Vector3(-to_player.z, 0.0, to_player.x).normalized()
 			move = perp * (0.6 if sin(_anim_t * 0.7) > 0.0 else -0.6)
-		velocity.x = move.x * float(stats["speed"])
-		velocity.z = move.z * float(stats["speed"])
+		velocity.x = move.x * float(stats["speed"]) * _status_mult("slow_mult")
+		velocity.z = move.z * float(stats["speed"]) * _status_mult("slow_mult")
 		if _cast_timer <= 0.0 and dist < 19.0:
 			_cast_windup = 0.75
-			var mf_cast := preload("res://src/visuals/model_factory.gd")
-			mf_cast.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.6, 0.0), (Color(0.95, 0.55, 0.25) if enemy_type == "brasa" else Color(0.35, 0.95, 0.88)), 0.6)
+			if not _status_flag("silence_fx"):
+				var mf_cast := preload("res://src/visuals/model_factory.gd")
+				mf_cast.spawn_hit_burst(get_tree(), global_position + Vector3(0.0, 1.6, 0.0), (Color(0.95, 0.55, 0.25) if enemy_type == "brasa" else Color(0.35, 0.95, 0.88)), 0.6)
 			if _anim_player != null:
 				var mf := preload("res://src/visuals/model_factory.gd")
 				mf.play_anim(_anim_player, "Spellcast_Raise", 0.1, 0.75)
@@ -420,7 +421,7 @@ func _physics_process(delta: float) -> void:
 			_attack_cooldown = 1.6
 		return
 
-	var speed_now := float(stats["speed"]) * (1.18 if _enraged else 1.0)
+	var speed_now := float(stats["speed"]) * (1.18 if _enraged else 1.0) * _status_mult("slow_mult")
 	if dist > float(stats["range"]) * 0.85:
 		var dir: Vector3 = to_player.normalized() if far_mode else _coordinated_direction(to_player)
 		velocity.x = dir.x * speed_now
@@ -543,7 +544,7 @@ func _resolve_reaction(reaction: Dictionary) -> void:
 					pl.take_damage(aoe, self)
 	var pd := float(reaction.get("posture_damage", 0.0))
 	if pd > 0.0:
-		posture -= pd
+		posture -= pd * _status_mult("posture_taken_mult")
 	var fr := float(reaction.get("freeze", 0.0))
 	if fr > 0.0:
 		_stunned = maxf(_stunned, fr)
@@ -557,6 +558,26 @@ func _resolve_reaction(reaction: Dictionary) -> void:
 		if away.length() > 0.01:
 			velocity += away.normalized() * pushf
 	GameState.notify(tr("Reação: %s") % tr(Elements.reaction_key(String(reaction.get("id", "vapor_veyra")))))
+
+## Multiplicadores agregados dos statuses ativos (tabela do JSON).
+## 1.0 quando nenhum status incide na chave.
+func _status_mult(key: String) -> float:
+	var m := 1.0
+	for id in _statuses.keys():
+		var def := Elements.status_def(id)
+		var raw = def.get(key, null)
+		if raw is float or raw is int:
+			var v := float(raw)
+			if v != 1.0:
+				m *= v
+	return m
+
+## Flags booleanas agregadas dos statuses ativos (ex.: silence_fx).
+func _status_flag(key: String) -> bool:
+	for id in _statuses.keys():
+		if bool(Elements.status_def(id).get(key, false)):
+			return true
+	return false
 
 func _nearest_ally_of_type(type: String, max_dist: float) -> Node3D:
 	var best: Node3D = null
@@ -657,8 +678,9 @@ func _resolve_slam() -> void:
 func take_damage(amount: float, posture_dmg: float, _from: Node3D = null) -> void:
 	if _dead:
 		return
-	hp -= amount
-	posture -= posture_dmg
+	var crit_mult := _status_mult("crit_mult")
+	hp -= amount * crit_mult
+	posture -= posture_dmg * _status_mult("posture_taken_mult")
 	_combat = true
 	# Flinch em golpes pesados (posture >= 25, i.e. pesado/slam) — não no Guardião
 	if posture_dmg >= 25.0 and enemy_type != "guardiao":
@@ -703,7 +725,7 @@ func take_damage(amount: float, posture_dmg: float, _from: Node3D = null) -> voi
 func take_posture(amount: float) -> void:
 	if _dead:
 		return
-	posture -= amount
+	posture -= amount * _status_mult("posture_taken_mult")
 	_combat = true
 	if posture <= 0.0:
 		posture = max_posture * 0.65
