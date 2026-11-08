@@ -36,18 +36,29 @@ jobs:
             libfontconfig1 libx11-6 libxcursor1 libxinerama1 libxrandr2 \
             libxi6 libgl1 libegl1 libglib2.0-0 ca-certificates unzip zip openjdk-17-jdk-headless
 
-      - name: Descarregar Godot ${{ env.GODOT_VERSION }} + export templates
+      - name: Espaço em disco disponível
+        run: df -h /
+      - name: Descarregar Godot ${{ env.GODOT_VERSION }}
         run: |
-          curl -sL -o /tmp/godot.zip --retry 5 --retry-delay 15 --retry-all-errors \
+          curl -fL -o /tmp/godot.zip --retry 5 --retry-delay 15 --retry-all-errors \
             "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_ZIP}"
-          curl -sL -o /tmp/templates.tpz --retry 5 --retry-delay 15 --retry-all-errors \
-            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_TEMPLATES}"
+          ls -la /tmp/godot.zip
           mkdir -p /tmp/godot-bin
           unzip -o /tmp/godot.zip -d /tmp/godot-bin
           chmod +x "${GODOT_BIN}"
+          "${GODOT_BIN}" --version
+      - name: Descarregar export templates (grande)
+        run: |
+          curl -fL -o /tmp/templates.tpz --retry 5 --retry-delay 20 --retry-all-errors \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_TEMPLATES}"
+          TEMPLATES_SIZE=$(stat -c%s /tmp/templates.tpz)
+          echo "templates.tpz: ${TEMPLATES_SIZE} bytes"
+          if [ "${TEMPLATES_SIZE}" -lt 400000000 ]; then
+            echo "templates demasiado pequeno — provável falha de descarga"; exit 1
+          fi
           mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
           unzip -o /tmp/templates.tpz -d "$HOME/.local/share/godot/export_templates/4.7.2.stable" --strip-components=1
-          "${GODOT_BIN}" --version
+          ls "$HOME/.local/share/godot/export_templates/4.7.2.stable" | head -5
 
       - name: Android SDK (componentes mínimos)
         run: |
