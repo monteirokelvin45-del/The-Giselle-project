@@ -47,10 +47,19 @@ jobs:
           unzip -o /tmp/godot.zip -d /tmp/godot-bin
           chmod +x "${GODOT_BIN}"
           "${GODOT_BIN}" --version
+      - name: Diagnóstico de rede (1 KB por fonte)
+        run: |
+          URL1="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_TEMPLATES}"
+          URL2="https://downloads.tuxfamily.org/godotengine/4.7.2/${GODOT_TEMPLATES}"
+          for url in "$URL1" "$URL2"; do
+            echo "probe: $url"
+            curl -m 90 -r 0-1023 -o /tmp/probe.bin -w "code=%{http_code} bytes=%{size_download} time=%{time_total}s
+" "$url" || echo "curl exit=$?"
+          done
       - name: Descarregar export templates (grande)
         run: |
           URL1="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_TEMPLATES}"
-          URL2="https://downloads.tuxfamily.org/godotengine/${GODOT_VERSION}/${GODOT_TEMPLATES}"
+          URL2="https://downloads.tuxfamily.org/godotengine/4.7.2/${GODOT_TEMPLATES}"
           rm -f /tmp/templates.tpz
           for url in "$URL1" "$URL2"; do
             echo ":: group::fonte: $url"
