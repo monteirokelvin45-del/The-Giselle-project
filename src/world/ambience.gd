@@ -14,6 +14,10 @@ const FLOCK_GROUP := "ambience_flock"
 
 var _time: float = 0.0
 var _flocks: Array[Dictionary] = []
+var _sway_cache: Array = []
+var _bob_cache: Array = []
+var _spin_cache: Array = []
+var _cache_built: bool = false
 
 func _ready() -> void:
 	# Fase aleatória para que cenas irmãs não batam a mesma onda
@@ -178,7 +182,12 @@ func _pmat(color: Color, energy: float) -> StandardMaterial3D:
 
 func _process(delta: float) -> void:
 	_time += delta
-	for node in get_tree().get_nodes_in_group(SWAY_GROUP):
+	if not _cache_built:
+		_cache_built = true
+		_sway_cache = get_tree().get_nodes_in_group(SWAY_GROUP)
+		_bob_cache = get_tree().get_nodes_in_group(BOB_GROUP)
+		_spin_cache = get_tree().get_nodes_in_group(SPIN_GROUP)
+	for node in _sway_cache:
 		if not is_instance_valid(node):
 			continue
 		var amp: float = float(node.get_meta("sway_amp", 0.02))
@@ -188,7 +197,7 @@ func _process(delta: float) -> void:
 		var base_z: float = float(node.get_meta("sway_base_z", 0.0))
 		node.rotation.x = base_x + sin(_time * speed + phase) * amp
 		node.rotation.z = base_z + cos(_time * speed * 0.83 + phase * 1.7) * amp * 0.7
-	for node in get_tree().get_nodes_in_group(BOB_GROUP):
+	for node in _bob_cache:
 		if not is_instance_valid(node):
 			continue
 		var amp: float = float(node.get_meta("bob_amp", 0.3))
@@ -196,7 +205,7 @@ func _process(delta: float) -> void:
 		var phase: float = float(node.get_meta("bob_phase", 0.0))
 		var base_y: float = float(node.get_meta("bob_base_y", 0.0))
 		node.position.y = base_y + sin(_time * speed + phase) * amp
-	for node in get_tree().get_nodes_in_group(SPIN_GROUP):
+	for node in _spin_cache:
 		if not is_instance_valid(node):
 			continue
 		node.rotation.y += delta * float(node.get_meta("spin_speed", 0.45))

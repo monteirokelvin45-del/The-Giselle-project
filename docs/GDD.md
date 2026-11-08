@@ -1275,3 +1275,24 @@ crescem se tu quiseres — «cidade com 79 pessoas» não é o mesmo que
 continuam 14 (legíveis, memoráveis). A densidade sonora do Vale
 (ferreiro, choro de criança, chamadas de mercado) é o próximo degrau,
 não posta aqui.
+
+## 54. Quietudes invisíveis (v1.15, 2026-11-09)
+
+Diz um velho da Academia que «a diferença entre um jogo bom e um jogo
+liso não é o que se vê — é o que se deixou de fazer à toa».
+
+**O que mudou e o jogador não nota** (e não deve notar): a vegetação
+balança na mesma frequência, mas ninguém a procura na árvore a cada
+frame; o rótulo de status elemental fala a cada pausa de respirar, e
+não a cada batida do coração; o nome do alvo, o relógio, o combo e o
+prompt só reescrevem-se quando mudam. Zero cor, zero coragem removida,
+zero colisão no meio das pernas.
+
+**Porquê existir este capítulo:** qualidade e performance em projetos
+pequenos morrem de detalhe abandonado, não de grandeza mal arquitetada.
+Este capítulo existe para que a próxima pessoa a olhar para o motor
+saiba onde já foram cortados os caminhozinhos de truta — e sinta-se
+autorizada a cortar outros, desde que o gate fale.
+
+**Estado honesto.** F5 é teu veredito — o CI só prova estrutura. Se no
+teu telemóvel «não muda nada», é exatamente o sucesso esperado.

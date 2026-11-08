@@ -185,6 +185,8 @@ var _notif_queue: Array[String] = []
 var _notif_time := 0.0
 var _time := 0.0
 var _player_cache: Node3D = null
+var _status_timer: float = 0.0
+var _text_cache: Dictionary = {}
 var _enemy_hp_bar: ProgressBar
 var _hit_marker: Label
 var _combo_label: Label
@@ -780,7 +782,10 @@ func _process(delta: float) -> void:
 		_stamina_bar.max_value = max_st
 		_stamina_bar.value = clampf(float(p.get("stamina")), 0.0, max_st)
 		_rupture_bar.value = GameState.rupture
-		_refresh_status_label()
+		_status_timer -= delta
+		if _status_timer <= 0.0:
+			_status_timer = 0.2
+			_refresh_status_label(p)
 		_rupture_ready.visible = GameState.rupture >= 100.0
 		if _rupture_ready.visible:
 			_rupture_ready.modulate.a = 0.6 + 0.4 * sin(_time * 6.0)
@@ -799,7 +804,7 @@ func _process(delta: float) -> void:
 		var locked: Node3D = p.get("locked_enemy")
 		if locked != null and is_instance_valid(locked):
 			_posture_box.visible = true
-			_enemy_name_label.text = tr(String(locked.get("display_name")))
+			_set_text(_enemy_name_label, tr(String(locked.get("display_name"))))
 			var max_e_hp := float(locked.get("max_hp"))
 			if max_e_hp > 0.0:
 				_enemy_hp_bar.value = clampf(float(locked.get("hp")) / max_e_hp * 100.0, 0.0, 100.0)
@@ -822,14 +827,16 @@ func _process(delta: float) -> void:
 		var world_t := GameState.world_day_t
 		var daylight_now := clampf(sin(world_t * PI), 0.0, 1.0)
 		var is_night_now := daylight_now < 0.22
-		_clock_label.text = tr("☾ NOITE") if is_night_now else tr("☀ DIA")
-		_clock_label.add_theme_color_override("font_color", Color(0.68, 0.7, 0.98) if is_night_now else Color(0.95, 0.85, 0.55))
+		if _text_cache.get("_clock") != is_night_now:
+			_text_cache["_clock"] = is_night_now
+			_clock_label.text = tr("☾ NOITE") if is_night_now else tr("☀ DIA")
+			_clock_label.add_theme_color_override("font_color", Color(0.68, 0.7, 0.98) if is_night_now else Color(0.95, 0.85, 0.55))
 		# Contador de combo
 		var combo := 0
 		if p.get("_combo") != null:
 			combo = int(p.get("_combo"))
 		if combo >= 2:
-			_combo_label.text = "×%d" % combo
+			_set_text(_combo_label, "×%d" % combo)
 			_combo_label.modulate.a = 1.0
 		else:
 			_combo_label.modulate.a = maxf(0.0, _combo_label.modulate.a - 4.0 * delta)
@@ -852,7 +859,7 @@ func _process(delta: float) -> void:
 		# Prompt de interação
 		var target: Node3D = p.get("current_interactable")
 		if target != null and is_instance_valid(target) and target.has_method("get_prompt"):
-			_prompt_label.text = tr(target.get_prompt())
+			_set_text(_prompt_label, tr(target.get_prompt()))
 			_prompt_label.visible = not is_blocking() and not Dialogue.active
 		else:
 			_prompt_label.visible = false
@@ -1579,12 +1586,21 @@ func _build_credits_text() -> String:
 	return "\n".join(lines)
 
 ## v1.8: statuses elementais do inimigo mais próximo (HUD de uma linha).
-func _refresh_status_label() -> void:
-	if _status_label == null:
+func _set_text(label: Label, text: String) -> void:
+	if label == null:
 		return
-	var p := get_tree().get_first_node_in_group("player")
+	var id := label.get_instance_id()
+	if _text_cache.get(id) == text:
+		return
+	_text_cache[id] = text
+	label.text = text
+
+func _refresh_status_label(player: Node3D = null) -> void:
+	var p: Node3D = player
 	if p == null:
-		_status_label.text = ""
+		p = get_tree().get_first_node_in_group("player")
+	if p == null:
+		_set_text(_status_label, "")
 		return
 	var nearest: Node3D = null
 	var best := 12.0
@@ -1596,4 +1612,5 @@ func _refresh_status_label() -> void:
 		if d.length() < best:
 			best = d.length()
 			nearest = e
-	_status_label.text = "" if nearest == null else String(nearest.call("element_status_list_flat"))
+	_set_text(_status_label, "" if nearest == null else String(nearest.call("element_status_list_flat")))
+

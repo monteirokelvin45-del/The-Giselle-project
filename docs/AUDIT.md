@@ -1226,3 +1226,44 @@ v1.9→v1.14 (disciplinas vivas, mundo povoado, ecos regionais, multidão
 passam a refletir v1.9→v1.14, com o delta honesto dos gates e os gaps
 atuais (interiores/Veyra/Camada 2/enemy_discipline pendentes da palavra
 do dono — nada foi decidido). Merge continua exclusivo do dono.
+
+## 34. v1.15 «Caminhos quentes» + incidente de re-provisionamento (2026-11-09)
+
+**Incidente (honesto, sem drama).** No início da ronda v1.15 o sandbox
+re-provisionou o workspace: `.git` voltou ao commit inicial (`9b6a63a`,
+arquivo «Initial commit») e todo o conteúdo ficou **untracked**
+(clone fresco de `main` = README de 1 linha). Nenhum ficheiro de conteúdo
+se perdeu; apenas os metadados git local. **Evidência de que o remoto
+estava são:** `git ls-remote origin` mostrou `refs/heads/arena/498f65a7-the-giselle-project` = `09f5fbd`, `refs/pull/1/head` = mesmo; `refs/pull/1/merge` = `bb8f403`.
+**Recuperação (avaliável ao §27 — nunca `--hard`):**
+`git fetch origin arena/498f65a7…` → `git reset --mixed 09f5fbd…`
+→ `git status` limpo, `git diff origin/…` vazio. Descartados §§
+anteriores nunca foram tocados (HEAD voltou exatamente a `09f5fbd`).
+
+**v1.15 — qualidade & perf em caminhos quentes.** Fotografia medida:
+- `ambience.gd._process` fazia **3 × `get_nodes_in_group()` por frame**
+  (cada um aloca um Array novo e varre a árvore) — agora: cache lazy de
+  1 construção + guardas `is_instance_valid` preservadas; a lista de
+  vegetação é estática por cena (cache válido para o ciclo de vida da
+  cena). Zero scans/frame.
+- `ui.gd._refresh_status_label()` corria **a cada frame** e dentro dele
+  `get_first_node_in_group("player")` + varredura O(n-em-grupo-enemy)
+  + `call("element_status_list_flat")` — agora: compilador de 4 Hz
+  (`_status_timer` 0.2 s), jogador reutilizado do cache `_player_cache`,
+  `_set_text` com guarda de alteração.
+- 4 `.text =` **por frame** com strings idênticas (nome do alvo,
+  relógio DIA/NOITE, contador de combo, prompt) — agora via `_set_text`
+  (change-detect). O relógio também passa a só tocar
+  `add_theme_color_override` quando o estado muda (evita theme-entry
+  churn no Theme diário).
+- DO QUE NÃO TOQUEI: `_notif_label`, subtitles e "GOLPEIA AGORA" já são
+  event-driven/temporizados; `player.gd`/`enemy.gd` usam os mesmos
+  grupos apenas em ações de combate (não por frame).
+
+**Validação:** `validate.py` integral ✓ (venv recriada — `/tmp/gvenv`
+sumiu entre sessões; 5/5 verde). Smoke do CI (boot das 5 cenas) continua
+o veredito de engine; sandbox não tem binário Godot.
+
+**Nada de gameplay mudou.** Estes caminhos só alteram frequência de
+trabalho já existente — nenhum frame renderizado, nenhuma animação,
+nenhum input foi acelerado — apenas nada é refeito à toa.
