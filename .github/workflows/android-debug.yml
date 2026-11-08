@@ -49,12 +49,20 @@ jobs:
           "${GODOT_BIN}" --version
       - name: Descarregar export templates (grande)
         run: |
-          curl -fL -o /tmp/templates.tpz --retry 5 --retry-delay 20 --retry-all-errors \
-            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_TEMPLATES}"
-          TEMPLATES_SIZE=$(stat -c%s /tmp/templates.tpz)
-          echo "templates.tpz: ${TEMPLATES_SIZE} bytes"
-          if [ "${TEMPLATES_SIZE}" -lt 400000000 ]; then
-            echo "templates demasiado pequeno — provável falha de descarga"; exit 1
+          URL1="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_TEMPLATES}"
+          URL2="https://downloads.tuxfamily.org/godotengine/${GODOT_VERSION}/${GODOT_TEMPLATES}"
+          rm -f /tmp/templates.tpz
+          for url in "$URL1" "$URL2"; do
+            echo ":: group::fonte: $url"
+            if curl -fL -C - --retry 3 --retry-delay 10 --retry-all-errors --max-time 1500 -o /tmp/templates.tpz "$url"; then
+              echo "descarga OK de $url"; echo "::endgroup::"; break
+            fi
+            echo "fonte falhou — tentar próxima"; echo "::endgroup::"; rm -f /tmp/templates.tpz
+          done
+          TEMPLATE_SIZE=$(stat -c%s /tmp/templates.tpz 2>/dev/null || echo 0)
+          echo "templates.tpz: ${TEMPLATE_SIZE} bytes"
+          if [ "${TEMPLATE_SIZE}" -lt 400000000 ]; then
+            echo "templates demasiado pequeno — descarga falhou nas duas fontes"; exit 1
           fi
           mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
           unzip -o /tmp/templates.tpz -d "$HOME/.local/share/godot/export_templates/4.7.2.stable" --strip-components=1
