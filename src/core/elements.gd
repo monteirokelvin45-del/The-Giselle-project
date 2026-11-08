@@ -66,11 +66,11 @@ const REACTION_NAMES := {
 	"herda_vazio": "Herda do Vazio",
 }
 
-static func discipline_name(id: String) -> String:
-	return tr(DISCIPLINE_NAMES.get(id, id))
+static func discipline_key(id: String) -> String:
+	return DISCIPLINE_NAMES.get(id, id)
 
-static func reaction_name(id: String) -> String:
-	return tr(REACTION_NAMES.get(id, id))
+static func reaction_key(id: String) -> String:
+	return REACTION_NAMES.get(id, id)
 
 static func discipline_color(id: String) -> Color:
 	var hex := String(disciplines().get(id, {}).get("color", "#FFFFFF"))

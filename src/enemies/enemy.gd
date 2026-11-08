@@ -490,7 +490,7 @@ func element_status_list_flat() -> String:
 	for id in _statuses.keys():
 		var def := Elements.status_def(id)
 		var disc := String(def.get("discipline", "cinetica"))
-		parts.append(Elements.discipline_name(disc) + " " + str(int(float(_statuses[id]))) + "s")
+		parts.append(tr(Elements.discipline_key(disc)) + " " + str(int(float(_statuses[id]))) + "s")
 	parts.sort()
 	return " · ".join(parts)
 
@@ -548,7 +548,7 @@ func _resolve_reaction(reaction: Dictionary) -> void:
 		away.y = 0.0
 		if away.length() > 0.01:
 			velocity += away.normalized() * pushf
-	GameState.notify(tr("Reação: %s") % Elements.reaction_name(String(reaction.get("id", "vapor_veyra"))))
+	GameState.notify(tr("Reação: %s") % tr(Elements.reaction_key(String(reaction.get("id", "vapor_veyra")))))
 
 func _nearest_ally_of_type(type: String, max_dist: float) -> Node3D:
 	var best: Node3D = null
