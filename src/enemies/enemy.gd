@@ -80,6 +80,8 @@ var _slam_timer: float = 0.0
 var _player: Node3D = null
 var _anim_t: float = 0.0
 var _dead: bool = false
+var _statuses: Dictionary = {}    # v1.8 — id do status → segundos restantes
+var _stealth_t: float = 0.0       # v1.8 — Eclipse de um Segundo: cego a «lumina_revelado»
 var _anim_player: AnimationPlayer = null
 var _anim_lock: float = 0.0
 var _cast_windup: float = 0.0
@@ -448,6 +450,7 @@ func _physics_process(delta: float) -> void:
 	if not far_mode:
 		_update_enemy_anim(delta)
 	move_and_slide()
+	_tick_statuses(delta)
 
 ## ---------------- v1.8 «As Seis Disciplinas» — statuses e reações ----------------
 ## Statuses vivem no inimigo como a postura; qualquer fonte aplica via
@@ -456,6 +459,8 @@ func element_apply_status(id: String) -> bool:
 	var def := Elements.status_def(id)
 	if def.is_empty():
 		return false
+	if id == "lumina_revelado" and _stealth_t > 0.0:
+		return false    # Eclipse de um Segundo: cloakado contra o Revelado
 	var disc := String(def.get("discipline", ""))
 	var reaction: Dictionary = {}
 	for active_id in _statuses.keys():
@@ -496,6 +501,8 @@ func element_status_list_flat() -> String:
 	return " · ".join(parts)
 
 func _tick_statuses(delta: float) -> void:
+	if _stealth_t > 0.0:
+		_stealth_t = maxf(0.0, _stealth_t - delta)
 	if _statuses.is_empty():
 		return
 	var expired: Array[String] = []
