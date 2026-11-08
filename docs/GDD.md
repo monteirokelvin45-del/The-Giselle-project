@@ -1131,3 +1131,29 @@ modifiers do JSON têm design claro: `slow_mult` no movimento, `blocks_regen`
 no `_tick_regen`, `crit_mult` no roll de dano, `posture_taken_mult` no
 `posture -= pd * mult`. Nada disto foi feito; está documentado para não
 perdido — ver ELEMENTOS-DESIGN.md e AUDIT §26.
+
+## 49. As Disciplinas Vivas (v1.9, 2026-11-09)
+
+**O quê.** O mínimo desenhado-e-não-ligado da v1.8 vira consumidor real:
+quão real «real» é, nos termos do JSON — cada modifier tem agora um
+consumidor concreto ou é honestamente declarado morto.
+
+**O que foi ligado (e os números):** Saturação Hídrica (0.75 velocidade)
+atua nos dois sítios de movimento; Carga Cinética (1.3 postura) eleva todo
+o dano de postura recebido; Revelado Lúmina (2.0×) torna todo o dano ao
+alvo revelado um crítico garantido (o crítico "inevitável do
+Lúmina" do canon); Oculto Umbral silencia o FX do cast de cinza/brasa
+(o conjurador conjura em silêncio).
+
+**O que não foi ligado (com freguês honesto):** `blocks_regen` — inimigos
+não regeneram; `slow_mult` não toca na esquiva/parry (são do jogador);
+nenhum destes multiplicadores afeta a postura quando ela já está em
+stun/quebra; Validação PT do jogador nada muda — statuses vivem nos
+inimigos, como o GDD exige.
+
+**Estado honesto.** CI verde em `de1e943` (`42510831784`). **Gaps de
+sempre pedidos por decisão de design:** fontes in-game para as quatro
+disciplinas sem fonte, Kael imbuído (camada 2), uso adversarial pelos
+inimigos (camada 3) — cada um deles é uma pergunta tua (nomes visíveis,
+camada, glifos), não uma tarefa silenciosa minha. Enquanto a resposta não
+vier, a v1.9 fecha aqui e está livre para jogar.

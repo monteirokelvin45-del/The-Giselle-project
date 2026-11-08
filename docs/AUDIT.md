@@ -936,3 +936,53 @@ todas as fases). O que aprendemos, sem maquilhagem:
 - O balanceamento (dot 6, radius 2.5, push 5.0, mult 3.0 do Revelado vs
   iFrames da esquiva) é numérico de intuição; a telemetria do aparelho
   (F5 do dono) manda.
+
+## 27. v1.9 «As Disciplinas Vivas» + incidente local de `.git` — 2026-11-09
+
+**O quê.** Fase aberta pelo dono («continua») — botão só do que já estava
+especificado no JSON das disciplinas, sem invenção de sistemas. Entregue:
+
+- `slow_mult` (Hídrica 0.75): velocidade escalada nos dois sítios de
+  movimento de `enemy.gd` (abordagem normal e rush/elite com 18% de
+  pressa).
+- `posture_taken_mult` (Cinética 1.3): multiplicador aplicado em todo o
+  intake de postura (`take_damage`, `take_posture`, dano de postura de
+  reação).
+- `crit_mult` (Lúmina 2.0): o dano a um alvo revelado é crítico
+  garantido — o funil `take_damage` multiplica por 2.0.
+- `silence_fx` (Umbral): o conjurador mantém o cast, mas sem o burst de
+  efeito visual enquanto ocultado (silêncio = sem FX, conforme a
+  semântica do status).
+- `blocks_regen` (Vital): **sem consumidor** — os inimigos nunca tiveram
+  regeneração de vida; o modifier fica documentado, não fingido.
+- +2 asserts no smoke (postura sofrida ×1.3; dano ×2 sob Revelado).
+
+**Verificação:** CI push `42510831784` em `de1e943` **success**
+(validate · boot 5 cenas · i18n · smoke com os 13 asserts v1.8/v1.9 ·
+stress · flows).
+
+**O que continua fora (decisão do dono, ver ELEMENTOS-DESIGN.md §6):**
+(a) fontes in-game para Ígnea/Hídrica/Vital/Umbral — a camada
+«Kael imbuído» (v1.9+ do design) exige a tua confirmação e as três
+perguntas do doc (nomes visíveis / 3 reações núcleo / glifos vs texto);
+(b) `enemy_discipline()` está no JSON e em código, mas ensinar os
+inimigos a usar as disciplinas deles (aura de carga, cast que se aplica,
+disciplina em morte) é decisão de design, não de implementação oportuna;
+(c) afinidade de arma / runas Arte — camada 3, fora de escopo;
+(d) a postura dos papéis inimigos (Mago de Cinza com Umbral só visual)
+— ver cap. 48 gaps.
+
+**Incidente local de `.git` (2026-11-08/09).** Durante esta iteração o
+`.git` LOCAL do repositório foi externo-mente reposto: o índice ficou com
+1 entrada, `HEAD` apontado para a base `9b6a63a` e o grafo local
+«perdeu» os 74 commits de trabalho — enquanto o REMOTO permaneceu
+íntegro (CI green, PR #1 intacto, tudo pusheado). Diagnóstico: `git fetch`
+recuperou exatamente o tip `1172f73` (mesmo CI verde), e `git reset
+--mixed` restaurou o índice sem tocar no disco — zero perda de trabalho,
+nenhum ficheiro foi reescrito. Lição reforçada: **o remoto é o repo; o
+local é cache** — pushes frequentes (o que esta branch faz de forma
+disciplinada) tornaram a recuperação trivial. Nota para o próximo agente:
+se `.git` local parecer vazio/estado-base de repente, NÃO manipular
+ficheiros — primeiro `git remote -v` + `ls-tree -r origin/<branch>`,
+depois `fetch` + `reset --mixed` para o remoto, nunca `reset --hard`
+cego.
