@@ -1106,3 +1106,34 @@ formação de multidão/fluxo); e o campus novo é algo mais «turma em vez de
 cidade» — quem quiser multidão com vida real nas ruas (mercadorias,
 animações, ritmo de dia/noite do Vale) está no capítulo 48+ desta fila.
 CI: 1 run agrupado.
+
+## 31. v1.13 «Multidão plena» — 2026-11-09
+
+**Dono:** «Na verdade aumenta mais, alunos na academia, professores ~125,
+em cada cidade ~79.» Completado.
+
+**Entrega.** Const CLUSTERS alargados para áreas de circulação:
+- **Academia:** 5 → 14 clusters; **117 figurantes** (em 5 pilares
+  KayKit, determinísticos) + 8 vozes nomeados = **~125** no campus,
+  como pedido.
+- **Vale de Noro:** 7 → 12 clusters; **73 figurantes** + 6 aldeões =
+  **79** na única cidade do projeto. Ruínas do planalto de Aer não são
+  «cidade» (figura de expedição); abismo e regiões seguem sem populações
+  — correto para a geografia amoral que pediram.
+- Custos por frame: zero alterações/extras — crowd segue sem colisores
+  nem raycasts; apenas mais instâncias no mesmo frame.
+
+**Riscos registados honestamente:**
+- **Android budget físico**: ~190 instâncias de personagem KayKit
+  visíveis no campus no viewport mais denso; se algum dos teus telemóveis
+  engasgar, a alavanca é `wander_radius`/`count` por cluster — não há
+  refactor de física envolvido.
+- **Renderização**: KayKit glTF instancia as mesmas texturas/packs;
+  sem instância por personagem, custo ≈ uniformes + vértices. F5 do dono
+  decide.
+- Cenas que cruzam clusters com props/barrilzões perfazem menos tráfego
+  que passar para multidão real com linhas de vida — para isso há
+  conteúdo futuro.
+
+**Estado:** validate integral ✓. CI 1 run agrupado. Merge do PR #1 é
+exclusivo do dono.

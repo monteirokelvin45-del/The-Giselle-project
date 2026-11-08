@@ -240,15 +240,25 @@ func _build_npcs() -> void:
 		npc.position = d["pos"]
 		add_child(npc)
 
-## Multidão do campus: 22 figurantes de fundo — pátio central, jardins,
-## imediações da forja, entrada. Não interagem; determinísticos por SEED.
+## Multidão do campus: 117 figurantes (alunos e professores de fundo) em
+## 14 clusters — pátio, jardins, forja, horta, entrada e zona norte.
+## Não interagem; determinísticos por SEED. Total no campus: 125.
 func _build_crowd() -> void:
 	const CLUSTERS := [
-		{"center": Vector3(0.0, 0.3, 0.0), "radius": 6.0, "count": 6},
-		{"center": Vector3(19.0, 0.3, 17.0), "radius": 4.5, "count": 4},
-		{"center": Vector3(-13.0, 0.3, 7.0), "radius": 3.6, "count": 4},
-		{"center": Vector3(-25.0, 0.3, 7.0), "radius": 4.6, "count": 4},
-		{"center": Vector3(1.5, 0.3, 26.0), "radius": 4.0, "count": 4},
+		{"center": Vector3(0.0, 0.3, 0.0), "radius": 8.0, "count": 12},
+		{"center": Vector3(19.0, 0.3, 17.0), "radius": 6.5, "count": 10},
+		{"center": Vector3(-13.0, 0.3, 7.0), "radius": 5.0, "count": 9},
+		{"center": Vector3(-25.0, 0.3, 7.0), "radius": 6.5, "count": 10},
+		{"center": Vector3(1.5, 0.3, 26.0), "radius": 5.5, "count": 8},
+		{"center": Vector3(0.0, 0.3, -11.0), "radius": 5.0, "count": 9},
+		{"center": Vector3(14.0, 0.3, -6.0), "radius": 4.5, "count": 8},
+		{"center": Vector3(12.0, 0.3, 28.0), "radius": 4.5, "count": 8},
+		{"center": Vector3(-20.0, 0.3, 20.0), "radius": 4.5, "count": 8},
+		{"center": Vector3(-6.0, 0.3, 18.0), "radius": 4.5, "count": 8},
+		{"center": Vector3(6.0, 0.3, 10.0), "radius": 4.0, "count": 9},
+		{"center": Vector3(22.0, 0.3, 8.0), "radius": 4.0, "count": 6},
+		{"center": Vector3(-14.0, 0.3, -4.0), "radius": 4.0, "count": 6},
+		{"center": Vector3(-27.0, 0.3, 14.0), "radius": 4.0, "count": 6},
 	]
 	var palettes := [Color(0.4, 0.36, 0.48), Color(0.34, 0.4, 0.36), Color(0.44, 0.4, 0.32), Color(0.36, 0.32, 0.42), Color(0.5, 0.44, 0.38)]
 	var crng := RandomNumberGenerator.new()

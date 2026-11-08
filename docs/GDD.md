@@ -1249,3 +1249,29 @@ simples: **a cidade parece uma cidade**.
 **Estado honesto.** Vale e campus vivas nas memórias do renderer (não há
 persistência entre visitas — o wander é determinístico e local). Zero
 perfide de progressão. Zero assets. CI e validate acima dos próprios pés.
+
+## 53. Multidão plena (v1.13, 2026-11-09)
+
+**O quê.** Pedido direto do dono, a palavra dele preservada: academia
+(«~125, alunos e professores») e cada cidade («~79»). Noro é a única
+cidade do projeto — o campus é campus — e ambas agora habitam **ao nível
+do teu pedido**.
+
+**Os números reais:**
+- **Academia:** 117 figurantes de fundo + 8 vozes nomeados (Nina, Ennio,
+  os mestres de sempre) = **125 no campus**.
+- **Vale de Noro:** 73 figurantes + 6 aldeões nomeados = **79 na cidade**.
+- Regiões de expedição e o Abismo seguem **vazios de multidão** — são
+  fronteira, ruína e fronteira do mundo — e isso é honesto com a prosa
+  do mundo, não falta.
+
+**Como ninguém disso derruba o motor:** figurantes são KayKit instancia,
+zero colliders, zero raycasts — só vértices e um anel curto de caminhada.
+Nenhum peso de combate. nenhum menu «Fala comigo» grudado em cada ombro.
+
+**Estado honesto.** Anda como v1.12, apenas mais dele. Os nomeados
+crescem se tu quiseres — «cidade com 79 pessoas» não é o mesmo que
+«cidade com 79 vozes»: 79 figurantes são cenário; os que falam
+continuam 14 (legíveis, memoráveis). A densidade sonora do Vale
+(ferreiro, choro de criança, chamadas de mercado) é o próximo degrau,
+não posta aqui.

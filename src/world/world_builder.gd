@@ -489,18 +489,23 @@ func _build_landmarks() -> void:
 ## Acampamento abandonado no limite da floresta: o primeiro sinal vivo de
 ## que a mata "tem dono" — ninguém mora ali, alguém já ali morou. Só props
 ## existentes + primitivos (zero assets novos, zero referências mortas).
-## Multidão do Vale: 28 figurantes de fundo nas áreas de maior fluxo —
-## mercado, poço, praça, taverna, forja, igreja e estrada de entrada.
-## Não interagem; determinísticos por SEED própria.
+## Multidão do Vale: 73 figurantes de fundo em 12 clusters pelas áreas
+## de maior fluxo — mercado, poço, praça, taverna, forja, igreja, entrada,
+## ruelas e estradas. Não interagem; determinísticos por SEED própria.
 func _build_crowd() -> void:
 	const CLUSTERS := [
-		{"center": Vector3(6.0, 0.0, 27.0), "radius": 3.4, "count": 5},
-		{"center": Vector3(0.0, 0.0, 31.5), "radius": 2.6, "count": 4},
-		{"center": Vector3(-6.5, 0.0, 29.5), "radius": 2.2, "count": 4},
-		{"center": Vector3(11.5, 0.0, 37.0), "radius": 2.4, "count": 5},
-		{"center": Vector3(-9.5, 0.0, 25.0), "radius": 1.8, "count": 3},
-		{"center": Vector3(-8.0, 0.0, 6.8), "radius": 2.6, "count": 3},
-		{"center": Vector3(1.5, 0.0, 8.0), "radius": 2.8, "count": 4},
+		{"center": Vector3(0.0, 0.0, 31.5), "radius": 5.5, "count": 8},
+		{"center": Vector3(6.0, 0.0, 27.0), "radius": 5.0, "count": 8},
+		{"center": Vector3(-6.5, 0.0, 29.5), "radius": 4.5, "count": 6},
+		{"center": Vector3(11.5, 0.0, 37.0), "radius": 4.5, "count": 7},
+		{"center": Vector3(-9.5, 0.0, 25.0), "radius": 3.2, "count": 4},
+		{"center": Vector3(-8.0, 0.0, 6.8), "radius": 4.5, "count": 6},
+		{"center": Vector3(1.5, 0.0, 8.0), "radius": 5.0, "count": 8},
+		{"center": Vector3(7.0, 0.0, 23.0), "radius": 4.0, "count": 6},
+		{"center": Vector3(-3.0, 0.0, 36.0), "radius": 5.0, "count": 6},
+		{"center": Vector3(-4.0, 0.0, 34.0), "radius": 4.5, "count": 5},
+		{"center": Vector3(5.0, 0.0, 40.5), "radius": 4.0, "count": 5},
+		{"center": Vector3(-1.0, 0.0, 20.0), "radius": 4.0, "count": 4},
 	]
 	var palettes := [Color(0.52, 0.38, 0.28), Color(0.35, 0.42, 0.35), Color(0.42, 0.34, 0.5), Color(0.5, 0.46, 0.32), Color(0.36, 0.38, 0.44), Color(0.55, 0.48, 0.4)]
 	var crng := RandomNumberGenerator.new()
