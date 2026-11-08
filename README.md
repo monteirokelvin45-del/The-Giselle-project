@@ -7,7 +7,7 @@
 **RPG de ação em terceira pessoa, de mundo aberto, sobre um rapaz sem magia num mundo que adora magia.**
 Um Vazio que vale mais pelos dois braços do que os magos valem pelos Núcleos.
 
-> Estado: **Vertical Slice v0.2** — v0.1 jogável + modelos e animações reais (KayKit, CC0), ver [o que mudou na v0.2](#o-que-mudou-na-v02).
+> Estado: **v1.14 — mundo auditado** («Auditoria integral»), branch `arena/498f65a7-the-giselle-project` — [o que mudou na v1.9→v1.14](#o-que-mudou-na-v19-v114-2026-11-09).
 
 ---
 
@@ -109,6 +109,32 @@ Para testar o esquema no PC, põe `const FORCE_TOUCH := true` em `src/mobile/tou
   feixe rotativo no farol de Lume e ilhas flutuantes leves — cap. 42 GDD.
 - **QA humano**: checklist obrigatória em `docs/PLAYTEST.md` (F5, GPU, Android,
   QA nativo) — nada disso pode ser substituído por CI.
+
+## O que mudou na v1.9→v1.14 (2026-11-09)
+
+- **v1.9 «Disciplinas Vivas»** — elementos de verdade no mundo (Cinética e Lúmina
+  com fontes; Ruptura AoE, Ferida, glow; dados em `balance/elements.json`), HUD.
+- **v1.10 «O mundo respira»** — a aldeia de Noro e o campus ganham vozes: +6 aldeões
+  no Vale (Berta, Renzo, Otávio, Lia, Betinha, Silas) +2 no campus (Nina, Ennio);
+  **escalas dos edifícios KayKit medidas e corrigidas** (accessor min/max dos GLTF —
+  «casas a 0.5 m» acabaram); bigorna procedural no lugar do ícone em falta;
+  acampamento abandonado na floresta.
+- **v1.11 «O eco das regiões»** — uma voz solitária por região de expedição:
+  Hex (Ruun), Zafira (Sahr), Dane (Khar), Cafu (Lume), Urik (Aer), Mira (Orun/Abismo) —
+  a alma de cada lugar, sem quests inventadas.
+- **v1.12/v1.13 «Multidão» / «Multidão plena»** — figurantes KayKit determinísticos
+  (sem interação, sem colliders, zero raycasts extra): **73** no Vale + 6 vozes = **79**;
+  **117** no campus + 8 vozes = **125** — os números pedidos pelo dono.
+- **v1.14 «Auditoria integral»** — 1 perf-bug corrigido (lookup de player por figurante
+  por frame → cache de 1 Hz); AUDIT §32 (git/CI/gates/assets/censo numérico:
+  `NPC_MODELS` 25 · `ROOTED_IDS` 16 · `TREES` 65 · CSV 518); ~2 MB de assets órfãos
+  (ex.: `icon_1024.png`, texturas KayKit soltas) **à espera da palavra do dono** —
+  nada apagado.
+- **Fora do jogo, de caso pensado:** interiores de casas/camargo, Veyra, Camada 2
+  (Kael imbuído), `enemy_discipline` — pendentes da palavra do dono do projeto.
+
+Histórico completo das rondas e dos limites honestos de cada uma:
+[`docs/AUDIT.md`](docs/AUDIT.md) (§28–§32) e [`docs/GDD.md`](docs/GDD.md) (cap. 50–53).
 
 ## O que mudou na v0.2
 

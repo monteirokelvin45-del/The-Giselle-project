@@ -1217,3 +1217,12 @@ mesmo commit history; F5 do dono segue veredito).
 bloqueante; 1 perf-bug encontrado e corrigido; 160 assets com ~2 MB de
 sobras órfãs à espera de teu sim; 100 runs de CI na branch (orçamento
 estourado há muito — registado).
+
+## 33. v1.14-doc — README e descrição do PR alinhados à verdade (2026-11-09)
+
+README estava em «Vertical Slice v0.2» — agora declara v1.14 e lista
+v1.9→v1.14 (disciplinas vivas, mundo povoado, ecos regionais, multidão
+ plena 79/125, auditoria e assets órfãos). Título/body do **PR #1**
+passam a refletir v1.9→v1.14, com o delta honesto dos gates e os gaps
+atuais (interiores/Veyra/Camada 2/enemy_discipline pendentes da palavra
+do dono — nada foi decidido). Merge continua exclusivo do dono.
