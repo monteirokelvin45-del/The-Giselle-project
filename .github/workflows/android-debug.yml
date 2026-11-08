@@ -27,11 +27,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Android SDK (barichello image traz o SDK em /usr/local/lib/android/sdk)
+      - name: Android SDK (caminho real da imagem barichello)
         run: |
-          echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
-          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
-          sdkmanager --list 2>&1 | head -5 || true
+          echo "ANDROID_HOME=/usr/lib/android-sdk" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=/usr/lib/android-sdk" >> "$GITHUB_ENV"
+          /usr/lib/android-sdk/platform-tools/adb version 2>&1 | head -2 || true
           godot --version
 
       - name: Keystore debug descartável (só no runner)
@@ -43,25 +43,6 @@ jobs:
           sed -i "s#^keystore/debug=\"\"#keystore/debug=\"${RUNNER_TEMP}/giselle-debug.keystore\"#" export_presets.cfg
           sed -i 's#^keystore/debug_user=""#keystore/debug_user="androiddebugkey"#' export_presets.cfg
           sed -i 's#^keystore/debug_password=""#keystore/debug_password="android"#' export_presets.cfg
-
-      - name: Inspeção do contentor (Android SDK) — falha de propósito e diz tudo
-        run: |
-          {
-            echo "ANDROID_HOME=${ANDROID_HOME:-unset}"
-            echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-unset}"
-            echo "JAVA_HOME=${JAVA_HOME:-unset}"
-            echo "HOME=$HOME USER=$(id -un)"
-            for d in /usr/local/lib/android/sdk /opt/android-sdk /usr/lib/android-sdk /opt/android-sdk-linux /root/Android/Sdk /android-sdk /opt/android-sdk/cmdline-tools/*; do
-              [ -d "$d" ] && echo "DIR: $d -> $(ls "$d" | head -12 | tr '\n' ' ')"
-            done
-            echo "find adb:"; find / -xdev -name adb -type f 2>/dev/null | head -4
-            echo "find apksigner:"; find / -xdev -name apksigner 2>/dev/null | head -4
-            echo "find platforms dir:"; find / -xdev -maxdepth 7 -type d -name "platforms" 2>/dev/null | head -4
-            echo "which sdkmanager: $(command -v sdkmanager || echo none)"
-            echo "which java: $(command -v java || echo none)"
-          } > /tmp/inspect.log 2>&1
-          echo "::error::$(tail -c 1750 /tmp/inspect.log | tr '\n' ' ' | sed 's/::error:://g')"
-          exit 1
 
       - name: Configurar templates e Java SDK para o Godot
         run: |
@@ -76,7 +57,7 @@ jobs:
           ls -la "$DEST/4.7.2.stable" 2>&1 | head -8
           JH=$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")
           mkdir -p "$HOME/.config/godot"
-          printf '[gd_resource type="EditorSettings" format=3]\n[resource]\nexport/android/java_sdk_path="%s"\nexport/android/android_sdk_path="%s"\n' "$JH" "${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" > "$HOME/.config/godot/editor_settings-4.tres"
+          printf '[gd_resource type="EditorSettings" format=3]\n[resource]\nexport/android/java_sdk_path="%s"\nexport/android/android_sdk_path="%s"\n' "$JH" "/usr/lib/android-sdk" > "$HOME/.config/godot/editor_settings-4.tres"
           echo "java_sdk_path: $JH"; cat "$HOME/.config/godot/editor_settings-4.tres"
 
       - name: Import dos recursos + exportação APK
