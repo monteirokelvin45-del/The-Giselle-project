@@ -46,8 +46,14 @@ jobs:
 
       - name: Import dos recursos + exportação APK
         run: |
-          godot --headless --path . --import
-          godot --headless --path . --export-debug "Android" "${RUNNER_TEMP}/AcademiaDoZero-debug.apk"
+          godot --headless --path . --import > /tmp/import.log 2>&1 || {
+            echo "::error::import falhou: $(tail -c 850 /tmp/import.log | tr '\n' ' ' | sed 's/::error:://g')"
+            exit 1
+          }
+          godot --headless --path . --export-debug "Android" "${RUNNER_TEMP}/AcademiaDoZero-debug.apk" > /tmp/export.log 2>&1 || {
+            echo "::error::export falhou: $(tail -c 850 /tmp/export.log | tr '\n' ' ' | sed 's/::error:://g')"
+            exit 1
+          }
           ls -la "${RUNNER_TEMP}/AcademiaDoZero-debug.apk"
 
       - name: Publicar artifact
