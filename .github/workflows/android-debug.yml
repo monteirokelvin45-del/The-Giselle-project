@@ -2,11 +2,18 @@
 ## Descarrega o Godot 4.7.2 + export templates (GitHub releases do godotengine),
 ## gera um keystore DEBUG descartável dentro do runner (NUNCA commitado) e
 ## exporta AcademiaDoZero-debug.apk. O artifact fica 90 dias para download.
-## Só corre manualmente (workflow_dispatch) — não gasta runs a cada push.
+## Dispara em pushes que alterem ESTE ficheiro (é assim que ele arranca a
+## primeira vez — workflow_dispatch só é válido em workflows no branch default)
+## e manualmente. Não gasta runs a cada push.
 name: Android debug APK
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - arena/498f65a7-the-giselle-project
+    paths:
+      - .github/workflows/android-debug.yml
 
 jobs:
   apk:
