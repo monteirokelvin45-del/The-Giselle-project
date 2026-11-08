@@ -1137,3 +1137,83 @@ em cada cidade ~79.» Completado.
 
 **Estado:** validate integral ✓. CI 1 run agrupado. Merge do PR #1 é
 exclusivo do dono.
+
+## 32. Auditoria integral — 2026-11-09 (pedido do dono: «Faça uma auditoria de tudo mesmo»)
+
+Método: git, CI via `gh`, gate `validate.py` (5/5), `gdlint` (rodando
+local, zero runs), varredura assets↔disco (res://, JSON glTF + parse de
+chunks GLB binários), censo real das tabelas do jogo. **Nenhuma decisão
+de design foi tomada aqui.**
+
+**1. Git/repo — saudável.** HEAD == origin (`0111d3d` no momento da
+auditoria), árvore limpa, 79 commits à frente de `main`, +21 514 linhas.
+31 scripts `.gd`, 9 571 linhas. `.git` = 13 MB. `export_presets.cfg`
+commitado (**sem keystore** ✓ — nunca vazar identidade Android no repo).
+
+**2. CI (histórico honesto, via gh).** 100 runs na branch. As 7
+falhas registadas são **todas da era pré-v1.9** (window de restauração
+v1.8: `restore`/`elements.gd`/analyzer + docs refs stale). De v1.9 a v1.13:
+restante verde. Custo acumulado muito acima do guia de ~60 runs — por
+escolha em v1.10 (push+PR trigger, 2 runs contabilizadas) e por re-runs;
+registado sem disfarce.
+
+**3. validate.py — cobertura real.** gdparse em tudo exceto `tools/`;
+res:// refs; main_scene autoloads; `.tscn` ext_resource/sub_resource;
+i18n literal→CSV (PT+EN+ES **e** stale keys). **Não cobre** (aceite,
+documentado): semântica de engine em runtime, fuga do smoke para
+regiões expedição (apenas compilar), FPS fisicos Android.
+
+**4. Achados de código (classificados).**
+- **PERF-BUG (corrigido nesta ronda):** `crowd_person.gd` fazia
+  `get_first_node_in_group("player")` **a cada frame por figurante**
+  (~190 × scan @60 fps). Agora cacheado com retry de 1 Hz + guarda
+  `is_instance_valid`. Commit único desta ronda.
+- **gdlint src/: 636 avisos, nenhum teatro:** 354 max-line-length +
+  186 class-definitions-order (estilo histórico do projeto — custo de
+  churn-dia, valor ~zero), 52 function-preload-variable-name,
+  28 duplicated-load (`preload` repetitivo, sem impacto real — Godot
+  cacheia), 8 no-elif-return, 5 max-returns, 2 max-public-methods,
+  1 max-file-lines. **Corrigir faria barulho sem ganho e violaria o
+  dono-refugo-de-trabalho-não-pedido → ficam para intervenção
+  cosmética, se o dono quiser.**
+- `push_warning` restantes: `balance.json` inválido (fallback interno
+  documentado), Diálogo/Modellos missing com warning (fallback crash-free
+  auditado). Zero `TODO/FIXME/HACK` genuínos.
+
+**5. Assets — o que a auditoria descobriu de facto.**
+- 160 ficheiros em `assets/` (31 MB). Todos os `res://` no código existem
+  ✓ (gate). Referências externas em `.gltf` JSON: 43, **todas presentes**.
+  Imagens em **todos os `.glb` são embutidas (URIs externas = 0)**.
+- **Não referenciados, candidato a limpeza futura (~2 MB, decisão do
+  dono):** `assets/art/icons/icon_1024.png` (master 1K **não ligado** —
+  projeto usa `key_art.jpg` + 192/512/adaptive do trio do launcher,
+  verificado nos dois ficheiros); 5 texturas KayKit soltas
+  (`*_barbarian_texture.png` etc.) e 8 `nature/*_0.png` (restantes do
+  pack — os `.glb` trazem as mesmas texturas embutidas). **Nada foi
+  apagado.**
+- `portraits/*.jpg` e `audio/**.wav`: referências construídas por id/slug
+  em `portraits.gd`/`audio.gd` — **necessários, não mortos** (falsa
+  positiva do grep cru de primeiro dygest, descartada).
+
+**6. Coerência numérica: docs anteriormente diziam errado.**
+Números reais auditados: `NPC_MODELS` = **25**, `ROOTED_IDS` = **16**
+(10 originais + 6 ecos; aldeões wanderers ficam fora por desenho),
+`TREES` = **65**, CSV = **518 chaves / 519 linhas**. O número «22» que
+constava num resumo do handoff estava errado (mistura de MODELS e
+ROOTED); está **corrigido aqui** — não em §28/§29 (histórico exceto
+errata).
+
+**7. project.godot — completo e correto.** GLES3
+(gl_compatibility + .mobile) ✓, stretch `canvas_items/expand` ✓,
+`config/icon` = key_art.jpg ✓, autoloads mínimos (Keymap, Balance,
+GameState, Audio, Dialogue) ✓, áudio/UI via autoload conforme desenho ✓.
+
+**8. Smoke CI**: gateway `.github/workflows/headless-smoke.yml` verde
+com retries; smoke visita o Vale (boot) e o fluxo academia/prova do
+probe — não as regiões expedição (risco residual aceite e revogado no
+mesmo commit history; F5 do dono segue veredito).
+
+**Resumo de uma linha:** repositório são; código sem mortos e sem aviso
+bloqueante; 1 perf-bug encontrado e corrigido; 160 assets com ~2 MB de
+sobras órfãs à espera de teu sim; 100 runs de CI na branch (orçamento
+estourado há muito — registado).

@@ -21,6 +21,8 @@ const MODELS := [
 var _t: float = 0.0
 var _waypoint: Vector3 = Vector3.ZERO
 var _wait: float = 0.0
+var _player: Node3D = null
+var _player_retry: float = 0.0
 var visual: Node3D = null
 
 func _ready() -> void:
@@ -60,10 +62,17 @@ func _process(delta: float) -> void:
 func _face_player_if_close(delta: float) -> void:
 	if visual == null:
 		return
-	var player = get_tree().get_first_node_in_group("player")
-	if player == null:
-		return
-	var to_p = player.global_position - global_position
+	if _player != null and not is_instance_valid(_player):
+		_player = null
+	if _player == null:
+		_player_retry -= delta
+		if _player_retry > 0.0:
+			return
+		_player_retry = 1.0
+		_player = get_tree().get_first_node_in_group("player")
+		if _player == null:
+			return
+	var to_p = _player.global_position - global_position
 	to_p.y = 0.0
 	if to_p.length() < 4.0 and to_p.length() > 0.1:
 		visual.rotation.y = lerp_angle(visual.rotation.y, atan2(to_p.x, to_p.z), 4.0 * delta)
