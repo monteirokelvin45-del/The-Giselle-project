@@ -1267,3 +1267,18 @@ o veredito de engine; sandbox não tem binário Godot.
 **Nada de gameplay mudou.** Estes caminhos só alteram frequência de
 trabalho já existente — nenhum frame renderizado, nenhuma animação,
 nenhum input foi acelerado — apenas nada é refeito à toa.
+
+## 35. APK debug via CI (2026-11-09)
+
+Pedido do dono: «Me passa o apk para eu testar.» O sandbox não tem
+Godot nem Android SDK — solução: **build na runner do GitHub** com
+`.github/workflows/android-debug.yml` (manual, `workflow_dispatch`):
+Godot 4.7.2 + export templates do release oficial
+(`github.com/godotengine/godot`), SDK mínimo garantido por sdkmanager,
+keystore **debug** descartável gerado no runner (nunca commitado —
+senha throwaway `android/android`, assinatura debug apenas).
+
+Descarga: Actions → workflow «Android debug APK» → run mais recente →
+Artifacts → `AcademiaDoZero-android-debug-apk` (retém 90 dias).
+**Não é build de release** — para a loja é precisa keystore própria do
+dono; assinatura de release nunca foi commitada nesta branch.

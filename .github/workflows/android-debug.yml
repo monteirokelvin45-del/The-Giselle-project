@@ -1,0 +1,81 @@
+## CI — Build do APK debug (artifact)
+## Descarrega o Godot 4.7.2 + export templates (GitHub releases do godotengine),
+## gera um keystore DEBUG descartável dentro do runner (NUNCA commitado) e
+## exporta AcademiaDoZero-debug.apk. O artifact fica 90 dias para download.
+## Só corre manualmente (workflow_dispatch) — não gasta runs a cada push.
+name: Android debug APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  apk:
+    name: Export debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      GODOT_VERSION: 4.7.2-stable
+      GODOT_ZIP: Godot_v4.7.2-stable_linux.x86_64.zip
+      GODOT_TEMPLATES: Godot_v4.7.2-stable_export_templates.tpz
+      GODOT_BIN: /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Bibliotecas de sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libfontconfig1 libx11-6 libxcursor1 libxinerama1 libxrandr2 \
+            libxi6 libgl1 libegl1 libglib2.0-0 ca-certificates unzip zip openjdk-17-jdk-headless
+
+      - name: Descarregar Godot ${{ env.GODOT_VERSION }} + export templates
+        run: |
+          curl -sL -o /tmp/godot.zip --retry 5 --retry-delay 15 --retry-all-errors \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_ZIP}"
+          curl -sL -o /tmp/templates.tpz --retry 5 --retry-delay 15 --retry-all-errors \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_TEMPLATES}"
+          mkdir -p /tmp/godot-bin
+          unzip -o /tmp/godot.zip -d /tmp/godot-bin
+          chmod +x "${GODOT_BIN}"
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          unzip -o /tmp/templates.tpz -d "$HOME/.local/share/godot/export_templates/4.7.2.stable" --strip-components=1
+          "${GODOT_BIN}" --version
+
+      - name: Android SDK (componentes mínimos)
+        run: |
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-$ANDROID_HOME}" >> "$GITHUB_ENV"
+          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          export PATH="$SDK/cmdline-tools/latest/bin:$PATH"
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" 2>&1 | tail -5
+          if [ ! -d "$SDK/platforms/android-34" ]; then
+            echo "sdkmanager falhou ao instalar platforms;android-34"
+            echo "plataformas presentes:"; ls "$SDK/platforms" || true
+            exit 1
+          fi
+
+      - name: Keystore debug descartável (só no runner)
+        run: |
+          keytool -genkeypair -keystore "${RUNNER_TEMP}/giselle-debug.keystore" \
+            -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 11000 \
+            -storepass android -keypass android \
+            -dname "CN=Academia do Zero Debug,O=Arena AI,C=MZ"
+          sed -i "s#^keystore/debug=\"\"#keystore/debug=\"${RUNNER_TEMP}/giselle-debug.keystore\"#" export_presets.cfg
+          sed -i 's#^keystore/debug_user=""#keystore/debug_user="androiddebugkey"#' export_presets.cfg
+          sed -i 's#^keystore/debug_password=""#keystore/debug_password="android"#' export_presets.cfg
+          grep "^keystore/debug" export_presets.cfg | sed 's/password=.*/password=«redacted on purpose»/'
+
+      - name: Import dos recursos + exportação APK
+        run: |
+          "${GODOT_BIN}" --headless --path . --import
+          "${GODOT_BIN}" --headless --path . --export-debug "Android" "${RUNNER_TEMP}/AcademiaDoZero-debug.apk"
+          ls -la "${RUNNER_TEMP}/AcademiaDoZero-debug.apk"
+
+      - name: Publicar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AcademiaDoZero-android-debug-apk
+          path: ${{ runner.temp }}/AcademiaDoZero-debug.apk
+          retention-days: 90
+          if-no-files-found: error
