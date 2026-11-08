@@ -3,19 +3,13 @@
 ## tocar em código. Módulo estático (sem autoload): sem estado de cena,
 ## só leitura de JSON cacheada. Não referencia nós; operações de cena
 ## (dano, stun, VFX) vivem em enemy.gd via esta tabela.
-static var _data: Dictionary = {}
-static var _loaded: bool = false
-
 static func data() -> Dictionary:
-	if _loaded:
-		return _data
-	_loaded = true
 	var path := "res://src/balance/elements.json"
 	if FileAccess.file_exists(path):
 		var parsed = JSON.parse_string(FileAccess.get_file_as_string(path))
 		if parsed is Dictionary:
-			_data = parsed
-	return _data
+			return parsed
+	return {}
 
 static func disciplines() -> Dictionary:
 	var d: Variant = data().get("disciplines", {})
@@ -74,4 +68,4 @@ static func reaction_key(id: String) -> String:
 
 static func discipline_color(id: String) -> Color:
 	var hex := String(disciplines().get(id, {}).get("color", "#FFFFFF"))
-	return Color.from_string(hex, Color.WHITE)
+	return Color(hex)
