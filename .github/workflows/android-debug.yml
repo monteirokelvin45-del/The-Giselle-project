@@ -14,95 +14,25 @@ on:
       - arena/498f65a7-the-giselle-project
     paths:
       - .github/workflows/android-debug.yml
-
 jobs:
   apk:
     name: Export debug APK
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 30
+    container:
+      image: barichello/godot-ci:4.7.2
     env:
-      GODOT_VERSION: 4.7.2-stable
-      GODOT_ZIP: Godot_v4.7.2-stable_linux.x86_64.zip
-      GODOT_TEMPLATES: Godot_v4.7.2-stable_export_templates.tpz
-      GODOT_BIN: /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      GODOT_BIN: godot
     steps:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Bibliotecas de sistema
+      - name: Android SDK (barichello image traz o SDK em /usr/local/lib/android/sdk)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            libfontconfig1 libx11-6 libxcursor1 libxinerama1 libxrandr2 \
-            libxi6 libgl1 libegl1 libglib2.0-0 ca-certificates unzip zip openjdk-17-jdk-headless
-
-      - name: Espaço em disco disponível
-        run: df -h /
-      - name: Descarregar Godot ${{ env.GODOT_VERSION }}
-        run: |
-          curl -fL -o /tmp/godot.zip --retry 5 --retry-delay 15 --retry-all-errors \
-            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_ZIP}"
-          ls -la /tmp/godot.zip
-          mkdir -p /tmp/godot-bin
-          unzip -o /tmp/godot.zip -d /tmp/godot-bin
-          chmod +x "${GODOT_BIN}"
-          "${GODOT_BIN}" --version
-      - name: Descarregar export templates por faixas (HTTP Range)
-        run: |
-          set -e
-          URL1="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_TEMPLATES}"
-          URL2="https://downloads.tuxfamily.org/godotengine/4.7.2/${GODOT_TEMPLATES}"
-          CHUNK=48000000
-          download_from() {
-            local URL="$1"
-            echo "fonte: $URL"
-            local TOTAL
-            TOTAL=$(curl -sIL "$URL" | tr -d '\r' | grep -i '^content-length:' | tail -1 | awk '{print $2}')
-            echo "content-length anunciado: ${TOTAL:-desconhecido}"
-            if [ -z "$TOTAL" ] || [ "$TOTAL" -lt 400000000 ]; then
-              echo "tamanho desconhecido/inválido — abortar esta fonte"; return 1
-            fi
-            local N=$(( (TOTAL + CHUNK - 1) / CHUNK ))
-            echo "faixas: $N x ${CHUNK} bytes"
-            rm -f /tmp/part_*
-            local i=0 FROM TO GOT
-            while [ $i -lt $N ]; do
-              FROM=$(( i * CHUNK ))
-              TO=$(( FROM + CHUNK - 1 ))
-              if [ $TO -ge $TOTAL ]; then TO=$(( TOTAL - 1 )); fi
-              curl -fL -sS --retry 3 --retry-delay 5 --retry-all-errors \
-                -r ${FROM}-${TO} -o "/tmp/part_${i}" "$URL" || return 1
-              GOT=$(stat -c%s "/tmp/part_${i}")
-              if [ "$GOT" -ne $(( TO - FROM + 1 )) ]; then
-                echo "faixa $i com tamanho errado ($GOT) — abortar esta fonte"; return 1
-              fi
-              i=$(( i + 1 ))
-              echo "faixa $i/$N ok ($GOT bytes)"
-            done
-            cat /tmp/part_* > /tmp/templates.tpz
-            local SIZE
-            SIZE=$(stat -c%s /tmp/templates.tpz)
-            echo "concatenado: $SIZE bytes (esperado $TOTAL)"
-            [ "$SIZE" -eq "$TOTAL" ] || { echo "tamanho final != anunciado"; return 1; }
-            echo "descarga completa OK"
-          }
-          download_from "$URL1" || download_from "$URL2"
-          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
-          unzip -o /tmp/templates.tpz -d "$HOME/.local/share/godot/export_templates/4.7.2.stable" --strip-components=1
-          ls "$HOME/.local/share/godot/export_templates/4.7.2.stable" | head -8
-
-      - name: Android SDK (componentes mínimos)
-        run: |
-          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-$ANDROID_HOME}" >> "$GITHUB_ENV"
-          SDK="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
-          export PATH="$SDK/cmdline-tools/latest/bin:$PATH"
-          yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" 2>&1 | tail -5
-          if [ ! -d "$SDK/platforms/android-34" ]; then
-            echo "sdkmanager falhou ao instalar platforms;android-34"
-            echo "plataformas presentes:"; ls "$SDK/platforms" || true
-            exit 1
-          fi
+          echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}" >> "$GITHUB_ENV"
+          sdkmanager --list 2>&1 | head -5 || true
+          godot --version
 
       - name: Keystore debug descartável (só no runner)
         run: |
@@ -113,12 +43,11 @@ jobs:
           sed -i "s#^keystore/debug=\"\"#keystore/debug=\"${RUNNER_TEMP}/giselle-debug.keystore\"#" export_presets.cfg
           sed -i 's#^keystore/debug_user=""#keystore/debug_user="androiddebugkey"#' export_presets.cfg
           sed -i 's#^keystore/debug_password=""#keystore/debug_password="android"#' export_presets.cfg
-          grep "^keystore/debug" export_presets.cfg | sed 's/password=.*/password=«redacted on purpose»/'
 
       - name: Import dos recursos + exportação APK
         run: |
-          "${GODOT_BIN}" --headless --path . --import
-          "${GODOT_BIN}" --headless --path . --export-debug "Android" "${RUNNER_TEMP}/AcademiaDoZero-debug.apk"
+          godot --headless --path . --import
+          godot --headless --path . --export-debug "Android" "${RUNNER_TEMP}/AcademiaDoZero-debug.apk"
           ls -la "${RUNNER_TEMP}/AcademiaDoZero-debug.apk"
 
       - name: Publicar artifact
