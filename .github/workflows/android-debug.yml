@@ -1,0 +1,90 @@
+## CI — Build do APK debug (artifact)
+## Descarrega o Godot 4.7.2 + export templates (GitHub releases do godotengine),
+## gera um keystore DEBUG descartável dentro do runner (NUNCA commitado) e
+## exporta AcademiaDoZero-debug.apk. O artifact fica 90 dias para download.
+## Dispara em pushes que alterem ESTE ficheiro (é assim que ele arranca a
+## primeira vez — workflow_dispatch só é válido em workflows no branch default)
+## e manualmente. Não gasta runs a cada push.
+name: Android debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - arena/498f65a7-the-giselle-project
+    paths:
+      - .github/workflows/android-debug.yml
+jobs:
+  apk:
+    name: Export debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: barichello/godot-ci:4.7.2
+    env:
+      GODOT_BIN: godot
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Android SDK (caminho real da imagem barichello)
+        run: |
+          echo "ANDROID_HOME=/usr/lib/android-sdk" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=/usr/lib/android-sdk" >> "$GITHUB_ENV"
+          /usr/lib/android-sdk/platform-tools/adb version 2>&1 | head -2 || true
+          godot --version
+
+      - name: Keystore debug descartável (só no runner)
+        run: |
+          keytool -genkeypair -keystore "${RUNNER_TEMP}/giselle-debug.keystore" \
+            -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 11000 \
+            -storepass android -keypass android \
+            -dname "CN=Academia do Zero Debug,O=Arena AI,C=MZ"
+          sed -i "s#^keystore/debug=\"\"#keystore/debug=\"${RUNNER_TEMP}/giselle-debug.keystore\"#" export_presets.cfg
+          sed -i 's#^keystore/debug_user=""#keystore/debug_user="androiddebugkey"#' export_presets.cfg
+          sed -i 's#^keystore/debug_password=""#keystore/debug_password="android"#' export_presets.cfg
+
+      - name: Configurar templates e Java SDK para o Godot
+        run: |
+          DEST="$HOME/.local/share/godot/export_templates"
+          mkdir -p "$DEST"
+          SRC=$(find /root /usr/local /opt -maxdepth 8 -type d -name "4.7.2.stable" -path "*export_templates*" 2>/dev/null | head -1 || true)
+          if [ -z "$SRC" ]; then
+            SRC=$(find / -maxdepth 10 -xdev -type d -name "4.7.2.stable" -path "*export_templates*" -not -path "$DEST/*" 2>/dev/null | head -1 || true)
+          fi
+          echo "templates detetados em: ${SRC:-NENHUM}"
+          [ -n "$SRC" ] && ln -sfn "$SRC" "$DEST/4.7.2.stable"
+          ls -la "$DEST/4.7.2.stable" 2>&1 | head -8
+          JH=$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")
+          mkdir -p "$HOME/.config/godot"
+          printf '[gd_resource type="EditorSettings" format=3]\n[resource]\nexport/android/java_sdk_path="%s"\nexport/android/android_sdk_path="%s"\n' "$JH" "/usr/lib/android-sdk" > "$HOME/.config/godot/editor_settings-4.tres"
+          echo "java_sdk_path: $JH"; cat "$HOME/.config/godot/editor_settings-4.tres"
+
+      - name: Import dos recursos + exportação APK
+        run: |
+          godot --headless --path . --import > /tmp/import.log 2>&1 || {
+            echo "::error::import falhou: $(tail -c 850 /tmp/import.log | tr '\n' ' ' | sed 's/::error:://g')"
+            exit 1
+          }
+          godot --headless --path . --export-debug "Android" "${RUNNER_TEMP}/AcademiaDoZero-debug.apk" > /tmp/export.log 2>&1 || {
+            echo "::error::export falhou: $(tail -c 850 /tmp/export.log | tr '\n' ' ' | sed 's/::error:://g')"
+            exit 1
+          }
+          ls -la "${RUNNER_TEMP}/AcademiaDoZero-debug.apk"
+
+      - name: Verificar assinatura (apksigner)
+        run: |
+          APKSIGNER=/usr/lib/android-sdk/build-tools/33.0.2/apksigner
+          if ! "$APKSIGNER" verify --verbose --print-certs "${RUNNER_TEMP}/AcademiaDoZero-debug.apk" > /tmp/verify.log 2>&1; then
+            echo "::error::apk não verifica: $(tail -c 600 /tmp/verify.log | tr '\n' ' ' | sed 's/::error:://g')"
+            exit 1
+          fi
+          head -6 /tmp/verify.log
+
+      - name: Publicar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AcademiaDoZero-android-debug-apk
+          path: ${{ runner.temp }}/AcademiaDoZero-debug.apk
+          retention-days: 90
+          if-no-files-found: error

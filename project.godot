@@ -1,0 +1,47 @@
+; Engine configuration file.
+; A Academia do Zero — vertical slice v0.1
+
+config_version=5
+
+[application]
+
+config/name="A Academia do Zero"
+config/description="RPG de ação em terceira pessoa: um rapaz sem magia num mundo dominado pela magia."
+run/main_scene="res://scenes/title.tscn"
+config/features=PackedStringArray("4.2", "GL Compatibility")
+config/icon="res://assets/art/key_art.jpg"
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://l10n/game.en.translation", "res://l10n/game.es.translation")
+locale/fallback="pt"
+
+[autoload]
+
+Keymap="*res://src/core/input_setup.gd"
+Balance="*res://src/core/balance.gd"
+GameState="*res://src/core/game_state.gd"
+Audio="*res://src/core/audio.gd"
+Dialogue="*res://src/ui/dialogue.gd"
+UI="*res://src/ui/ui.gd"
+Touch="*res://src/mobile/touch_controls.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/handheld/orientation="landscape"
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/title="A Academia do Zero"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+
+[rendering]
+
+lights_and_shadows/directional_shadow/size=2048
+lights_and_shadows/directional_shadow/soft_shadow_filter=true

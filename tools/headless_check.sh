@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+## Smoke test headless pós-build (Linux, sem X11):
+##   1) importa todos os artefactos (detecta erros de import/recursos)
+##   2) executa cenas principais durante alguns frames (detecta erros de runtime,
+##      autoloads, .tscn inválidos, scripts que não compilam no load)
+## Uso: tools/headless_check.sh [caminho/para/o/binário/godot]
+set -uo pipefail
+PROJ="$(cd "$(dirname "$0")/.." && pwd)"
+if [ $# -ge 1 ]; then
+	GODOT_BIN="$1"
+elif [ -x "$PROJ/tools/.bin/godot" ]; then
+	GODOT_BIN="$PROJ/tools/.bin/godot"
+elif [ -f "$PROJ/tools/.bin/godot.gz" ]; then
+	# /tmp é efémero entre sessões — extrair o binário comprimido para lá
+	GODOT_BIN="/tmp/giselle_godot"
+	if [ ! -x "$GODOT_BIN" ] || [ "$GODOT_BIN" -ot "$PROJ/tools/.bin/godot.gz" ]; then
+		echo "== tools/.bin/godot.gz encontrado — a extrair para $GODOT_BIN (uma vez por sessão)"
+		if ! gzip -dc "$PROJ/tools/.bin/godot.gz" > "$GODOT_BIN"; then echo "   ! falha ao extrair godot.gz"; exit 1; fi
+		chmod +x "$GODOT_BIN"
+	fi
+else
+	GODOT_BIN="godot"
+fi
+cd "$PROJ" || exit 1
+
+echo "== versão ($GODOT_BIN)"
+"$GODOT_BIN" --headless --version || exit 1
+
+echo "== import de artefactos"
+"$GODOT_BIN" --headless --path "$PROJ" --import 2>&1 | tail -25
+
+fail=0
+run_scene () {
+	local scene="$1" frames="${2:-120}"
+	echo "== smoke: $scene ($frames frames)"
+	local log
+	log="/tmp/smoke_$(basename "$scene" .tscn).log"
+	"$GODOT_BIN" --headless --path "$PROJ" "$scene" --quit-after "$frames" > "$log" 2>&1
+	local code=$?
+	if grep -iE "SCRIPT ERROR|Parse Error|Failed to instantiate an autoload|Failed to load script" "$log" | head -10; then
+		echo "   ^  ERROS de script em $log — falha"
+		fail=1
+	fi
+	if grep -iE "Failed to|Nonexistent|ERROR" "$log" | grep -v "resources still in use" | head -10; then
+		echo "   ^  avisos em $log (não bloqueantes)"
+	fi
+	[ $code -ne 0 ] && { echo "   ! código de saída $code"; fail=1; }
+}
+run_scene res://scenes/title.tscn 120
+run_scene res://scenes/main.tscn 240
+run_scene res://scenes/academia.tscn 240
+run_scene res://scenes/region.tscn 240
+run_scene res://scenes/sala_branca.tscn 240
+[ $fail -ne 0 ] && echo "SMOKE: FALHAS (ver /tmp/smoke_*.log)" || echo "SMOKE OK"
+exit $fail

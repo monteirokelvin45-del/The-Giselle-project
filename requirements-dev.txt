@@ -1,0 +1,3 @@
+# Dependências de desenvolvimento (CI + ferramentas locais)
+# gdtoolkit fornece gdparse/gdlint/gdformat usados por tools/validate.py
+gdtoolkit>=4.0.0

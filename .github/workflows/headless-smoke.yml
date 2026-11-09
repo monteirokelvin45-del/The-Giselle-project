@@ -1,0 +1,72 @@
+## CI — Godot headless smoke tests
+## Descarrega o binário oficial linux x86_64 do Godot 4.7.2-stable (release
+## do GitHub do projeto godotengine) e corre: validate.py, import de recursos,
+## boot smoke das 5 cenas (gate de erros de script), i18n runtime check
+## (PT/EN/ES no próprio engine), smoke_test (asserções de jogabilidade) e
+## smoke_flows (fluxos Sala Branca/Academia).
+## Nada de display/X11 é necessário — tudo corre com --headless.
+name: CI — Godot headless smoke
+
+on:
+  push:
+    branches: [main, arena/498f65a7-the-giselle-project]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: headless-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  headless:
+    name: Import + smoke (headless)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GODOT_VERSION: 4.7.2-stable
+      GODOT_ZIP: Godot_v4.7.2-stable_linux.x86_64.zip
+      GODOT_BIN: /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Bibliotecas de sistema para o Godot headless
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libfontconfig1 libx11-6 libxcursor1 libxinerama1 libxrandr2 \
+            libxi6 libgl1 libegl1 libglib2.0-0 ca-certificates unzip
+
+      - name: Descarregar Godot ${{ env.GODOT_VERSION }}
+        run: |
+          curl -sL -o /tmp/godot.zip \
+            --retry 5 --retry-delay 15 --retry-all-errors \
+            "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/${GODOT_ZIP}"
+          mkdir -p /tmp/godot-bin
+          unzip -o /tmp/godot.zip -d /tmp/godot-bin
+          chmod +x "${GODOT_BIN}"
+          "${GODOT_BIN}" --version
+
+      - name: Ferramentas Python (gdtoolkit → gdparse)
+        run: python3 -m pip install --user -r requirements-dev.txt
+
+      - name: validate.py (verificação estrutural)
+        run: python3 tools/validate.py
+
+      - name: headless_check.sh (import + boot das 5 cenas)
+        run: ./tools/headless_check.sh "${GODOT_BIN}"
+
+      # Gate i18n em runtime: exige o import feito acima (headless_check.sh
+      # corre --import). tr() só funciona com as .translation geradas.
+      - name: i18n runtime check (PT/EN/ES)
+        run: "${GODOT_BIN} --headless --path . --script tools/i18n_runtime_check.gd"
+
+      - name: smoke_test.tscn (asserções de jogabilidade)
+        run: "${GODOT_BIN} --headless --path . res://tools/smoke_test.tscn"
+
+      - name: stress_test.tscn (10 inimigos, pool de projéteis)
+        run: "${GODOT_BIN} --headless --path . res://tools/stress_test.tscn"
+
+      - name: smoke_flows.tscn (fluxos Sala Branca + Academia)
+        run: "${GODOT_BIN} --headless --path . res://tools/smoke_flows.tscn"
