@@ -72,6 +72,15 @@ jobs:
           }
           ls -la "${RUNNER_TEMP}/AcademiaDoZero-debug.apk"
 
+      - name: Verificar assinatura (apksigner)
+        run: |
+          APKSIGNER=/usr/lib/android-sdk/build-tools/33.0.2/apksigner
+          if ! "$APKSIGNER" verify --verbose --print-certs "${RUNNER_TEMP}/AcademiaDoZero-debug.apk" > /tmp/verify.log 2>&1; then
+            echo "::error::apk não verifica: $(tail -c 600 /tmp/verify.log | tr '\n' ' ' | sed 's/::error:://g')"
+            exit 1
+          fi
+          head -6 /tmp/verify.log
+
       - name: Publicar artifact
         uses: actions/upload-artifact@v4
         with:
