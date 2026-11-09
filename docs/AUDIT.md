@@ -1320,3 +1320,43 @@ abrir (permito instalar de origens desconhecidas se pedir) ou
 first-launch é possível (era impossível provar ecrã na runner).
 Validade da assinatura: debug (10 000 dias). Nenhum ficheiro do repo
 muda para instalar este APK.
+
+## 37. APK rejeitado pelo telemóvel — «não encontrou certificado» (2026-11-09)
+
+**Sintoma (do dono, foto do ecrã):** «O analisador não encontrou nenhum
+certificado no pacote de instalação.» Instalação bloqueada no MIUI
+(«Fonte de instalação: ZArchiver»).
+
+**Causa (nossa, não tua):** `export_presets.cfg` continha
+`package/signed=false` — o Godot exportou o pacote de propósito sem
+assignatura. Zero telemóvel instala um APK sem certificado; o erro está
+100% explicado por aquela linha.
+
+**Correção (`4eaf199`):** preset → `package/signed=true` (debug usa a
+keystore de debug configurada no workflow — descartável, nunca
+commitada). Adicionado ao workflow o passo **Verificar assinatura
+(apksigner)** antes de publicar o artifact: se o pacote não verificar,
+o artifact não é publicado. Build verde: run `42562790700` — artifact
+(53 MB) assinado e pronto.
+
+**Como o dono instala a nova (a antiga nem navegaria a «detetado
+como pacote»):**
+1. apagar qualquer ficheiro antigo do download;
+2. descompactar o zip do artifact novo e instalar
+   `AcademiaDoZero-debug.apk`;
+3. se o telemóvel insistir em «certificado», verificar que o ficheiro é
+   o NOVO (55 876 487 bytes).
+
+**Incidente irmão (honesto):** durante esta ronda o `.git` do sandbox
+**rolou para trás outra vez** (teste de fast-forward falhou
+«9b6a63a..fbbc836» sobre a Initial commit). Recuperação padrão:
+`fetch` + `reset --mixed origin/…` (nunca `--hard`) — a árvore voltou a
+`70fa3d2` intacta com apenas os 2 ficheiros alterados; commit refeito
+por cima do tip correto (`4eaf199`). Nenhum dado perdido; commits
+fbbc836 ficou dangling, nada fora removido. Este é o 3º rollback do
+mesmo tipo nesta branch — o essencial: **o remoto (GitHub) nunca é
+atingido** e está sempre à frente.
+
+**Custo:** +2 runs (push+PR-smoke) e 1 run do workflow APK
+(`42562790700`, ~1 min). Somado ao padrão de CI desta branch, fica
+tudo registado aqui e no §36.
