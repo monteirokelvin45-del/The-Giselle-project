@@ -1360,3 +1360,13 @@ atingido** e está sempre à frente.
 **Custo:** +2 runs (push+PR-smoke) e 1 run do workflow APK
 (`42562790700`, ~1 min). Somado ao padrão de CI desta branch, fica
 tudo registado aqui e no §36.
+
+## 38. 2026-11-09 — Decisão do dono: Trilho B (high-poly/PBR flagship)
+
+Dono pediu «trocar low poly por high poly e PBR»; pedido clarificado
+como **Trilho B — flagship** (não a variante «PBR-móbil» A). Documentado
+em `docs/TRILHO-B.md`: verdades (não esculpo malhas), alvo de hardware
+Vulkan ≥ mid-2018/6 GB, APK ~400–800 MB → Android App Bundle, fases B1–B7
+com gates de instala-por-cima, licenças CC0/CC-BY/mit/apache/BSD apenas.
+Nenhuma alteração de código ou pipeline até o dono decidir os 6 pontos
+do §7 (Y62, equipa, budget, versão, ordem doc×impl, arquivo das imagens).
